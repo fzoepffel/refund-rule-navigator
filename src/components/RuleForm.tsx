@@ -654,7 +654,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Sonderregeln</Label>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Checkbox 
@@ -718,14 +717,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   />
                 )}
               </div>
-            </div>
-          </div>
-          
-          <Separator />
-          
-          <div className="space-y-2">
-            <Label>Zusatzaktionen</Label>
-            <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Checkbox 
                   id="requestPictures" 
