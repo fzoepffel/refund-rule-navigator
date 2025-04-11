@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calculator, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 interface RuleCalculatorProps {
   rule: DiscountRule;
@@ -22,8 +24,11 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
   const [discountAmount, setDiscountAmount] = useState<DiscountResult | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const { toast } = useToast();
   
   const handleCalculate = () => {
+    setHasError(false);
     const newRequestCount = requestCount + 1;
     setRequestCount(newRequestCount);
     
@@ -41,6 +46,16 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     if (rule.returnStrategy === 'discount_then_keep') {
       // Always offer discount, even after multiple requests
       const amount = calculateDiscount(salePrice, rule);
+      
+      if (typeof amount === 'string') {
+        setHasError(true);
+        toast({
+          title: "Fehler bei der Berechnung",
+          description: "Der Nachlassbetrag konnte nicht berechnet werden.",
+          variant: "destructive",
+        });
+      }
+      
       setDiscountAmount({
         amount,
         message: typeof amount === 'number' && amount >= salePrice ? 'Volle Erstattung ohne Rücksendung' : '',
@@ -87,6 +102,16 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       
       // First request - calculate normal discount
       const amount = calculateDiscount(salePrice, rule);
+      
+      if (typeof amount === 'string') {
+        setHasError(true);
+        toast({
+          title: "Fehler bei der Berechnung",
+          description: "Der Nachlassbetrag konnte nicht berechnet werden.",
+          variant: "destructive",
+        });
+      }
+      
       setDiscountAmount({
         amount,
         message: '',
@@ -127,7 +152,16 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
         </Button>
         
-        {discountAmount !== null && (
+        {hasError && (
+          <Alert variant="destructive" className="mt-2">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Der Nachlassbetrag konnte nicht berechnet werden. Bitte überprüfen Sie die Eingabe oder wenden Sie sich an den Support.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {discountAmount !== null && !hasError && (
           <div className="mt-4">
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="text-muted-foreground">Verkaufspreis:</div>
