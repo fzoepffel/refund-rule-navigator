@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
@@ -76,12 +75,14 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           description: `Nachlass auf ${nextLevelPercentage}% erhöht.`
         });
       } 
-      // If we've exhausted all discount levels or if the return strategy is "discount_then_return"
+      // If we've exhausted all discount levels or if the return strategy is "discount_then_return" or "discount_then_keep"
       else if (rule.returnStrategy === 'discount_then_return' || 
               rule.returnStrategy === 'discount_then_keep') {
-        // Offer full refund and return if strategy is discount_then_return
+        // Offer full refund based on return strategy
         if (rule.returnStrategy === 'discount_then_return') {
           handleFullRefundAndReturn();
+        } else if (rule.returnStrategy === 'discount_then_keep') {
+          handleFullRefundNoReturn();
         } else {
           toast({
             title: "Maximaler Nachlass erreicht",
@@ -93,9 +94,11 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     } 
     // For non-ladder rules or rules without discount levels
     else {
-      // If return strategy is "discount_then_return" and we're not already offering a return
+      // Handle based on return strategy
       if (rule.returnStrategy === 'discount_then_return' && !offeringReturn) {
         handleFullRefundAndReturn();
+      } else if (rule.returnStrategy === 'discount_then_keep' && !offeringReturn) {
+        handleFullRefundNoReturn();
       } else {
         toast({
           title: "Keine weiteren Angebotsstufen",
@@ -114,6 +117,17 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     toast({
       title: "Vollerstattung angeboten",
       description: "Der Kunde erhält eine volle Rückerstattung und muss den Artikel zurücksenden.",
+    });
+  };
+  
+  const handleFullRefundNoReturn = () => {
+    // Set full refund as the discount amount (100% of sale price) but don't require return
+    setDiscountAmount(salePrice);
+    setOfferingReturn(false);
+    
+    toast({
+      title: "Vollerstattung angeboten",
+      description: "Der Kunde erhält eine volle Rückerstattung und muss den Artikel NICHT zurücksenden.",
     });
   };
   
@@ -163,6 +177,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                 {/* Show reject button in the following cases:
                     1. For angebotsstaffel rules with more discount levels available
                     2. For rules with discount_then_return strategy that haven't yet offered a return
+                    3. For rules with discount_then_keep strategy that haven't yet offered a full refund
                 */}
                 {(
                   // For angebotsstaffel rules with more levels
@@ -171,7 +186,10 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                    currentDiscountLevel < rule.discountLevels.length - 1) ||
                   
                   // For rules with discount_then_return strategy that haven't offered a return yet
-                  (rule.returnStrategy === 'discount_then_return' && !offeringReturn)
+                  (rule.returnStrategy === 'discount_then_return' && !offeringReturn) ||
+                  
+                  // For rules with discount_then_keep strategy that haven't offered a full refund yet
+                  (rule.returnStrategy === 'discount_then_keep' && discountAmount < salePrice)
                 ) && (
                   <Button 
                     variant="destructive" 
@@ -182,10 +200,15 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                   </Button>
                 )}
                 
-                {offeringReturn && (
+                {offeringReturn ? (
                   <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800">
                     <div className="font-medium">Retoure erforderlich</div>
                     <div className="text-sm">Der Artikel muss zurückgesendet werden.</div>
+                  </div>
+                ) : discountAmount === salePrice && rule.returnStrategy === 'discount_then_keep' && (
+                  <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded-md text-green-800">
+                    <div className="font-medium">Keine Retoure erforderlich</div>
+                    <div className="text-sm">Der Artikel muss NICHT zurückgesendet werden.</div>
                   </div>
                 )}
               </>

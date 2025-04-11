@@ -138,6 +138,7 @@ export const sampleRules: DiscountRule[] = [
     shippingType: "spedition",
     requestPictures: true,
     consultPartnerBeforePayout: true,
+    returnStrategy: "discount_then_keep",
     noReturnOnFullRefund: true
   }
 ];
