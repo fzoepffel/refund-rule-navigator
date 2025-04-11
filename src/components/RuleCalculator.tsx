@@ -6,126 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calculator, AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { Calculator } from "lucide-react";
 
 interface RuleCalculatorProps {
   rule: DiscountRule;
 }
 
-interface DiscountResult {
-  amount: number | string;
-  message?: string;
-  isReturnRequired?: boolean;
-}
-
 const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
-  const [discountAmount, setDiscountAmount] = useState<DiscountResult | null>(null);
-  const [requestCount, setRequestCount] = useState<number>(0);
-  const [hasError, setHasError] = useState<boolean>(false);
-  const { toast } = useToast();
+  const [discountAmount, setDiscountAmount] = useState<number | string | null>(null);
   
   const handleCalculate = () => {
-    setHasError(false);
-    const newRequestCount = requestCount + 1;
-    setRequestCount(newRequestCount);
-    
-    // Handle different return strategies
-    if (rule.returnStrategy === 'auto_return_full_refund') {
-      // Automatic return with full refund
-      setDiscountAmount({
-        amount: salePrice,
-        message: 'Automatische Retoure mit voller Kostenerstattung',
-        isReturnRequired: true
-      });
-      return;
-    }
-    
-    if (rule.returnStrategy === 'discount_then_keep') {
-      // Always offer discount, even after multiple requests
-      const amount = calculateDiscount(salePrice, rule);
-      
-      if (typeof amount === 'string') {
-        setHasError(true);
-        toast({
-          title: "Fehler bei der Berechnung",
-          description: "Der Nachlassbetrag konnte nicht berechnet werden.",
-          variant: "destructive",
-        });
-      }
-      
-      setDiscountAmount({
-        amount,
-        message: typeof amount === 'number' && amount >= salePrice ? 'Volle Erstattung ohne Rücksendung' : '',
-        isReturnRequired: false
-      });
-      return;
-    }
-    
-    if (rule.returnStrategy === 'discount_then_return') {
-      // Check if there are discount levels defined
-      if (rule.discountLevels && rule.discountLevels.length > 0) {
-        // If we've exhausted all levels, process full refund with return
-        if (newRequestCount > rule.discountLevels.length) {
-          setDiscountAmount({
-            amount: salePrice,
-            message: 'Volle Erstattung mit Retourenanforderung',
-            isReturnRequired: true
-          });
-          return;
-        }
-        
-        // Otherwise use the current level
-        const levelIndex = newRequestCount - 1;
-        const discountPercent = rule.discountLevels[levelIndex];
-        const amount = (salePrice * discountPercent) / 100;
-        
-        setDiscountAmount({
-          amount,
-          message: `Stufe ${newRequestCount} von ${rule.discountLevels.length}: ${discountPercent}% Nachlass`,
-          isReturnRequired: false
-        });
-        return;
-      }
-      
-      // If no levels are defined, use default behavior
-      if (newRequestCount > 1) {
-        setDiscountAmount({
-          amount: salePrice,
-          message: 'Volle Erstattung mit Retourenanforderung',
-          isReturnRequired: true
-        });
-        return;
-      }
-      
-      // First request - calculate normal discount
-      const amount = calculateDiscount(salePrice, rule);
-      
-      if (typeof amount === 'string') {
-        setHasError(true);
-        toast({
-          title: "Fehler bei der Berechnung",
-          description: "Der Nachlassbetrag konnte nicht berechnet werden.",
-          variant: "destructive",
-        });
-      }
-      
-      setDiscountAmount({
-        amount,
-        message: '',
-        isReturnRequired: false
-      });
-    }
-  };
-  
-  // Calculate the final price after discount
-  const calculateFinalPrice = () => {
-    if (!discountAmount || typeof discountAmount.amount !== 'number') {
-      return salePrice;
-    }
-    return salePrice - discountAmount.amount;
+    const amount = calculateDiscount(salePrice, rule);
+    setDiscountAmount(amount);
   };
   
   return (
@@ -152,50 +45,15 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
         </Button>
         
-        {hasError && (
-          <Alert variant="destructive" className="mt-2">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Der Nachlassbetrag konnte nicht berechnet werden. Bitte überprüfen Sie die Eingabe oder wenden Sie sich an den Support.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {discountAmount !== null && !hasError && (
-          <div className="mt-4">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="text-muted-foreground">Verkaufspreis:</div>
-              <div className="font-medium text-right">{formatCurrency(salePrice)}</div>
-              
-              <div className="text-muted-foreground">Nachlass:</div>
-              <div className="font-medium text-right text-destructive">
-                -{formatCurrency(discountAmount.amount)}
-              </div>
-              
-              {typeof discountAmount.amount === 'number' && !discountAmount.isReturnRequired && (
-                <>
-                  <div className="text-muted-foreground font-medium">Neuer Preis:</div>
-                  <div className="font-bold text-right border-t pt-1">{formatCurrency(calculateFinalPrice())}</div>
-                </>
-              )}
-            </div>
-            
-            {discountAmount.message && (
-              <div className={`mt-2 text-sm ${discountAmount.isReturnRequired ? 'text-amber-500 flex items-center justify-center' : 'text-muted-foreground'}`}>
-                {discountAmount.isReturnRequired && <AlertTriangle className="h-4 w-4 mr-1" />}
-                {discountAmount.message}
-              </div>
-            )}
-          </div>
-        )}
-
-        {requestCount > 0 && (
-          <div className="flex justify-between items-center text-xs text-muted-foreground mt-2 border-t pt-2">
-            <div>Anfrage #{requestCount}</div>
-            {discountAmount && (
-              <div className="font-medium">
-                Nachlass: {formatCurrency(discountAmount.amount)}
-              </div>
+        {discountAmount !== null && (
+          <div className="mt-4 text-center">
+            <div className="text-sm text-muted-foreground">Berechneter Nachlass</div>
+            <div className="text-2xl font-bold">{formatCurrency(discountAmount)}</div>
+            {typeof discountAmount === 'number' && (
+              <>
+                <div className="text-sm text-muted-foreground mt-2">Neuer Preis</div>
+                <div className="text-lg font-medium">{formatCurrency(salePrice - discountAmount)}</div>
+              </>
             )}
           </div>
         )}

@@ -1,101 +1,112 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Package, UserCircle, Store, Settings } from 'lucide-react';
+import React, { useState } from "react";
+import RuleList from "../components/RuleList";
+import RuleDetail from "../components/RuleDetail";
+import RuleForm from "../components/RuleForm";
+import RuleCalculator from "../components/RuleCalculator";
+import DiscountRuleSimulator from "../components/DiscountRuleSimulator";
+import { DiscountRule } from "../models/ruleTypes";
+import { sampleRules } from "../data/sampleRules";
+import { useToast } from "@/hooks/use-toast";
+
+type ViewState = {
+  type: "list" | "detail" | "form";
+  selectedRule?: DiscountRule;
+};
 
 const Index = () => {
+  const [rules, setRules] = useState<DiscountRule[]>(sampleRules);
+  const [viewState, setViewState] = useState<ViewState>({ type: "list" });
+  const { toast } = useToast();
+  
+  const handleSelectRule = (rule: DiscountRule) => {
+    setViewState({ type: "detail", selectedRule: rule });
+  };
+  
+  const handleEditRule = (rule: DiscountRule) => {
+    setViewState({ type: "form", selectedRule: rule });
+  };
+  
+  const handleCreateRule = () => {
+    setViewState({ type: "form" });
+  };
+  
+  const handleSaveRule = (rule: DiscountRule) => {
+    // Update or create rule
+    if (rules.some(r => r.id === rule.id)) {
+      setRules(rules.map(r => r.id === rule.id ? rule : r));
+      toast({
+        title: "Regel aktualisiert",
+        description: `Die Regel "${rule.name}" wurde erfolgreich aktualisiert.`
+      });
+    } else {
+      setRules([...rules, rule]);
+      toast({
+        title: "Neue Regel erstellt",
+        description: `Die Regel "${rule.name}" wurde erfolgreich erstellt.`
+      });
+    }
+    
+    setViewState({ type: "detail", selectedRule: rule });
+  };
+  
+  const handleDeleteRule = (id: string) => {
+    setRules(rules.filter(rule => rule.id !== id));
+    setViewState({ type: "list" });
+    toast({
+      title: "Regel gelöscht",
+      description: "Die Regel wurde erfolgreich gelöscht."
+    });
+  };
+  
+  const handleBackToList = () => {
+    setViewState({ type: "list" });
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">CHECK24 MÖBEL</h1>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Merchant Center</span>
-          <span className="text-sm font-medium">Frederic Zoepffel</span>
+    <div className="min-h-screen bg-background">
+      <div className="container py-6 md:py-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold">Nachlassregel-Navigator</h1>
+          <p className="text-muted-foreground mt-2">Systematische Verwaltung von Preisnachlassregeln für Partner-Händler</p>
+        </header>
+        
+        <div className="grid md:grid-cols-[2fr_1fr] gap-8">
+          <div className="space-y-8">
+            {viewState.type === "list" && (
+              <RuleList 
+                rules={rules} 
+                onSelectRule={handleSelectRule}
+                onEditRule={handleEditRule}
+                onDeleteRule={handleDeleteRule}
+                onCreateRule={handleCreateRule}
+              />
+            )}
+            
+            {viewState.type === "detail" && viewState.selectedRule && (
+              <RuleDetail 
+                rule={viewState.selectedRule} 
+                onBack={handleBackToList}
+                onEdit={handleEditRule}
+              />
+            )}
+            
+            {viewState.type === "form" && (
+              <RuleForm 
+                rule={viewState.selectedRule}
+                onSave={handleSaveRule}
+                onCancel={handleBackToList}
+              />
+            )}
+          </div>
+          
+          <div className="space-y-8">
+            {viewState.type === "detail" && viewState.selectedRule && (
+              <RuleCalculator rule={viewState.selectedRule} />
+            )}
+            <DiscountRuleSimulator rules={rules} />
+          </div>
         </div>
-      </header>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Merchant Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              <Store className="h-5 w-5" />
-              <span>Merchants</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Verwalten Sie Merchants und deren Einstellungen
-            </p>
-            <div className="space-y-2">
-              <Link to="/merchant-rules">
-                <Button variant="outline" className="w-full justify-start">
-                  Lülecci #BWVP <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1 rounded">NEU</span>
-                </Button>
-              </Link>
-              <Button variant="outline" className="w-full justify-start">
-                Beispiel Merchant #1234
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Beispiel Merchant #5678
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Orders Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              <span>Bestellungen</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Aufträge und Bestellungen verwalten
-            </p>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                Alle Bestellungen
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Offene Bestellungen
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Retourenmanagement
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Settings Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              <span>Einstellungen</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Systemeinstellungen und Präferenzen
-            </p>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                Benutzerprofil
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Benachrichtigungen
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                Sicherheit
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
