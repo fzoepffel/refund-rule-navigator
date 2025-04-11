@@ -22,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/merchant-rules" element={<MerchantRules />} />
           <Route path="/rule-simulator" element={<RuleSimulator />} />
+          <Route path="/rule-simulator/:ruleId" element={<RuleSimulator />} />
           <Route path="/rule-editor" element={<RuleEditor />} />
           <Route path="/rule-editor/:id" element={<RuleEditor />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

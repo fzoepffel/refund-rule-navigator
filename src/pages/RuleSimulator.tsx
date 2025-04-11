@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,33 +9,57 @@ import DiscountRuleSimulator from '../components/DiscountRuleSimulator';
 import { DiscountRule, CalculationBase } from '../models/ruleTypes';
 import { sampleRules } from '../data/sampleRules';
 
-// Select demo rules for the simulator
-const simulatorRules: DiscountRule[] = [
-  // Auto return rule
-  sampleRules.find(rule => rule.returnStrategy === 'auto_return_full_refund') || sampleRules[0],
-  
-  // Discount then return rule 
-  sampleRules.find(rule => rule.returnStrategy === 'discount_then_return') || sampleRules[1],
-  
-  // Find or create a rule with discount levels for testing
-  (() => {
-    const discountLadderRule = sampleRules.find(rule => rule.discountLevels && rule.discountLevels.length > 0);
-    if (discountLadderRule) return discountLadderRule;
-    
-    // If no rule with discount levels exists, modify a copy of the first rule
-    const modifiedRule: DiscountRule = { 
-      ...sampleRules[0],
-      id: "ladder_demo",
-      name: "Staffelrabatt Demo",
-      calculationBase: 'angebotsstaffel' as CalculationBase,
-      discountLevels: [10, 25, 50], // 10%, 25%, 50%
-      returnStrategy: 'discount_then_return'
-    };
-    return modifiedRule;
-  })()
-];
-
 const RuleSimulator = () => {
+  const { ruleId } = useParams<{ ruleId: string }>();
+  const navigate = useNavigate();
+  const [selectedRules, setSelectedRules] = useState<DiscountRule[]>([]);
+  
+  useEffect(() => {
+    // If a specific rule ID is provided, find that rule for testing
+    if (ruleId) {
+      const foundRule = sampleRules.find(rule => rule.id === ruleId);
+      if (foundRule) {
+        setSelectedRules([foundRule]);
+      } else {
+        // Rule not found, use default rules
+        setDefaultRules();
+      }
+    } else {
+      // No rule ID provided, use default rules
+      setDefaultRules();
+    }
+  }, [ruleId]);
+  
+  const setDefaultRules = () => {
+    // Select demo rules for the simulator
+    const defaultRules: DiscountRule[] = [
+      // Auto return rule
+      sampleRules.find(rule => rule.returnStrategy === 'auto_return_full_refund') || sampleRules[0],
+      
+      // Discount then return rule 
+      sampleRules.find(rule => rule.returnStrategy === 'discount_then_return') || sampleRules[1],
+      
+      // Find or create a rule with discount levels for testing
+      (() => {
+        const discountLadderRule = sampleRules.find(rule => rule.discountLevels && rule.discountLevels.length > 0);
+        if (discountLadderRule) return discountLadderRule;
+        
+        // If no rule with discount levels exists, modify a copy of the first rule
+        const modifiedRule: DiscountRule = { 
+          ...sampleRules[0],
+          id: "ladder_demo",
+          name: "Staffelrabatt Demo",
+          calculationBase: 'angebotsstaffel' as CalculationBase,
+          discountLevels: [10, 25, 50], // 10%, 25%, 50%
+          returnStrategy: 'discount_then_return'
+        };
+        return modifiedRule;
+      })()
+    ];
+    
+    setSelectedRules(defaultRules);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="mb-6">
@@ -65,11 +89,13 @@ const RuleSimulator = () => {
             </CardContent>
           </Card>
         
-          {/* Individual Rule Calculator */}
-          <RuleCalculator rule={simulatorRules[2]} />
+          {/* Individual Rule Calculator - show only if a specific rule is selected */}
+          {selectedRules.length === 1 && ruleId && (
+            <RuleCalculator rule={selectedRules[0]} />
+          )}
           
           {/* Multiple Rules Simulator */}
-          <DiscountRuleSimulator rules={simulatorRules} />
+          <DiscountRuleSimulator rules={selectedRules} />
         </div>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -8,7 +7,7 @@ import {
 } from "../utils/discountUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
+import { Search, Filter, Plus, Edit, Trash2, Calculator } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -93,6 +92,18 @@ const RuleList: React.FC<RuleListProps> = ({
                     <Badge className={getCostCenterColor(rule.costCenter)}>
                       {getCostCenterLabel(rule.costCenter)}
                     </Badge>
+                    <Link to={`/rule-simulator/${rule.id}`}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        title="Regel testen"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Calculator className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Link to={`/rule-editor/${rule.id}`}>
                       <Button 
                         variant="ghost" 
