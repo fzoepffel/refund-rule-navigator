@@ -43,7 +43,17 @@ const defaultRule: DiscountRule = {
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const [formData, setFormData] = useState<DiscountRule>(rule || { ...defaultRule, id: Date.now().toString() });
   
-  const triggers: Trigger[] = ['widerruf', 'reklamation', 'beschaedigte_ware', 'fehlende_teile', 'geschmackssache', 'sonstiges'];
+  const triggers: Trigger[] = [
+    'widerruf', 
+    'reklamation',
+    'beschaedigte_ware_leicht', 
+    'beschaedigte_ware_mittel',
+    'beschaedigte_ware_schwer',
+    'beschaedigte_ware_unbrauchbar',
+    'fehlende_teile', 
+    'geschmackssache', 
+    'sonstiges'
+  ];
   const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
   const costCenters: CostCenter[] = ['merchant', 'check24'];
