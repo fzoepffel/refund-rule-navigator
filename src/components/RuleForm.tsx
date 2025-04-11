@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -272,6 +273,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 ))}
               </SelectContent>
             </Select>
+            {formData.calculationBase === 'keine_berechnung' && (formData.maxAmount === undefined || formData.maxAmount === null) && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei 'Keine Berechnung' ist eine Rücksprache mit Partner erforderlich.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
           
           {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'fester_betrag') && (
@@ -469,11 +477,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               min={0}
               placeholder="Kein Maximum"
             />
-            {formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined && (
-              <p className="text-sm text-amber-600 mt-1">
-                Bei 'Keine Berechnung' mit Maximalbetrag ist eine Rücksprache mit Partner erforderlich.
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>
