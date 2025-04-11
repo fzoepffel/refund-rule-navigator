@@ -7,36 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { DiscountRule } from '../models/ruleTypes';
-
-// Sample data - in a real application, this would come from an API
-const sampleRules: DiscountRule[] = [
-  {
-    id: '1',
-    name: 'Paket_Preisnachlass gewünscht_Artikel beschädigt/funktioniert nicht mehr',
-    requestType: 'Preisnachlass gewünscht',
-    triggers: ['Artikel beschädigt/funktioniert nicht mehr'],
-    calculationBase: 'prozent_vom_vk',
-    roundingRule: 'keine_rundung',
-    costCenter: 'merchant',
-    returnHandling: 'keine_retoure',
-    shippingType: 'paket',
-    value: 10,
-    returnStrategy: 'discount_then_return',
-  },
-  {
-    id: '2',
-    name: 'Spedition_Artikel zurücksenden_Falscher Artikel',
-    requestType: 'Artikel zurücksenden',
-    triggers: ['Falscher Artikel'],
-    calculationBase: 'fester_betrag',
-    roundingRule: 'auf_5_euro',
-    costCenter: 'check24',
-    returnHandling: 'automatisches_label',
-    shippingType: 'spedition',
-    value: 20,
-    returnStrategy: 'auto_return_full_refund',
-  },
-];
+import { sampleRules } from '../data/sampleRules';
 
 const MerchantRules = () => {
   const [selectedRule, setSelectedRule] = useState<DiscountRule | null>(null);
@@ -53,6 +24,15 @@ const MerchantRules = () => {
   const handleDeleteRule = (id: string) => {
     // Delete rule with confirmation
     console.log('Delete rule:', id);
+    
+    // In a real application, we would delete via an API
+    // For this demo, we'll remove from our sample rules array
+    const index = sampleRules.findIndex(rule => rule.id === id);
+    if (index !== -1) {
+      sampleRules.splice(index, 1);
+      // Force a re-render
+      setSelectedRule(null);
+    }
   };
   
   const handleCreateRule = () => {

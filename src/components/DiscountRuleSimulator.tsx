@@ -91,7 +91,7 @@ const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) =
       
       // First request or default case - calculate normal discount
       const amount = calculateDiscount(salePrice, rule);
-      return { rule, amount };
+      return { rule, amount, message: '', isReturnRequired: false };
     });
     
     // Sort numeric results by amount (highest first), then string results at the end

@@ -3,36 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import RuleForm from '../components/RuleForm';
 import { DiscountRule } from '../models/ruleTypes';
-
-// Sample data - in a real application, this would come from an API
-const sampleRules: DiscountRule[] = [
-  {
-    id: '1',
-    name: 'Paket_Preisnachlass gewünscht_Artikel beschädigt/funktioniert nicht mehr',
-    requestType: 'Preisnachlass gewünscht',
-    triggers: ['Artikel beschädigt/funktioniert nicht mehr'],
-    calculationBase: 'prozent_vom_vk',
-    roundingRule: 'keine_rundung',
-    costCenter: 'merchant',
-    returnHandling: 'keine_retoure',
-    shippingType: 'paket',
-    value: 10,
-    returnStrategy: 'discount_then_return',
-  },
-  {
-    id: '2',
-    name: 'Spedition_Artikel zurücksenden_Falscher Artikel',
-    requestType: 'Artikel zurücksenden',
-    triggers: ['Falscher Artikel'],
-    calculationBase: 'fester_betrag',
-    roundingRule: 'auf_5_euro',
-    costCenter: 'check24',
-    returnHandling: 'automatisches_label',
-    shippingType: 'spedition',
-    value: 20,
-    returnStrategy: 'auto_return_full_refund',
-  },
-];
+import { sampleRules } from '../data/sampleRules';
 
 const RuleEditor = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,7 +25,19 @@ const RuleEditor = () => {
   
   const handleSave = (savedRule: DiscountRule) => {
     console.log('Saving rule:', savedRule);
-    // Here you would save the rule to your backend
+    
+    // In a real application, we would save to an API
+    // For this demo, we can simulate adding/updating to our sample rules
+    if (id) {
+      // Update existing rule
+      const ruleIndex = sampleRules.findIndex(r => r.id === id);
+      if (ruleIndex !== -1) {
+        sampleRules[ruleIndex] = savedRule;
+      }
+    } else {
+      // Add new rule
+      sampleRules.push(savedRule);
+    }
     
     // Navigate back to merchant rules
     navigate('/merchant-rules');
