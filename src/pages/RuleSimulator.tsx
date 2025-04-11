@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import RuleCalculator from '../components/RuleCalculator';
 import DiscountRuleSimulator from '../components/DiscountRuleSimulator';
-import { DiscountRule } from '../models/ruleTypes';
+import { DiscountRule, CalculationBase } from '../models/ruleTypes';
 import { sampleRules } from '../data/sampleRules';
 
 // Select demo rules for the simulator
@@ -23,11 +23,11 @@ const simulatorRules: DiscountRule[] = [
     if (discountLadderRule) return discountLadderRule;
     
     // If no rule with discount levels exists, modify a copy of the first rule
-    const modifiedRule = { 
+    const modifiedRule: DiscountRule = { 
       ...sampleRules[0],
       id: "ladder_demo",
       name: "Staffelrabatt Demo",
-      calculationBase: 'angebotsstaffel',
+      calculationBase: 'angebotsstaffel' as CalculationBase,
       discountLevels: [10, 25, 50], // 10%, 25%, 50%
       returnStrategy: 'discount_then_return'
     };

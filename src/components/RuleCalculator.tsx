@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
@@ -11,9 +12,15 @@ interface RuleCalculatorProps {
   rule: DiscountRule;
 }
 
+interface DiscountResult {
+  amount: number | string;
+  message?: string;
+  isReturnRequired?: boolean;
+}
+
 const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
-  const [discountAmount, setDiscountAmount] = useState<number | string | null>(null);
+  const [discountAmount, setDiscountAmount] = useState<DiscountResult | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
   
   const handleCalculate = () => {
@@ -116,19 +123,17 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           <div className="mt-4 text-center">
             <div className="text-sm text-muted-foreground">Berechneter Nachlass</div>
             <div className="text-2xl font-bold">
-              {typeof discountAmount === 'object' 
-                ? formatCurrency(discountAmount.amount) 
-                : formatCurrency(discountAmount)}
+              {formatCurrency(discountAmount.amount)}
             </div>
             
-            {typeof discountAmount === 'object' && discountAmount.message && (
+            {discountAmount.message && (
               <div className={`mt-2 text-sm ${discountAmount.isReturnRequired ? 'text-amber-500 flex items-center justify-center' : 'text-muted-foreground'}`}>
                 {discountAmount.isReturnRequired && <AlertTriangle className="h-4 w-4 mr-1" />}
                 {discountAmount.message}
               </div>
             )}
             
-            {typeof discountAmount === 'object' && typeof discountAmount.amount === 'number' && !discountAmount.isReturnRequired && (
+            {typeof discountAmount.amount === 'number' && !discountAmount.isReturnRequired && (
               <>
                 <div className="text-sm text-muted-foreground mt-2">Neuer Preis</div>
                 <div className="text-lg font-medium">{formatCurrency(salePrice - discountAmount.amount)}</div>

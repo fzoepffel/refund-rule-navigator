@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
@@ -7,14 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Euro, AlertTriangle } from "lucide-react";
 
+interface SimulatorResult {
+  rule: DiscountRule;
+  amount: number | string;
+  message?: string;
+  isReturnRequired?: boolean;
+}
+
 const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
-  const [results, setResults] = useState<{ 
-    rule: DiscountRule; 
-    amount: number | string;
-    message?: string;
-    isReturnRequired?: boolean;
-  }[]>([]);
+  const [results, setResults] = useState<SimulatorResult[]>([]);
   const [requestCounts, setRequestCounts] = useState<Record<string, number>>({});
   
   const handleSimulate = () => {
