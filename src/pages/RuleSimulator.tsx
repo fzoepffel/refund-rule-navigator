@@ -6,35 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import RuleCalculator from '../components/RuleCalculator';
 import DiscountRuleSimulator from '../components/DiscountRuleSimulator';
+import { DiscountRule } from '../models/ruleTypes';
+import { sampleRules } from '../data/sampleRules';
 
-// Sample rules for demonstration
-const sampleRules = [
-  {
-    id: '1',
-    name: 'Paket_Preisnachlass gewünscht_Artikel beschädigt/funktioniert nicht mehr',
-    requestType: 'Preisnachlass gewünscht',
-    triggers: ['Artikel beschädigt/funktioniert nicht mehr'],
-    calculationBase: 'prozent_vom_vk',
-    roundingRule: 'keine_rundung',
-    costCenter: 'merchant',
-    returnHandling: 'keine_retoure',
-    shippingType: 'paket',
-    value: 10,
-    returnStrategy: 'discount_then_return',
-  },
-  {
-    id: '2',
-    name: 'Spedition_Artikel zurücksenden_Falscher Artikel',
-    requestType: 'Artikel zurücksenden',
-    triggers: ['Falscher Artikel'],
-    calculationBase: 'fester_betrag',
-    roundingRule: 'auf_5_euro',
-    costCenter: 'check24',
-    returnHandling: 'automatisches_label',
-    shippingType: 'spedition',
-    value: 20,
-    returnStrategy: 'auto_return_full_refund',
-  },
+// Select a few sample rules for the simulator
+const simulatorRules: DiscountRule[] = [
+  // Using existing rules from the sampleRules array
+  sampleRules.find(rule => rule.id === "2") || sampleRules[0],
+  sampleRules.find(rule => rule.id === "8") || sampleRules[1]
 ];
 
 const RuleSimulator = () => {
@@ -52,10 +31,10 @@ const RuleSimulator = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Individual Rule Calculator */}
-          <RuleCalculator rule={sampleRules[0]} />
+          <RuleCalculator rule={simulatorRules[0]} />
           
           {/* Multiple Rules Simulator */}
-          <DiscountRuleSimulator rules={sampleRules} />
+          <DiscountRuleSimulator rules={simulatorRules} />
         </div>
       </div>
     </div>
