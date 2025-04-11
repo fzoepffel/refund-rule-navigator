@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
-import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
+import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -59,24 +58,13 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       
       // If we have more discount levels available, show the next one
       if (nextLevel < rule.discountLevels.length) {
-        // Calculate new discount amount based on the next level
+        // Get the next level discount object
         const nextLevelDiscount = rule.discountLevels[nextLevel];
-        let newAmount = 0;
         
-        // Calculate based on the value type
-        if (nextLevelDiscount.valueType === 'percent') {
-          newAmount = (salePrice * nextLevelDiscount.value) / 100;
-        } else {
-          // Fixed amount
-          newAmount = nextLevelDiscount.value;
-        }
+        // Calculate the new amount using our helper function, which applies rounding
+        const newAmount = calculateDiscountForLevel(salePrice, nextLevelDiscount, rule);
         
-        // Apply max amount limit if it exists
-        const finalAmount = rule.maxAmount && newAmount > rule.maxAmount 
-          ? rule.maxAmount 
-          : newAmount;
-          
-        setDiscountAmount(finalAmount);
+        setDiscountAmount(newAmount);
         setCurrentDiscountLevel(nextLevel);
         
         const valueLabel = nextLevelDiscount.valueType === 'percent' 
@@ -190,7 +178,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                 {/* Show reject button in the following cases:
                     1. For angebotsstaffel rules with more discount levels available
                     2. For rules with discount_then_return strategy that haven't yet offered a return
-                    3. For rules with discount_then_keep strategy that haven't yet offered a full refund
+                    3. For rules with discount_then_keep strategy that haven't offered a full refund
                 */}
                 {(
                   // For angebotsstaffel rules with more levels

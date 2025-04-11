@@ -148,6 +148,31 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
 };
 
 /**
+ * Calculate discount for a specific level in a discount ladder
+ */
+export const calculateDiscountForLevel = (
+  salePrice: number, 
+  level: DiscountLevel, 
+  rule: DiscountRule
+): number => {
+  let amount = 0;
+  
+  if (level.valueType === 'percent') {
+    amount = (salePrice * level.value) / 100;
+  } else {
+    amount = level.value;
+  }
+  
+  // Apply max amount limit if it exists
+  if (rule.maxAmount && amount > rule.maxAmount) {
+    amount = rule.maxAmount;
+  }
+  
+  // Apply rounding rule
+  return applyRoundingRule(amount, rule.roundingRule);
+};
+
+/**
  * Format a number as currency (EUR)
  */
 export const formatCurrency = (value: number | string): string => {
