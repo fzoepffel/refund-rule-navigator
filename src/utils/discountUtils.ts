@@ -88,3 +88,76 @@ export function getReturnStrategyLabel(strategy: string): string {
       return strategy;
   }
 }
+
+export function getShippingTypeLabel(shippingType: string): string {
+  switch (shippingType) {
+    case 'paket':
+      return 'Paket';
+    case 'spedition':
+      return 'Spedition';
+    default:
+      return shippingType;
+  }
+}
+
+/**
+ * Calculates the discount amount based on the rule and sale price
+ */
+export function calculateDiscount(salePrice: number, rule: any): number | string {
+  if (rule.returnStrategy === 'auto_return_full_refund') {
+    return salePrice; // Full refund
+  }
+
+  if (!rule.calculationBase || rule.calculationBase === 'keine_berechnung') {
+    return 'Manuelle Berechnung';
+  }
+
+  let amount = 0;
+  
+  // Calculate base amount
+  switch (rule.calculationBase) {
+    case 'prozent_vom_vk':
+      amount = (salePrice * rule.value) / 100;
+      break;
+    case 'fester_betrag':
+      amount = rule.value;
+      break;
+    default:
+      return 'Komplexe Berechnung';
+  }
+  
+  // Apply rounding
+  switch (rule.roundingRule) {
+    case 'keine_rundung':
+      // No rounding needed
+      break;
+    case 'auf_5_euro':
+      amount = Math.ceil(amount / 5) * 5;
+      break;
+    case 'auf_10_euro':
+      amount = Math.ceil(amount / 10) * 10;
+      break;
+    case 'auf_10_cent':
+      amount = Math.ceil(amount * 10) / 10;
+      break;
+    default:
+      // No rounding for unknown rules
+      break;
+  }
+  
+  return amount;
+}
+
+/**
+ * Formats a number or string as a currency (Euro)
+ */
+export function formatCurrency(amount: number | string): string {
+  if (typeof amount === 'string') {
+    return amount;
+  }
+  
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount);
+}
