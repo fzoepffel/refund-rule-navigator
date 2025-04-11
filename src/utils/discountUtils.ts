@@ -66,7 +66,8 @@ export function getTriggerLabel(trigger: string): string {
     'reklamation': 'Reklamation',
     'beschaedigte_ware': 'Beschädigte Ware',
     'fehlende_teile': 'Fehlende Teile',
-    'geschmackssache': 'Geschmackssache'
+    'geschmackssache': 'Geschmackssache',
+    'sonstiges': 'Sonstiges'
   };
   return labels[trigger] || trigger;
 }
@@ -76,7 +77,7 @@ export function getCalculationBaseLabel(base: string): string {
     'prozent_vom_vk': 'Prozentsatz vom VK',
     'fester_betrag': 'Fester Betrag',
     'preisstaffel': 'Preisstaffel',
-    'nachlassstaffel': 'Nachlassstaffel'
+    'angebotsstaffel': 'Mehrstufiges Angebot'
   };
   return labels[base] || base;
 }
@@ -93,8 +94,7 @@ export function getRoundingRuleLabel(rule: string): string {
 
 export function getCostCenterLabel(center: string): string {
   const labels: Record<string, string> = {
-    'shop': 'Shop',
-    'partner': 'Partner',
+    'merchant': 'Merchant',
     'check24': 'CHECK24'
   };
   return labels[center] || center;

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule, Trigger, CalculationBase, RoundingRule, CostCenter, ReturnHandling } from "../models/ruleTypes";
 import { 
@@ -36,18 +35,18 @@ const defaultRule: DiscountRule = {
   triggers: ["widerruf"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
-  costCenter: "shop",
-  returnHandling: "automatisches_label",
+  costCenter: "merchant",
+  returnHandling: "keine_retoure",
   value: 10
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const [formData, setFormData] = useState<DiscountRule>(rule || { ...defaultRule, id: Date.now().toString() });
   
-  const triggers: Trigger[] = ['widerruf', 'reklamation', 'beschaedigte_ware', 'fehlende_teile', 'geschmackssache'];
-  const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'nachlassstaffel'];
+  const triggers: Trigger[] = ['widerruf', 'reklamation', 'beschaedigte_ware', 'fehlende_teile', 'geschmackssache', 'sonstiges'];
+  const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
-  const costCenters: CostCenter[] = ['shop', 'partner', 'check24'];
+  const costCenters: CostCenter[] = ['merchant', 'check24'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
@@ -149,43 +148,23 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="costCenter">Kostenträger</Label>
-              <Select 
-                value={formData.costCenter} 
-                onValueChange={(value) => handleChange("costCenter", value)}
-              >
-                <SelectTrigger id="costCenter">
-                  <SelectValue placeholder="Kostenträger auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {costCenters.map(center => (
-                    <SelectItem key={center} value={center}>
-                      {getCostCenterLabel(center)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="returnHandling">Retourenabwicklung</Label>
-              <Select 
-                value={formData.returnHandling} 
-                onValueChange={(value) => handleChange("returnHandling", value)}
-              >
-                <SelectTrigger id="returnHandling">
-                  <SelectValue placeholder="Retourenabwicklung auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {returnHandlings.map(handling => (
-                    <SelectItem key={handling} value={handling}>
-                      {getReturnHandlingLabel(handling)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label htmlFor="costCenter">Kostenträger</Label>
+            <Select 
+              value={formData.costCenter} 
+              onValueChange={(value: CostCenter) => handleChange("costCenter", value)}
+            >
+              <SelectTrigger id="costCenter">
+                <SelectValue placeholder="Kostenträger auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {costCenters.map(center => (
+                  <SelectItem key={center} value={center}>
+                    {getCostCenterLabel(center)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -330,17 +309,17 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </div>
           )}
           
-          {formData.calculationBase === 'nachlassstaffel' && (
+          {formData.calculationBase === 'angebotsstaffel' && (
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label>Nachlassstaffelung (in %)</Label>
+                <Label>Angebotsabfolge (in %)</Label>
                 <Button 
                   type="button" 
                   variant="outline" 
                   size="sm" 
                   onClick={handleAddDiscountLevel}
                 >
-                  <Plus className="h-4 w-4 mr-1" /> Level hinzufügen
+                  <Plus className="h-4 w-4 mr-1" /> Stufe hinzufügen
                 </Button>
               </div>
               
@@ -374,7 +353,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 
                 {(!formData.discountLevels || formData.discountLevels.length === 0) && (
                   <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
-                    <Plus className="h-4 w-4 mr-2" /> Erstes Level hinzufügen
+                    <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
                   </Button>
                 )}
               </div>
@@ -443,6 +422,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 />
                 <Label htmlFor="offerDiscountBeforeReturn">
                   Erst Nachlass anbieten, dann Retoure
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="noReturnOnFullRefund" 
+                  checked={formData.noReturnOnFullRefund || false}
+                  onCheckedChange={(checked) => handleChange("noReturnOnFullRefund", checked)}
+                />
+                <Label htmlFor="noReturnOnFullRefund">
+                  Bei voller Erstattung keine Retoure notwendig
                 </Label>
               </div>
             </div>

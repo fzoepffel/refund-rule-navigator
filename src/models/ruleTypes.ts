@@ -4,13 +4,14 @@ export type Trigger =
   | 'reklamation' 
   | 'beschaedigte_ware' 
   | 'fehlende_teile' 
-  | 'geschmackssache';
+  | 'geschmackssache'
+  | 'sonstiges';
 
 export type CalculationBase = 
   | 'prozent_vom_vk' 
   | 'fester_betrag' 
   | 'preisstaffel' 
-  | 'nachlassstaffel';
+  | 'angebotsstaffel';
 
 export type RoundingRule = 
   | 'keine_rundung' 
@@ -19,8 +20,7 @@ export type RoundingRule =
   | 'auf_10_cent';
 
 export type CostCenter = 
-  | 'shop' 
-  | 'partner' 
+  | 'merchant' 
   | 'check24';
 
 export type ReturnHandling = 
@@ -57,6 +57,7 @@ export interface DiscountRule {
   // Special rules
   checkIfProductOpened?: boolean;
   offerDiscountBeforeReturn?: boolean;
+  noReturnOnFullRefund?: boolean;
   
   // Additional actions
   requestPictures?: boolean;
