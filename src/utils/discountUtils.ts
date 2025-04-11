@@ -6,7 +6,9 @@ import {
   RoundingRule, 
   CostCenter, 
   ReturnHandling,
-  ThresholdValueType
+  ThresholdValueType,
+  DiscountRule,
+  PriceThreshold
 } from "../models/ruleTypes";
 
 export const getTriggerLabel = (trigger: Trigger): string => {
@@ -76,4 +78,68 @@ export const applyRoundingRule = (value: number, rule: RoundingRule): number => 
     default:
       return value;
   }
+};
+
+/**
+ * Calculate discount amount based on the rule and sale price
+ */
+export const calculateDiscount = (salePrice: number, rule: DiscountRule): number => {
+  let amount = 0;
+  
+  switch (rule.calculationBase) {
+    case 'fester_betrag':
+      // For fixed amount, just use the value directly
+      amount = rule.value || 0;
+      break;
+      
+    case 'prozent_vom_vk':
+      // For percentage, calculate based on sale price
+      const percentage = rule.value || 0;
+      amount = (salePrice * percentage) / 100;
+      break;
+      
+    case 'preisstaffel':
+      // For price thresholds, find the applicable threshold
+      if (rule.priceThresholds && rule.priceThresholds.length > 0) {
+        const applicableThreshold = rule.priceThresholds.find(
+          threshold => 
+            salePrice >= threshold.minPrice && 
+            (!threshold.maxPrice || salePrice <= threshold.maxPrice)
+        );
+        
+        if (applicableThreshold) {
+          if (applicableThreshold.valueType === 'percent') {
+            amount = (salePrice * applicableThreshold.value) / 100;
+          } else {
+            amount = applicableThreshold.value;
+          }
+        }
+      }
+      break;
+      
+    case 'angebotsstaffel':
+      // For discount levels, use the first level as a simple implementation
+      if (rule.discountLevels && rule.discountLevels.length > 0) {
+        amount = (salePrice * rule.discountLevels[0]) / 100;
+      }
+      break;
+  }
+  
+  // Apply max amount limit if it exists
+  if (rule.maxAmount && amount > rule.maxAmount) {
+    amount = rule.maxAmount;
+  }
+  
+  // Apply rounding rule
+  return applyRoundingRule(amount, rule.roundingRule);
+};
+
+/**
+ * Format a number as currency (EUR)
+ */
+export const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(value);
 };
