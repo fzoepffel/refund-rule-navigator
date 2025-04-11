@@ -9,7 +9,7 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "fester_betrag",
     value: 50,
     roundingRule: "keine_rundung",
-    costCenter: "shop",
+    costCenter: "merchant",
     returnHandling: "automatisches_label"
   },
   {
@@ -19,7 +19,7 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 20,
     roundingRule: "keine_rundung",
-    costCenter: "shop",
+    costCenter: "merchant",
     returnHandling: "automatisches_label"
   },
   {
@@ -28,7 +28,7 @@ export const sampleRules: DiscountRule[] = [
     triggers: ["widerruf", "reklamation"],
     calculationBase: "preisstaffel",
     roundingRule: "auf_5_euro",
-    costCenter: "shop",
+    costCenter: "merchant",
     returnHandling: "manuelles_label",
     priceThresholds: [
       { minPrice: 0, maxPrice: 400, value: 10 },
@@ -37,11 +37,11 @@ export const sampleRules: DiscountRule[] = [
   },
   {
     id: "4",
-    name: "40%-60% Nachlassstaffel",
+    name: "40%-60% Mehrstufiges Angebot",
     triggers: ["widerruf", "reklamation"],
-    calculationBase: "nachlassstaffel",
+    calculationBase: "angebotsstaffel",
     roundingRule: "keine_rundung",
-    costCenter: "shop",
+    costCenter: "merchant",
     returnHandling: "manuelles_label",
     discountLevels: [40, 60, 100],
     checkIfProductOpened: true,
@@ -54,7 +54,7 @@ export const sampleRules: DiscountRule[] = [
     triggers: ["widerruf", "reklamation"],
     calculationBase: "preisstaffel",
     roundingRule: "keine_rundung",
-    costCenter: "shop",
+    costCenter: "merchant",
     returnHandling: "automatisches_label",
     priceThresholds: [
       { minPrice: 0, maxPrice: 100, value: 10 },
@@ -70,7 +70,7 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 10,
     roundingRule: "keine_rundung",
-    costCenter: "partner",
+    costCenter: "merchant",
     returnHandling: "manuelles_label",
     notes: "Leifheit legt Retourenlabel im Paket bei."
   },
@@ -83,5 +83,41 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "auf_10_euro",
     costCenter: "check24",
     returnHandling: "automatisches_label"
+  },
+  {
+    id: "8",
+    name: "Beschädigte Produkte - Ästhetischer Schaden",
+    triggers: ["beschaedigte_ware_leicht"],
+    calculationBase: "prozent_vom_vk",
+    value: 15,
+    roundingRule: "auf_5_euro",
+    costCenter: "merchant",
+    returnHandling: "keine_retoure",
+    requestPictures: true
+  },
+  {
+    id: "9",
+    name: "Stark beschädigte Produkte - Eingeschränkt benutzbar",
+    triggers: ["beschaedigte_ware_mittel"],
+    calculationBase: "prozent_vom_vk",
+    value: 35,
+    roundingRule: "auf_5_euro",
+    costCenter: "merchant",
+    returnHandling: "keine_retoure",
+    requestPictures: true,
+    consultPartnerBeforePayout: true
+  },
+  {
+    id: "10",
+    name: "Schwer beschädigte Produkte",
+    triggers: ["beschaedigte_ware_schwer", "beschaedigte_ware_unbrauchbar"],
+    calculationBase: "angebotsstaffel",
+    discountLevels: [50, 70, 100],
+    roundingRule: "keine_rundung",
+    costCenter: "check24",
+    returnHandling: "keine_retoure",
+    requestPictures: true,
+    consultPartnerBeforePayout: true,
+    noReturnOnFullRefund: true
   }
 ];

@@ -2,7 +2,10 @@
 export type Trigger = 
   | 'widerruf' 
   | 'reklamation' 
-  | 'beschaedigte_ware' 
+  | 'beschaedigte_ware_leicht' // Aesthetic damage only
+  | 'beschaedigte_ware_mittel' // Limited functionality but usable
+  | 'beschaedigte_ware_schwer' // Significantly impaired functionality
+  | 'beschaedigte_ware_unbrauchbar' // Completely unusable
   | 'fehlende_teile' 
   | 'geschmackssache'
   | 'sonstiges';

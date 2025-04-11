@@ -64,7 +64,10 @@ export function getTriggerLabel(trigger: string): string {
   const labels: Record<string, string> = {
     'widerruf': 'Widerruf',
     'reklamation': 'Reklamation',
-    'beschaedigte_ware': 'Beschädigte Ware',
+    'beschaedigte_ware_leicht': 'Ästhetischer Schaden',
+    'beschaedigte_ware_mittel': 'Eingeschränkt benutzbar',
+    'beschaedigte_ware_schwer': 'Stark eingeschränkt benutzbar',
+    'beschaedigte_ware_unbrauchbar': 'Unbrauchbares Produkt',
     'fehlende_teile': 'Fehlende Teile',
     'geschmackssache': 'Geschmackssache',
     'sonstiges': 'Sonstiges'
