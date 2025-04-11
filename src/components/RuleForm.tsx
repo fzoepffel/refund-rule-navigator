@@ -90,6 +90,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['paket', 'spedition'];
   
+  // Generate rule name if empty
+  const generateRuleName = () => {
+    if (formData.name) return formData.name;
+    
+    const shippingTypeLabel = formData.shippingType === "paket" ? "Paket" : "Spedition";
+    const requestTypeLabel = formData.requestType;
+    
+    // Use the first trigger or "Unbekannt" if no triggers are selected
+    let triggerLabel = "Unbekannt";
+    if (formData.triggers && formData.triggers.length > 0) {
+      triggerLabel = formData.triggers[0];
+    }
+    
+    return `${shippingTypeLabel}_${requestTypeLabel}_${triggerLabel}`;
+  };
+  
   // Effect to manage the automatic checking of "consultPartnerBeforePayout" when calculationBase is "keine_berechnung"
   useEffect(() => {
     if (formData.calculationBase === 'keine_berechnung') {
@@ -176,7 +192,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Generate name if empty before saving
+    const finalData = {
+      ...formData,
+      name: generateRuleName()
+    };
+    
+    onSave(finalData);
   };
   
   return (
@@ -199,14 +222,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="name">Regelname</Label>
+            <Label htmlFor="name">Regelname (optional)</Label>
             <Input 
               id="name" 
               value={formData.name} 
               onChange={(e) => handleChange("name", e.target.value)} 
-              placeholder="z.B. Standard Widerruf bis 50€"
-              required
+              placeholder={generateRuleName()}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Leer lassen für automatisch generierten Namen: {generateRuleName()}
+            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
