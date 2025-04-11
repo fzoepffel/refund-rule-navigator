@@ -5,60 +5,33 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import RuleCalculator from '../components/RuleCalculator';
-import DiscountRuleSimulator from '../components/DiscountRuleSimulator';
-import { DiscountRule, CalculationBase } from '../models/ruleTypes';
+import { DiscountRule } from '../models/ruleTypes';
 import { sampleRules } from '../data/sampleRules';
 
 const RuleSimulator = () => {
   const { ruleId } = useParams<{ ruleId: string }>();
   const navigate = useNavigate();
-  const [selectedRules, setSelectedRules] = useState<DiscountRule[]>([]);
+  const [selectedRule, setSelectedRule] = useState<DiscountRule | null>(null);
   
   useEffect(() => {
     // If a specific rule ID is provided, find that rule for testing
     if (ruleId) {
       const foundRule = sampleRules.find(rule => rule.id === ruleId);
       if (foundRule) {
-        setSelectedRules([foundRule]);
+        setSelectedRule(foundRule);
       } else {
-        // Rule not found, use default rules
-        setDefaultRules();
+        // Rule not found, redirect to rules page
+        navigate('/merchant-rules');
       }
     } else {
-      // No rule ID provided, use default rules
-      setDefaultRules();
+      // No rule ID provided, redirect to rules page
+      navigate('/merchant-rules');
     }
-  }, [ruleId]);
-  
-  const setDefaultRules = () => {
-    // Select demo rules for the simulator
-    const defaultRules: DiscountRule[] = [
-      // Auto return rule
-      sampleRules.find(rule => rule.returnStrategy === 'auto_return_full_refund') || sampleRules[0],
-      
-      // Discount then return rule 
-      sampleRules.find(rule => rule.returnStrategy === 'discount_then_return') || sampleRules[1],
-      
-      // Find or create a rule with discount levels for testing
-      (() => {
-        const discountLadderRule = sampleRules.find(rule => rule.discountLevels && rule.discountLevels.length > 0);
-        if (discountLadderRule) return discountLadderRule;
-        
-        // If no rule with discount levels exists, modify a copy of the first rule
-        const modifiedRule: DiscountRule = { 
-          ...sampleRules[0],
-          id: "ladder_demo",
-          name: "Staffelrabatt Demo",
-          calculationBase: 'angebotsstaffel' as CalculationBase,
-          discountLevels: [10, 25, 50], // 10%, 25%, 50%
-          returnStrategy: 'discount_then_return'
-        };
-        return modifiedRule;
-      })()
-    ];
-    
-    setSelectedRules(defaultRules);
-  };
+  }, [ruleId, navigate]);
+
+  if (!selectedRule) {
+    return <div className="p-8 text-center">Lade Regel...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -69,7 +42,7 @@ const RuleSimulator = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">Regelrechner Simulator</h1>
+          <h1 className="text-2xl font-bold">Regelrechner: {selectedRule.name}</h1>
         </div>
         
         <div className="grid grid-cols-1 gap-6">
@@ -79,23 +52,22 @@ const RuleSimulator = () => {
               <CardTitle>Regeln für Nachlass-Anfragen</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2">
-              <p>Der Simulator unterstützt verschiedene Rückgabestrategien:</p>
+              <p>Klicken Sie mehrmals auf "Nachlass berechnen" um zu sehen, wie sich die Nachlässe ändern.</p>
               <ul className="list-disc list-inside space-y-1">
-                <li><strong>Automatische Retoure:</strong> Sofort volle Erstattung mit Retoure</li>
-                <li><strong>Preisnachlass anbieten:</strong> Erst Preisnachlass, nach mehreren Anfragen Retoure</li>
-                <li><strong>Mehrstufiger Nachlass:</strong> Progressiver Nachlass bevor Retoure oder Erstattung</li>
+                <li><strong>Regeltyp:</strong> {selectedRule.returnStrategy === 'auto_return_full_refund' ? 'Automatische Retoure' : 
+                   selectedRule.returnStrategy === 'discount_then_return' ? 'Preisnachlass, dann Retoure' : 'Preisnachlass ohne Retoure'}</li>
+                {selectedRule.discountLevels && selectedRule.discountLevels.length > 0 && (
+                  <li>
+                    <strong>Angebotsstaffelung:</strong> {selectedRule.discountLevels.map((level, idx) => 
+                      `${idx+1}. Anfrage: ${level}%`).join(', ')}
+                  </li>
+                )}
               </ul>
-              <p className="mt-4">Klicken Sie mehrmals auf "Nachlass berechnen" oder "Simulieren" um zu sehen, wie sich die Nachlässe ändern.</p>
             </CardContent>
           </Card>
         
-          {/* Individual Rule Calculator - show only if a specific rule is selected */}
-          {selectedRules.length === 1 && ruleId && (
-            <RuleCalculator rule={selectedRules[0]} />
-          )}
-          
-          {/* Multiple Rules Simulator */}
-          <DiscountRuleSimulator rules={selectedRules} />
+          {/* Individual Rule Calculator */}
+          <RuleCalculator rule={selectedRule} />
         </div>
       </div>
     </div>
