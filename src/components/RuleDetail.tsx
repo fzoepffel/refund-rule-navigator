@@ -22,6 +22,12 @@ interface RuleDetailProps {
 }
 
 const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
+  // Check if we should show the value field
+  // Don't show for preisstaffel or angebotsstaffel calculation bases
+  const shouldShowValue = rule.value !== undefined && 
+    rule.calculationBase !== 'preisstaffel' && 
+    rule.calculationBase !== 'angebotsstaffel';
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -78,7 +84,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <div className="font-medium">{getCalculationBaseLabel(rule.calculationBase)}</div>
           </div>
 
-          {rule.value !== undefined && (
+          {shouldShowValue && (
             <>
               <div>
                 <div className="text-sm text-muted-foreground">Wert</div>
