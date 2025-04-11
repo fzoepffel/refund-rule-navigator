@@ -729,34 +729,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox 
-                  id="consultPartnerBeforePayout" 
-                  checked={formData.consultPartnerBeforePayout || false}
-                  disabled={formData.calculationBase === 'keine_berechnung'}
-                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
-                />
-                <Label htmlFor="consultPartnerBeforePayout" className={
-                  formData.calculationBase === 'keine_berechnung' 
-                    ? "text-muted-foreground" 
-                    : ""
-                }>
-                  Rücksprache mit Partner vor Auszahlung
-                  {formData.calculationBase === 'keine_berechnung' && (
-                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
-                  )}
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="sendInfoToPartner" 
-                  checked={formData.sendInfoToPartner || false}
-                  onCheckedChange={(checked) => handleChange("sendInfoToPartner", checked)}
-                />
-                <Label htmlFor="sendInfoToPartner">
-                  Info über Gründe an Partner senden
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
                   id="requestReceiptOrProofOfPurchase" 
                   checked={formData.requestReceiptOrProofOfPurchase || false}
                   onCheckedChange={(checked) => handleChange("requestReceiptOrProofOfPurchase", checked)}
@@ -775,6 +747,56 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   Kundenfeedback zum Produkt einholen
                 </Label>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="sendInfoToPartner" 
+                  checked={formData.sendInfoToPartner || false}
+                  onCheckedChange={(checked) => handleChange("sendInfoToPartner", checked)}
+                />
+                <Label htmlFor="sendInfoToPartner">
+                  Info über Gründe an Partner senden
+                </Label>
+              </div>
+            </div>
+          </div>
+          
+          <Separator className="my-2" />
+          
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                id="isCompleteRule" 
+                checked={formData.isCompleteRule || false}
+                onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
+              />
+              <div>
+                <Label htmlFor="isCompleteRule" className="text-base">
+                  Regel konnte komplett und eindeutig erfasst werden
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
+                  In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                id="consultPartnerBeforePayout" 
+                checked={formData.consultPartnerBeforePayout || false}
+                disabled={formData.calculationBase === 'keine_berechnung'}
+                onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
+              />
+              <Label htmlFor="consultPartnerBeforePayout" className={
+                formData.calculationBase === 'keine_berechnung' 
+                  ? "text-muted-foreground" 
+                  : ""
+              }>
+                Rücksprache mit Partner vor Auszahlung
+                {formData.calculationBase === 'keine_berechnung' && (
+                  <span className="text-amber-600 ml-1">(Erforderlich)</span>
+                )}
+              </Label>
             </div>
           </div>
           

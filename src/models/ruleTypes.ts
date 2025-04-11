@@ -92,6 +92,9 @@ export interface DiscountRule {
   requestReceiptOrProofOfPurchase?: boolean;
   collectCustomerFeedback?: boolean;
   
+  // Rule completeness check
+  isCompleteRule?: boolean;
+  
   // Additional notes
   notes?: string;
 }
