@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
@@ -59,8 +60,16 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       // If we have more discount levels available, show the next one
       if (nextLevel < rule.discountLevels.length) {
         // Calculate new discount amount based on the next level
-        const nextLevelPercentage = rule.discountLevels[nextLevel];
-        const newAmount = (salePrice * nextLevelPercentage) / 100;
+        const nextLevelDiscount = rule.discountLevels[nextLevel];
+        let newAmount = 0;
+        
+        // Calculate based on the value type
+        if (nextLevelDiscount.valueType === 'percent') {
+          newAmount = (salePrice * nextLevelDiscount.value) / 100;
+        } else {
+          // Fixed amount
+          newAmount = nextLevelDiscount.value;
+        }
         
         // Apply max amount limit if it exists
         const finalAmount = rule.maxAmount && newAmount > rule.maxAmount 
@@ -70,9 +79,13 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         setDiscountAmount(finalAmount);
         setCurrentDiscountLevel(nextLevel);
         
+        const valueLabel = nextLevelDiscount.valueType === 'percent' 
+          ? `${nextLevelDiscount.value}%` 
+          : `${formatCurrency(nextLevelDiscount.value)}`;
+        
         toast({
           title: "Angebot erhöht",
-          description: `Nachlass auf ${nextLevelPercentage}% erhöht.`
+          description: `Nachlass auf ${valueLabel} erhöht.`
         });
       } 
       // If we've exhausted all discount levels or if the return strategy is "discount_then_return" or "discount_then_keep"

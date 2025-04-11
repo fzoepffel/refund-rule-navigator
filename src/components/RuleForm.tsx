@@ -10,7 +10,8 @@ import {
   ThresholdValueType,
   PriceThreshold,
   ShippingType,
-  ReturnStrategy
+  ReturnStrategy,
+  DiscountLevel
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
@@ -189,14 +190,17 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const handleAddDiscountLevel = () => {
     setFormData(prev => ({
       ...prev,
-      discountLevels: [...(prev.discountLevels || []), 10]
+      discountLevels: [
+        ...(prev.discountLevels || []),
+        { value: 10, valueType: 'percent' }
+      ]
     }));
   };
   
-  const handleDiscountLevelChange = (index: number, value: number) => {
+  const handleDiscountLevelChange = (index: number, field: keyof DiscountLevel, value: any) => {
     setFormData(prev => {
       const levels = [...(prev.discountLevels || [])];
-      levels[index] = value;
+      levels[index] = { ...levels[index], [field]: value };
       return { ...prev, discountLevels: levels };
     });
   };
@@ -218,6 +222,73 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     };
     
     onSave(finalData);
+  };
+  
+  const renderDiscountLevelsSection = () => {
+    if (formData.calculationBase !== 'angebotsstaffel') return null;
+    
+    return (
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <Label>Angebotsabfolge</Label>
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm" 
+            onClick={handleAddDiscountLevel}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Stufe hinzufügen
+          </Button>
+        </div>
+        
+        <div className="flex items-center flex-wrap gap-2">
+          {(formData.discountLevels || []).map((level, index) => (
+            <div key={index} className="flex items-center gap-1">
+              <Input 
+                type="number" 
+                className="w-20"
+                value={level.value} 
+                onChange={(e) => handleDiscountLevelChange(index, "value", parseFloat(e.target.value))}
+                min={1}
+              />
+              <Select
+                value={level.valueType}
+                onValueChange={(value: ThresholdValueType) => 
+                  handleDiscountLevelChange(index, "valueType", value)
+                }
+              >
+                <SelectTrigger className="w-14">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="percent">%</SelectItem>
+                  <SelectItem value="fixed">€</SelectItem>
+                </SelectContent>
+              </Select>
+              {index < (formData.discountLevels?.length || 0) - 1 && (
+                <span className="mx-1">→</span>
+              )}
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                disabled={formData.discountLevels?.length === 1}
+                onClick={() => handleRemoveDiscountLevel(index)}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          
+          {(!formData.discountLevels || formData.discountLevels.length === 0) && (
+            <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
+              <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
+            </Button>
+          )}
+        </div>
+      </div>
+    );
   };
   
   return (
@@ -509,56 +580,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </div>
             )}
             
-            {formData.calculationBase === 'angebotsstaffel' && (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label>Angebotsabfolge (in %)</Label>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleAddDiscountLevel}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Stufe hinzufügen
-                  </Button>
-                </div>
-                
-                <div className="flex items-center flex-wrap gap-2">
-                  {(formData.discountLevels || []).map((level, index) => (
-                    <div key={index} className="flex items-center gap-1">
-                      <Input 
-                        type="number" 
-                        className="w-20"
-                        value={level} 
-                        onChange={(e) => handleDiscountLevelChange(index, parseFloat(e.target.value))}
-                        min={1}
-                        max={100}
-                      />
-                      <span className="text-lg font-medium">%</span>
-                      {index < (formData.discountLevels?.length || 0) - 1 && (
-                        <span className="mx-1">→</span>
-                      )}
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-8 w-8"
-                        disabled={formData.discountLevels?.length === 1}
-                        onClick={() => handleRemoveDiscountLevel(index)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  
-                  {(!formData.discountLevels || formData.discountLevels.length === 0) && (
-                    <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
-                      <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
+            {renderDiscountLevelsSection()}
             
             <div>
               <Label htmlFor="roundingRule">Rundungsregel</Label>

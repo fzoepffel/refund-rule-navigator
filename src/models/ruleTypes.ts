@@ -50,6 +50,12 @@ export interface PriceThreshold {
   valueType: ThresholdValueType;
 }
 
+// Add a new interface for discount levels that can be either percent or fixed amount
+export interface DiscountLevel {
+  value: number;
+  valueType: ThresholdValueType; 
+}
+
 export interface DiscountRule {
   id: string;
   name: string;
@@ -69,8 +75,8 @@ export interface DiscountRule {
   // For price thresholds
   priceThresholds?: PriceThreshold[];
   
-  // For discount ladder
-  discountLevels?: number[];
+  // For discount ladder - changed from simple number array to DiscountLevel array
+  discountLevels?: DiscountLevel[];
   
   // Special rules
   checkIfProductOpened?: boolean;

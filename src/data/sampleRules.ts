@@ -1,5 +1,4 @@
-
-import { DiscountRule } from "../models/ruleTypes";
+import { DiscountRule, DiscountLevel } from "../models/ruleTypes";
 
 export const sampleRules: DiscountRule[] = [
   {
@@ -51,7 +50,11 @@ export const sampleRules: DiscountRule[] = [
     costCenter: "merchant",
     returnHandling: "manuelles_label",
     shippingType: "spedition",
-    discountLevels: [40, 60, 100],
+    discountLevels: [
+      { value: 40, valueType: 'percent' }, 
+      { value: 60, valueType: 'percent' }, 
+      { value: 100, valueType: 'percent' }
+    ],
     checkIfProductOpened: true,
     offerDiscountBeforeReturn: true,
     notes: "Zusätzlich zu Bildern vorher immer abfragen, ob Produkt/Matratze bereits geöffnet wurde!"
@@ -131,7 +134,11 @@ export const sampleRules: DiscountRule[] = [
     requestType: "Preisnachlass gewünscht",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "angebotsstaffel",
-    discountLevels: [50, 70, 100],
+    discountLevels: [
+      { value: 50, valueType: 'percent' },
+      { value: 70, valueType: 'percent' },
+      { value: 100, valueType: 'percent' }
+    ],
     roundingRule: "keine_rundung",
     costCenter: "check24",
     returnHandling: "keine_retoure",

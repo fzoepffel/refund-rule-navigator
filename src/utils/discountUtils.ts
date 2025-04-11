@@ -1,3 +1,4 @@
+
 import { 
   Trigger, 
   RequestType, 
@@ -7,7 +8,8 @@ import {
   ReturnHandling,
   ThresholdValueType,
   DiscountRule,
-  PriceThreshold
+  PriceThreshold,
+  DiscountLevel
 } from "../models/ruleTypes";
 
 export const getTriggerLabel = (trigger: Trigger): string => {
@@ -124,7 +126,14 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
     case 'angebotsstaffel':
       // For discount levels, use the first level as a simple implementation
       if (rule.discountLevels && rule.discountLevels.length > 0) {
-        amount = (salePrice * rule.discountLevels[0]) / 100;
+        const firstLevel = rule.discountLevels[0];
+        
+        if (firstLevel.valueType === 'percent') {
+          amount = (salePrice * firstLevel.value) / 100;
+        } else {
+          // Fixed amount
+          amount = firstLevel.value;
+        }
       }
       break;
   }
