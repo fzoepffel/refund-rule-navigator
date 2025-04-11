@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -10,7 +9,8 @@ import {
   ReturnHandling,
   ThresholdValueType,
   PriceThreshold,
-  ShippingType
+  ShippingType,
+  ReturnStrategy
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
@@ -63,6 +63,7 @@ const defaultRule: DiscountRule = {
   costCenter: "merchant",
   returnHandling: "keine_retoure",
   shippingType: "paket",
+  returnStrategy: "discount_then_return",
   value: 10
 };
 
@@ -89,6 +90,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['paket', 'spedition'];
+  const returnStrategies: {value: ReturnStrategy; label: string}[] = [
+    { value: 'auto_return_full_refund', label: 'Automatische Retoure mit voller Kostenerstattung' },
+    { value: 'discount_then_return', label: 'Preisnachlass anbieten, bei Ablehnung Retoure' },
+    { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' }
+  ];
   
   // Generate rule name if empty
   const generateRuleName = () => {
@@ -115,6 +121,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       }));
     }
   }, [formData.calculationBase]);
+  
+  // Effect to handle setting a full refund when auto_return_full_refund is selected
+  useEffect(() => {
+    if (formData.returnStrategy === 'auto_return_full_refund') {
+      setFormData(prev => ({
+        ...prev,
+        calculationBase: 'fester_betrag',
+        value: 100,
+        returnHandling: 'automatisches_label'
+      }));
+    }
+  }, [formData.returnStrategy]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -285,6 +303,32 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
           
           <div>
+            <Label htmlFor="returnStrategy">Rückgabestrategie</Label>
+            <Select 
+              value={formData.returnStrategy || 'discount_then_return'} 
+              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
+            >
+              <SelectTrigger id="returnStrategy">
+                <SelectValue placeholder="Rückgabestrategie auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {returnStrategies.map(strategy => (
+                  <SelectItem key={strategy.value} value={strategy.value}>
+                    {strategy.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {formData.returnStrategy === 'auto_return_full_refund' && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+          
+          <div>
             <Label htmlFor="costCenter">Kostenträger</Label>
             <Select 
               value={formData.costCenter} 
@@ -333,6 +377,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             <Select 
               value={formData.calculationBase} 
               onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
+              disabled={formData.returnStrategy === 'auto_return_full_refund'}
             >
               <SelectTrigger id="calculationBase">
                 <SelectValue placeholder="Berechnungsgrundlage auswählen" />
@@ -522,6 +567,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             <Select 
               value={formData.roundingRule} 
               onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+              disabled={formData.returnStrategy === 'auto_return_full_refund'}
             >
               <SelectTrigger id="roundingRule">
                 <SelectValue placeholder="Rundungsregel auswählen" />
@@ -548,6 +594,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               }}
               min={0}
               placeholder="Kein Maximum"
+              disabled={formData.returnStrategy === 'auto_return_full_refund'}
             />
           </div>
         </CardContent>
