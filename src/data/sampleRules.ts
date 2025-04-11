@@ -6,7 +6,7 @@ export const sampleRules: DiscountRule[] = [
     id: "1",
     name: "Standard Widerruf bis 50€",
     requestType: "return", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["geschmackssache", "sonstiges"],
     calculationBase: "fester_betrag",
     value: 50,
     roundingRule: "keine_rundung",
@@ -17,7 +17,7 @@ export const sampleRules: DiscountRule[] = [
     id: "2",
     name: "20% vom VK",
     requestType: "discount", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["geschmackssache", "fehlende_teile"],
     calculationBase: "prozent_vom_vk",
     value: 20,
     roundingRule: "keine_rundung",
@@ -28,7 +28,7 @@ export const sampleRules: DiscountRule[] = [
     id: "3",
     name: "Komplexe Widerruf/Reklamation Staffelung",
     requestType: "return", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["beschaedigte_ware_leicht", "beschaedigte_ware_mittel"],
     calculationBase: "preisstaffel",
     roundingRule: "auf_5_euro",
     costCenter: "merchant",
@@ -42,7 +42,7 @@ export const sampleRules: DiscountRule[] = [
     id: "4",
     name: "40%-60% Mehrstufiges Angebot",
     requestType: "discount", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["beschaedigte_ware_leicht", "beschaedigte_ware_mittel"],
     calculationBase: "angebotsstaffel",
     roundingRule: "keine_rundung",
     costCenter: "merchant",
@@ -56,7 +56,7 @@ export const sampleRules: DiscountRule[] = [
     id: "5",
     name: "Betragsstaffel nach VK",
     requestType: "return", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["fehlende_teile", "sonstiges"],
     calculationBase: "preisstaffel",
     roundingRule: "keine_rundung",
     costCenter: "merchant",
@@ -72,7 +72,7 @@ export const sampleRules: DiscountRule[] = [
     id: "6",
     name: "10% Leifheit ohne Rundung",
     requestType: "discount", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["geschmackssache", "sonstiges"],
     calculationBase: "prozent_vom_vk",
     value: 10,
     roundingRule: "keine_rundung",
@@ -84,7 +84,7 @@ export const sampleRules: DiscountRule[] = [
     id: "7",
     name: "CHECK24 30% mit 10€ Rundung",
     requestType: "discount", // Added missing property
-    triggers: ["widerruf", "reklamation"],
+    triggers: ["geschmackssache", "sonstiges"],
     calculationBase: "prozent_vom_vk",
     value: 30,
     roundingRule: "auf_10_euro",

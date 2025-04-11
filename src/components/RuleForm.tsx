@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   DiscountRule, 
@@ -47,7 +46,7 @@ const defaultRule: DiscountRule = {
   id: "",
   name: "",
   requestType: "discount",
-  triggers: ["widerruf"],
+  triggers: ["beschaedigte_ware_leicht"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
   costCenter: "merchant",
@@ -60,8 +59,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   
   const requestTypes: RequestType[] = ['return', 'discount'];
   const triggers: Trigger[] = [
-    'widerruf', 
-    'reklamation',
     'beschaedigte_ware_leicht', 
     'beschaedigte_ware_mittel',
     'beschaedigte_ware_schwer',
