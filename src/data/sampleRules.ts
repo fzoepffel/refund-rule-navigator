@@ -11,7 +11,8 @@ export const sampleRules: DiscountRule[] = [
     value: 50,
     roundingRule: "keine_rundung",
     costCenter: "merchant",
-    returnHandling: "automatisches_label"
+    returnHandling: "automatisches_label",
+    shippingType: "paket"
   },
   {
     id: "2",
@@ -22,7 +23,8 @@ export const sampleRules: DiscountRule[] = [
     value: 20,
     roundingRule: "keine_rundung",
     costCenter: "merchant",
-    returnHandling: "automatisches_label"
+    returnHandling: "automatisches_label",
+    shippingType: "paket"
   },
   {
     id: "3",
@@ -33,6 +35,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "auf_5_euro",
     costCenter: "merchant",
     returnHandling: "manuelles_label",
+    shippingType: "spedition",
     priceThresholds: [
       { minPrice: 0, maxPrice: 400, value: 10, valueType: "percent" },
       { minPrice: 400, value: 5, valueType: "percent" }
@@ -47,6 +50,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "keine_rundung",
     costCenter: "merchant",
     returnHandling: "manuelles_label",
+    shippingType: "spedition",
     discountLevels: [40, 60, 100],
     checkIfProductOpened: true,
     offerDiscountBeforeReturn: true,
@@ -61,6 +65,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "keine_rundung",
     costCenter: "merchant",
     returnHandling: "automatisches_label",
+    shippingType: "paket",
     priceThresholds: [
       { minPrice: 0, maxPrice: 100, value: 10, valueType: "fixed" },
       { minPrice: 100, maxPrice: 150, value: 15, valueType: "fixed" },
@@ -78,6 +83,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "keine_rundung",
     costCenter: "merchant",
     returnHandling: "manuelles_label",
+    shippingType: "paket",
     notes: "Leifheit legt Retourenlabel im Paket bei."
   },
   {
@@ -89,7 +95,8 @@ export const sampleRules: DiscountRule[] = [
     value: 30,
     roundingRule: "auf_10_euro",
     costCenter: "check24",
-    returnHandling: "automatisches_label"
+    returnHandling: "automatisches_label",
+    shippingType: "paket"
   },
   {
     id: "8",
@@ -101,6 +108,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "auf_5_euro",
     costCenter: "merchant",
     returnHandling: "keine_retoure",
+    shippingType: "paket",
     requestPictures: true
   },
   {
@@ -113,6 +121,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "auf_5_euro",
     costCenter: "merchant",
     returnHandling: "keine_retoure",
+    shippingType: "paket",
     requestPictures: true,
     consultPartnerBeforePayout: true
   },
@@ -126,6 +135,7 @@ export const sampleRules: DiscountRule[] = [
     roundingRule: "keine_rundung",
     costCenter: "check24",
     returnHandling: "keine_retoure",
+    shippingType: "spedition",
     requestPictures: true,
     consultPartnerBeforePayout: true,
     noReturnOnFullRefund: true
