@@ -24,7 +24,8 @@ export const getCalculationBaseLabel = (base: CalculationBase): string => {
     'prozent_vom_vk': 'Prozent vom Verkaufspreis',
     'fester_betrag': 'Fester Betrag',
     'preisstaffel': 'Preisabhängige Staffelung',
-    'angebotsstaffel': 'Mehrere Angebotsstufen'
+    'angebotsstaffel': 'Mehrere Angebotsstufen',
+    'keine_berechnung': 'Keine Berechnung'
   };
   return labels[base] || base;
 };
@@ -83,7 +84,14 @@ export const applyRoundingRule = (value: number, rule: RoundingRule): number => 
 /**
  * Calculate discount amount based on the rule and sale price
  */
-export const calculateDiscount = (salePrice: number, rule: DiscountRule): number => {
+export const calculateDiscount = (salePrice: number, rule: DiscountRule): number | string => {
+  if (rule.calculationBase === 'keine_berechnung') {
+    if (rule.maxAmount !== undefined) {
+      return 'Rücksprache mit Partner notwendig';
+    }
+    return 0;
+  }
+
   let amount = 0;
   
   switch (rule.calculationBase) {
@@ -137,7 +145,10 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
 /**
  * Format a number as currency (EUR)
  */
-export const formatCurrency = (value: number): string => {
+export const formatCurrency = (value: number | string): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',

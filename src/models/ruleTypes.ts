@@ -15,7 +15,8 @@ export type CalculationBase =
   | 'prozent_vom_vk' 
   | 'fester_betrag' 
   | 'preisstaffel' 
-  | 'angebotsstaffel';
+  | 'angebotsstaffel'
+  | 'keine_berechnung';
 
 export type RoundingRule = 
   | 'keine_rundung' 

@@ -10,15 +10,28 @@ import { Euro } from "lucide-react";
 
 const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
-  const [results, setResults] = useState<{ rule: DiscountRule; amount: number }[]>([]);
+  const [results, setResults] = useState<{ rule: DiscountRule; amount: number | string }[]>([]);
   
   const handleSimulate = () => {
     const calculatedResults = rules.map(rule => ({
       rule,
       amount: calculateDiscount(salePrice, rule)
-    })).sort((a, b) => b.amount - a.amount);
+    }));
     
-    setResults(calculatedResults);
+    // Sort numeric results by amount (highest first), then string results at the end
+    const sortedResults = calculatedResults.sort((a, b) => {
+      if (typeof a.amount === 'string' && typeof b.amount === 'string') {
+        return 0;
+      } else if (typeof a.amount === 'string') {
+        return 1;
+      } else if (typeof b.amount === 'string') {
+        return -1;
+      } else {
+        return b.amount - a.amount;
+      }
+    });
+    
+    setResults(sortedResults);
   };
   
   return (

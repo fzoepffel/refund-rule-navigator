@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
   Trigger, 
@@ -71,11 +72,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     'Falscher Artikel'
   ];
   
-  const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
+  const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
   const costCenters: CostCenter[] = ['merchant', 'check24'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
+  
+  // Effect to manage the automatic checking of "consultPartnerBeforePayout" when maxAmount is defined and calculationBase is "keine_berechnung"
+  useEffect(() => {
+    if (formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined) {
+      setFormData(prev => ({
+        ...prev,
+        consultPartnerBeforePayout: true
+      }));
+    }
+  }, [formData.calculationBase, formData.maxAmount]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -459,6 +470,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               min={0}
               placeholder="Kein Maximum"
             />
+            {formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined && (
+              <p className="text-sm text-amber-600 mt-1">
+                Bei 'Keine Berechnung' mit Maximalbetrag ist eine Rücksprache mit Partner erforderlich.
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -580,10 +596,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Checkbox 
                   id="consultPartnerBeforePayout" 
                   checked={formData.consultPartnerBeforePayout || false}
+                  disabled={formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined}
                   onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
                 />
-                <Label htmlFor="consultPartnerBeforePayout">
+                <Label htmlFor="consultPartnerBeforePayout" className={
+                  formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined 
+                    ? "text-muted-foreground" 
+                    : ""
+                }>
                   Rücksprache mit Partner vor Auszahlung
+                  {formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined && (
+                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
+                  )}
                 </Label>
               </div>
               <div className="flex items-center gap-2">
