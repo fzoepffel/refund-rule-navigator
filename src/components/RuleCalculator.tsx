@@ -95,6 +95,14 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     }
   };
   
+  // Calculate the final price after discount
+  const calculateFinalPrice = () => {
+    if (!discountAmount || typeof discountAmount.amount !== 'number') {
+      return salePrice;
+    }
+    return salePrice - discountAmount.amount;
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -120,10 +128,22 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         </Button>
         
         {discountAmount !== null && (
-          <div className="mt-4 text-center">
-            <div className="text-sm text-muted-foreground">Berechneter Nachlass</div>
-            <div className="text-2xl font-bold">
-              {formatCurrency(discountAmount.amount)}
+          <div className="mt-4">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="text-muted-foreground">Verkaufspreis:</div>
+              <div className="font-medium text-right">{formatCurrency(salePrice)}</div>
+              
+              <div className="text-muted-foreground">Nachlass:</div>
+              <div className="font-medium text-right text-destructive">
+                -{formatCurrency(discountAmount.amount)}
+              </div>
+              
+              {typeof discountAmount.amount === 'number' && !discountAmount.isReturnRequired && (
+                <>
+                  <div className="text-muted-foreground font-medium">Neuer Preis:</div>
+                  <div className="font-bold text-right border-t pt-1">{formatCurrency(calculateFinalPrice())}</div>
+                </>
+              )}
             </div>
             
             {discountAmount.message && (
@@ -131,13 +151,6 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                 {discountAmount.isReturnRequired && <AlertTriangle className="h-4 w-4 mr-1" />}
                 {discountAmount.message}
               </div>
-            )}
-            
-            {typeof discountAmount.amount === 'number' && !discountAmount.isReturnRequired && (
-              <>
-                <div className="text-sm text-muted-foreground mt-2">Neuer Preis</div>
-                <div className="text-lg font-medium">{formatCurrency(salePrice - discountAmount.amount)}</div>
-              </>
             )}
           </div>
         )}
