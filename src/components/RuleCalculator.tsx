@@ -14,7 +14,7 @@ interface RuleCalculatorProps {
 
 const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
-  const [discountAmount, setDiscountAmount] = useState<number | null>(null);
+  const [discountAmount, setDiscountAmount] = useState<number | string | null>(null);
   
   const handleCalculate = () => {
     const amount = calculateDiscount(salePrice, rule);
@@ -49,8 +49,12 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           <div className="mt-4 text-center">
             <div className="text-sm text-muted-foreground">Berechneter Nachlass</div>
             <div className="text-2xl font-bold">{formatCurrency(discountAmount)}</div>
-            <div className="text-sm text-muted-foreground mt-2">Neuer Preis</div>
-            <div className="text-lg font-medium">{formatCurrency(salePrice - discountAmount)}</div>
+            {typeof discountAmount === 'number' && (
+              <>
+                <div className="text-sm text-muted-foreground mt-2">Neuer Preis</div>
+                <div className="text-lg font-medium">{formatCurrency(salePrice - discountAmount)}</div>
+              </>
+            )}
           </div>
         )}
       </CardContent>
