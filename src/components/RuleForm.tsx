@@ -252,6 +252,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </p>
           </div>
           
+          <div>
+            <Label htmlFor="shippingType">Versandart</Label>
+            <Select 
+              value={formData.shippingType || 'paket'} 
+              onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
+            >
+              <SelectTrigger id="shippingType">
+                <SelectValue placeholder="Versandart auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="paket">Paket</SelectItem>
+                <SelectItem value="spedition">Spedition</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="requestType">Art der Anfrage</Label>
@@ -303,6 +319,25 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
           
           <div>
+            <Label htmlFor="costCenter">Kostenträger</Label>
+            <Select 
+              value={formData.costCenter} 
+              onValueChange={(value: CostCenter) => handleChange("costCenter", value)}
+            >
+              <SelectTrigger id="costCenter">
+                <SelectValue placeholder="Kostenträger auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {costCenters.map(center => (
+                  <SelectItem key={center} value={center}>
+                    {getCostCenterLabel(center)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
             <Label htmlFor="returnStrategy">Rückgabestrategie</Label>
             <Select 
               value={formData.returnStrategy || 'discount_then_return'} 
@@ -326,43 +361,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </AlertDescription>
               </Alert>
             )}
-          </div>
-          
-          <div>
-            <Label htmlFor="costCenter">Kostenträger</Label>
-            <Select 
-              value={formData.costCenter} 
-              onValueChange={(value: CostCenter) => handleChange("costCenter", value)}
-            >
-              <SelectTrigger id="costCenter">
-                <SelectValue placeholder="Kostenträger auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {costCenters.map(center => (
-                  <SelectItem key={center} value={center}>
-                    {getCostCenterLabel(center)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Label htmlFor="shippingType">Versandart</Label>
-            <RadioGroup 
-              value={formData.shippingType || 'paket'} 
-              onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
-              className="flex space-x-4 mt-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="paket" id="shipping-type-paket" />
-                <Label htmlFor="shipping-type-paket">Paket</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="spedition" id="shipping-type-spedition" />
-                <Label htmlFor="shipping-type-spedition">Spedition</Label>
-              </div>
-            </RadioGroup>
           </div>
         </CardContent>
       </Card>
