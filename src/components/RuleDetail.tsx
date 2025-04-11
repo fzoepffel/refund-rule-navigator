@@ -6,7 +6,8 @@ import {
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
   getCostCenterLabel, 
-  getReturnHandlingLabel 
+  getReturnHandlingLabel,
+  getThresholdValueTypeLabel 
 } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,7 +119,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                 <div className="flex items-center gap-2">
                   {rule.discountLevels.map((level, index, array) => (
                     <React.Fragment key={index}>
-                      <Badge>{level}%</Badge>
+                      <Badge>
+                        {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
+                      </Badge>
                       {index < array.length - 1 && <span>→</span>}
                     </React.Fragment>
                   ))}
