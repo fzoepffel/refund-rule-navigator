@@ -143,8 +143,13 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         )}
 
         {requestCount > 0 && (
-          <div className="text-xs text-muted-foreground text-right mt-2">
-            Anfrage #{requestCount}
+          <div className="flex justify-between items-center text-xs text-muted-foreground mt-2 border-t pt-2">
+            <div>Anfrage #{requestCount}</div>
+            {discountAmount && (
+              <div className="font-medium">
+                Nachlass: {formatCurrency(discountAmount.amount)}
+              </div>
+            )}
           </div>
         )}
       </CardContent>
