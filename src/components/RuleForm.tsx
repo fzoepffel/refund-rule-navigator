@@ -367,238 +367,237 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Berechnungsgrundlage</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="calculationBase">Art der Berechnung</Label>
-            <Select 
-              value={formData.calculationBase} 
-              onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
-              disabled={formData.returnStrategy === 'auto_return_full_refund'}
-            >
-              <SelectTrigger id="calculationBase">
-                <SelectValue placeholder="Berechnungsgrundlage auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {calculationBases.map(base => (
-                  <SelectItem key={base} value={base}>
-                    {getCalculationBaseLabel(base)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formData.calculationBase === 'keine_berechnung' && (formData.maxAmount === undefined || formData.maxAmount === null) && (
-              <Alert className="mt-2">
-                <AlertDescription>
-                  Bei 'Keine Berechnung' ist eine Rücksprache mit Partner erforderlich.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-          
-          {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'fester_betrag') && (
+      {formData.returnStrategy !== 'auto_return_full_refund' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Berechnungsgrundlage</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="value">
-                {formData.calculationBase === 'prozent_vom_vk' ? 'Prozentsatz' : 'Betrag (€)'}
-              </Label>
-              <div className="flex items-center gap-2">
-                <Input 
-                  id="value" 
-                  type="number" 
-                  value={formData.value || ''} 
-                  onChange={(e) => handleChange("value", parseFloat(e.target.value))}
-                  min={0}
-                />
-                <div className="text-lg font-medium w-6">
-                  {formData.calculationBase === 'prozent_vom_vk' ? '%' : '€'}
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {formData.calculationBase === 'preisstaffel' && (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label>Preisstaffelung</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleAddPriceThreshold}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
-                </Button>
-              </div>
-              
-              {(formData.priceThresholds || []).map((threshold, index) => (
-                <div key={index} className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_auto] items-center gap-2 mb-4">
-                  <div>
-                    <Label htmlFor={`min-${index}`}>Min (€)</Label>
-                    <Input 
-                      id={`min-${index}`} 
-                      type="number" 
-                      value={threshold.minPrice} 
-                      onChange={(e) => handlePriceThresholdChange(index, "minPrice", parseFloat(e.target.value))}
-                      min={0}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`max-${index}`}>Max (€)</Label>
-                    <Input 
-                      id={`max-${index}`} 
-                      type="number" 
-                      value={threshold.maxPrice || ''} 
-                      onChange={(e) => {
-                        const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                        handlePriceThresholdChange(index, "maxPrice", value);
-                      }}
-                      min={threshold.minPrice + 1}
-                      placeholder="Unbegrenzt"
-                    />
-                  </div>
-                  <div className="self-end text-lg font-medium pt-2">:</div>
-                  <div>
-                    <Label htmlFor={`value-${index}`}>Wert</Label>
-                    <Input 
-                      id={`value-${index}`} 
-                      type="number" 
-                      value={threshold.value} 
-                      onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
-                      min={0}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor={`valueType-${index}`}>Art</Label>
-                    <Select
-                      value={threshold.valueType || 'percent'}
-                      onValueChange={(value: ThresholdValueType) => 
-                        handlePriceThresholdChange(index, "valueType", value)
-                      }
-                    >
-                      <SelectTrigger id={`valueType-${index}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {thresholdValueTypes.map(type => (
-                          <SelectItem key={type} value={type}>
-                            {getThresholdValueTypeLabel(type)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
-                    className="self-end"
-                    disabled={formData.priceThresholds?.length === 1}
-                    onClick={() => handleRemovePriceThreshold(index)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              
-              {(!formData.priceThresholds || formData.priceThresholds.length === 0) && (
-                <Button type="button" variant="outline" onClick={handleAddPriceThreshold}>
-                  <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
-                </Button>
+              <Label htmlFor="calculationBase">Art der Berechnung</Label>
+              <Select 
+                value={formData.calculationBase} 
+                onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
+              >
+                <SelectTrigger id="calculationBase">
+                  <SelectValue placeholder="Berechnungsgrundlage auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {calculationBases.map(base => (
+                    <SelectItem key={base} value={base}>
+                      {getCalculationBaseLabel(base)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.calculationBase === 'keine_berechnung' && (formData.maxAmount === undefined || formData.maxAmount === null) && (
+                <Alert className="mt-2">
+                  <AlertDescription>
+                    Bei 'Keine Berechnung' ist eine Rücksprache mit Partner erforderlich.
+                  </AlertDescription>
+                </Alert>
               )}
             </div>
-          )}
-          
-          {formData.calculationBase === 'angebotsstaffel' && (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label>Angebotsabfolge (in %)</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleAddDiscountLevel}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Stufe hinzufügen
-                </Button>
+            
+            {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'fester_betrag') && (
+              <div>
+                <Label htmlFor="value">
+                  {formData.calculationBase === 'prozent_vom_vk' ? 'Prozentsatz' : 'Betrag (€)'}
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    id="value" 
+                    type="number" 
+                    value={formData.value || ''} 
+                    onChange={(e) => handleChange("value", parseFloat(e.target.value))}
+                    min={0}
+                  />
+                  <div className="text-lg font-medium w-6">
+                    {formData.calculationBase === 'prozent_vom_vk' ? '%' : '€'}
+                  </div>
+                </div>
               </div>
-              
-              <div className="flex items-center flex-wrap gap-2">
-                {(formData.discountLevels || []).map((level, index) => (
-                  <div key={index} className="flex items-center gap-1">
-                    <Input 
-                      type="number" 
-                      className="w-20"
-                      value={level} 
-                      onChange={(e) => handleDiscountLevelChange(index, parseFloat(e.target.value))}
-                      min={1}
-                      max={100}
-                    />
-                    <span className="text-lg font-medium">%</span>
-                    {index < (formData.discountLevels?.length || 0) - 1 && (
-                      <span className="mx-1">→</span>
-                    )}
+            )}
+            
+            {formData.calculationBase === 'preisstaffel' && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Preisstaffelung</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleAddPriceThreshold}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
+                  </Button>
+                </div>
+                
+                {(formData.priceThresholds || []).map((threshold, index) => (
+                  <div key={index} className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_auto] items-center gap-2 mb-4">
+                    <div>
+                      <Label htmlFor={`min-${index}`}>Min (€)</Label>
+                      <Input 
+                        id={`min-${index}`} 
+                        type="number" 
+                        value={threshold.minPrice} 
+                        onChange={(e) => handlePriceThresholdChange(index, "minPrice", parseFloat(e.target.value))}
+                        min={0}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`max-${index}`}>Max (€)</Label>
+                      <Input 
+                        id={`max-${index}`} 
+                        type="number" 
+                        value={threshold.maxPrice || ''} 
+                        onChange={(e) => {
+                          const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                          handlePriceThresholdChange(index, "maxPrice", value);
+                        }}
+                        min={threshold.minPrice + 1}
+                        placeholder="Unbegrenzt"
+                      />
+                    </div>
+                    <div className="self-end text-lg font-medium pt-2">:</div>
+                    <div>
+                      <Label htmlFor={`value-${index}`}>Wert</Label>
+                      <Input 
+                        id={`value-${index}`} 
+                        type="number" 
+                        value={threshold.value} 
+                        onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
+                        min={0}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`valueType-${index}`}>Art</Label>
+                      <Select
+                        value={threshold.valueType || 'percent'}
+                        onValueChange={(value: ThresholdValueType) => 
+                          handlePriceThresholdChange(index, "valueType", value)
+                        }
+                      >
+                        <SelectTrigger id={`valueType-${index}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {thresholdValueTypes.map(type => (
+                            <SelectItem key={type} value={type}>
+                              {getThresholdValueTypeLabel(type)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button 
                       type="button" 
                       variant="ghost" 
                       size="icon" 
-                      className="h-8 w-8"
-                      disabled={formData.discountLevels?.length === 1}
-                      onClick={() => handleRemoveDiscountLevel(index)}
+                      className="self-end"
+                      disabled={formData.priceThresholds?.length === 1}
+                      onClick={() => handleRemovePriceThreshold(index)}
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
                 
-                {(!formData.discountLevels || formData.discountLevels.length === 0) && (
-                  <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
-                    <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
+                {(!formData.priceThresholds || formData.priceThresholds.length === 0) && (
+                  <Button type="button" variant="outline" onClick={handleAddPriceThreshold}>
+                    <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
                   </Button>
                 )}
               </div>
+            )}
+            
+            {formData.calculationBase === 'angebotsstaffel' && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Angebotsabfolge (in %)</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleAddDiscountLevel}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Stufe hinzufügen
+                  </Button>
+                </div>
+                
+                <div className="flex items-center flex-wrap gap-2">
+                  {(formData.discountLevels || []).map((level, index) => (
+                    <div key={index} className="flex items-center gap-1">
+                      <Input 
+                        type="number" 
+                        className="w-20"
+                        value={level} 
+                        onChange={(e) => handleDiscountLevelChange(index, parseFloat(e.target.value))}
+                        min={1}
+                        max={100}
+                      />
+                      <span className="text-lg font-medium">%</span>
+                      {index < (formData.discountLevels?.length || 0) - 1 && (
+                        <span className="mx-1">→</span>
+                      )}
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        disabled={formData.discountLevels?.length === 1}
+                        onClick={() => handleRemoveDiscountLevel(index)}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  {(!formData.discountLevels || formData.discountLevels.length === 0) && (
+                    <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
+                      <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <div>
+              <Label htmlFor="roundingRule">Rundungsregel</Label>
+              <Select 
+                value={formData.roundingRule} 
+                onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+              >
+                <SelectTrigger id="roundingRule">
+                  <SelectValue placeholder="Rundungsregel auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roundingRules.map(rule => (
+                    <SelectItem key={rule} value={rule}>
+                      {getRoundingRuleLabel(rule)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
-          
-          <div>
-            <Label htmlFor="roundingRule">Rundungsregel</Label>
-            <Select 
-              value={formData.roundingRule} 
-              onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
-              disabled={formData.returnStrategy === 'auto_return_full_refund'}
-            >
-              <SelectTrigger id="roundingRule">
-                <SelectValue placeholder="Rundungsregel auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {roundingRules.map(rule => (
-                  <SelectItem key={rule} value={rule}>
-                    {getRoundingRuleLabel(rule)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
-            <Input 
-              id="maxAmount" 
-              type="number" 
-              value={formData.maxAmount || ''} 
-              onChange={(e) => {
-                const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                handleChange("maxAmount", value);
-              }}
-              min={0}
-              placeholder="Kein Maximum"
-              disabled={formData.returnStrategy === 'auto_return_full_refund'}
-            />
-          </div>
-        </CardContent>
-      </Card>
+            
+            <div>
+              <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
+              <Input 
+                id="maxAmount" 
+                type="number" 
+                value={formData.maxAmount || ''} 
+                onChange={(e) => {
+                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                  handleChange("maxAmount", value);
+                }}
+                min={0}
+                placeholder="Kein Maximum"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       {formData.requestType === 'Artikel zurücksenden' && (
         <Card>
@@ -611,6 +610,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               <Select 
                 value={formData.returnHandling} 
                 onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
+                disabled={formData.returnStrategy === 'auto_return_full_refund'}
               >
                 <SelectTrigger id="returnHandling">
                   <SelectValue placeholder="Retourenabwicklung auswählen" />
@@ -651,8 +651,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   id="offerDiscountBeforeReturn" 
                   checked={formData.offerDiscountBeforeReturn || false}
                   onCheckedChange={(checked) => handleChange("offerDiscountBeforeReturn", checked)}
+                  disabled={formData.returnStrategy === 'auto_return_full_refund'}
                 />
-                <Label htmlFor="offerDiscountBeforeReturn">
+                <Label htmlFor="offerDiscountBeforeReturn" className={
+                  formData.returnStrategy === 'auto_return_full_refund' ? "text-muted-foreground" : ""
+                }>
                   Erst Nachlass anbieten, dann Retoure
                 </Label>
               </div>
