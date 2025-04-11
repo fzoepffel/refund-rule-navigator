@@ -1,11 +1,24 @@
+
 import React, { useState } from "react";
-import { DiscountRule, Trigger, CalculationBase, RoundingRule, CostCenter, ReturnHandling } from "../models/ruleTypes";
+import { 
+  DiscountRule, 
+  Trigger, 
+  RequestType,
+  CalculationBase, 
+  RoundingRule, 
+  CostCenter, 
+  ReturnHandling,
+  ThresholdValueType,
+  PriceThreshold
+} from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
+  getRequestTypeLabel,
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
   getCostCenterLabel, 
-  getReturnHandlingLabel 
+  getReturnHandlingLabel,
+  getThresholdValueTypeLabel
 } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -32,6 +46,7 @@ interface RuleFormProps {
 const defaultRule: DiscountRule = {
   id: "",
   name: "",
+  requestType: "discount",
   triggers: ["widerruf"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
@@ -43,6 +58,7 @@ const defaultRule: DiscountRule = {
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const [formData, setFormData] = useState<DiscountRule>(rule || { ...defaultRule, id: Date.now().toString() });
   
+  const requestTypes: RequestType[] = ['return', 'discount'];
   const triggers: Trigger[] = [
     'widerruf', 
     'reklamation',
@@ -58,6 +74,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
   const costCenters: CostCenter[] = ['merchant', 'check24'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
+  const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -81,7 +98,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       ...prev,
       priceThresholds: [
         ...(prev.priceThresholds || []),
-        { minPrice: newMin, value: 10 }
+        { minPrice: newMin, value: 10, valueType: 'percent' }
       ]
     }));
   };
@@ -93,7 +110,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     }));
   };
   
-  const handlePriceThresholdChange = (index: number, field: keyof typeof formData.priceThresholds[0], value: any) => {
+  const handlePriceThresholdChange = (index: number, field: keyof PriceThreshold, value: any) => {
     setFormData(prev => {
       const thresholds = [...(prev.priceThresholds || [])];
       thresholds[index] = { ...thresholds[index], [field]: value };
@@ -183,20 +200,41 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         <CardHeader>
           <CardTitle>Anlässe</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            {triggers.map(trigger => (
-              <div key={trigger} className="flex items-center gap-2">
-                <Checkbox 
-                  id={`trigger-${trigger}`} 
-                  checked={formData.triggers.includes(trigger)}
-                  onCheckedChange={() => toggleTrigger(trigger)}
-                />
-                <Label htmlFor={`trigger-${trigger}`}>
-                  {getTriggerLabel(trigger)}
-                </Label>
-              </div>
-            ))}
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Art der Anfrage</Label>
+            <RadioGroup 
+              value={formData.requestType} 
+              onValueChange={(value: RequestType) => handleChange("requestType", value)}
+              className="flex space-x-4"
+            >
+              {requestTypes.map(type => (
+                <div key={type} className="flex items-center space-x-2">
+                  <RadioGroupItem value={type} id={`request-type-${type}`} />
+                  <Label htmlFor={`request-type-${type}`}>{getRequestTypeLabel(type)}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+          
+          <Separator />
+          
+          <div>
+            <Label className="mb-2 block">Grund</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {triggers.map(trigger => (
+                <div key={trigger} className="flex items-center gap-2">
+                  <Checkbox 
+                    id={`trigger-${trigger}`} 
+                    checked={formData.triggers.includes(trigger)}
+                    onCheckedChange={() => toggleTrigger(trigger)}
+                  />
+                  <Label htmlFor={`trigger-${trigger}`}>
+                    {getTriggerLabel(trigger)}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -260,7 +298,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </div>
               
               {(formData.priceThresholds || []).map((threshold, index) => (
-                <div key={index} className="grid grid-cols-[1fr_1fr_auto_1fr_auto] items-center gap-2">
+                <div key={index} className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_auto] items-center gap-2 mb-4">
                   <div>
                     <Label htmlFor={`min-${index}`}>Min (€)</Label>
                     <Input 
@@ -287,9 +325,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   </div>
                   <div className="self-end text-lg font-medium pt-2">:</div>
                   <div>
-                    <Label htmlFor={`value-${index}`}>
-                      {formData.calculationBase === 'prozent_vom_vk' ? 'Prozent' : 'Betrag (€)'}
-                    </Label>
+                    <Label htmlFor={`value-${index}`}>Wert</Label>
                     <Input 
                       id={`value-${index}`} 
                       type="number" 
@@ -297,6 +333,26 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                       onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
                       min={0}
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor={`valueType-${index}`}>Art</Label>
+                    <Select
+                      value={threshold.valueType || 'percent'}
+                      onValueChange={(value: ThresholdValueType) => 
+                        handlePriceThresholdChange(index, "valueType", value)
+                      }
+                    >
+                      <SelectTrigger id={`valueType-${index}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {thresholdValueTypes.map(type => (
+                          <SelectItem key={type} value={type}>
+                            {getThresholdValueTypeLabel(type)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <Button 
                     type="button" 
@@ -406,6 +462,34 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardContent>
       </Card>
       
+      {formData.requestType === 'return' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Retourenabwicklung</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <Label htmlFor="returnHandling">Art der Retourenabwicklung</Label>
+              <Select 
+                value={formData.returnHandling} 
+                onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
+              >
+                <SelectTrigger id="returnHandling">
+                  <SelectValue placeholder="Retourenabwicklung auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {returnHandlings.map(handling => (
+                    <SelectItem key={handling} value={handling}>
+                      {getReturnHandlingLabel(handling)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <Card>
         <CardHeader>
           <CardTitle>Sonderregeln & Zusatzaktionen</CardTitle>
@@ -444,6 +528,35 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   Bei voller Erstattung keine Retoure notwendig
                 </Label>
               </div>
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="customerLoyaltyCheck" 
+                  checked={formData.customerLoyaltyCheck || false}
+                  onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
+                />
+                <Label htmlFor="customerLoyaltyCheck">
+                  Kundenhistorie prüfen (Bestandskunde)
+                </Label>
+              </div>
+              <div className="flex items-center gap-4">
+                <Checkbox 
+                  id="minOrderAgeToDays" 
+                  checked={!!formData.minOrderAgeToDays}
+                  onCheckedChange={(checked) => handleChange("minOrderAgeToDays", checked ? 14 : undefined)}
+                />
+                <Label htmlFor="minOrderAgeToDays" className="flex-shrink-0">
+                  Mindestbestellalter (Tage)
+                </Label>
+                {formData.minOrderAgeToDays !== undefined && (
+                  <Input
+                    type="number"
+                    min={1}
+                    className="w-20"
+                    value={formData.minOrderAgeToDays}
+                    onChange={(e) => handleChange("minOrderAgeToDays", parseInt(e.target.value))}
+                  />
+                )}
+              </div>
             </div>
           </div>
           
@@ -480,6 +593,26 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 />
                 <Label htmlFor="sendInfoToPartner">
                   Info über Gründe an Partner senden
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="requestReceiptOrProofOfPurchase" 
+                  checked={formData.requestReceiptOrProofOfPurchase || false}
+                  onCheckedChange={(checked) => handleChange("requestReceiptOrProofOfPurchase", checked)}
+                />
+                <Label htmlFor="requestReceiptOrProofOfPurchase">
+                  Kaufbeleg/Nachweise anfordern
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="collectCustomerFeedback" 
+                  checked={formData.collectCustomerFeedback || false}
+                  onCheckedChange={(checked) => handleChange("collectCustomerFeedback", checked)}
+                />
+                <Label htmlFor="collectCustomerFeedback">
+                  Kundenfeedback zum Produkt einholen
                 </Label>
               </div>
             </div>

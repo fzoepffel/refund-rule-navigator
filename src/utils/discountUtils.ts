@@ -1,5 +1,4 @@
-
-import { RoundingRule } from "../models/ruleTypes";
+import { RequestType, RoundingRule, ThresholdValueType } from "../models/ruleTypes";
 
 export function formatCurrency(amount: number): string {
   return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
@@ -41,7 +40,7 @@ export function calculateDiscount(salePrice: number, rule: any): number {
     );
     
     if (threshold) {
-      if (rule.calculationBase === 'prozent_vom_vk') {
+      if (threshold.valueType === 'percent') {
         discount = salePrice * (threshold.value / 100);
       } else {
         discount = threshold.value;
@@ -58,6 +57,14 @@ export function calculateDiscount(salePrice: number, rule: any): number {
   }
   
   return discount;
+}
+
+export function getRequestTypeLabel(type: RequestType): string {
+  const labels: Record<string, string> = {
+    'return': 'Retourenanfrage',
+    'discount': 'Preisnachlassanfrage'
+  };
+  return labels[type] || type;
 }
 
 export function getTriggerLabel(trigger: string): string {
@@ -111,4 +118,12 @@ export function getReturnHandlingLabel(handling: string): string {
     'keine_retoure': 'Keine Retoure notwendig'
   };
   return labels[handling] || handling;
+}
+
+export function getThresholdValueTypeLabel(type: ThresholdValueType): string {
+  const labels: Record<string, string> = {
+    'percent': 'Prozentsatz',
+    'fixed': 'Fester Betrag'
+  };
+  return labels[type] || type;
 }

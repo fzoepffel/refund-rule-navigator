@@ -1,4 +1,6 @@
 
+export type RequestType = 'return' | 'discount';
+
 export type Trigger = 
   | 'widerruf' 
   | 'reklamation' 
@@ -32,15 +34,19 @@ export type ReturnHandling =
   | 'zweitverwerter' 
   | 'keine_retoure';
 
+export type ThresholdValueType = 'percent' | 'fixed';
+
 export interface PriceThreshold {
   minPrice: number;
   maxPrice?: number; // undefined means no upper limit
   value: number;     // percentage or fixed amount
+  valueType: ThresholdValueType;
 }
 
 export interface DiscountRule {
   id: string;
   name: string;
+  requestType: RequestType;
   triggers: Trigger[];
   calculationBase: CalculationBase;
   roundingRule: RoundingRule;
@@ -61,11 +67,15 @@ export interface DiscountRule {
   checkIfProductOpened?: boolean;
   offerDiscountBeforeReturn?: boolean;
   noReturnOnFullRefund?: boolean;
+  minOrderAgeToDays?: number;
+  customerLoyaltyCheck?: boolean;
   
   // Additional actions
   requestPictures?: boolean;
   consultPartnerBeforePayout?: boolean;
   sendInfoToPartner?: boolean;
+  requestReceiptOrProofOfPurchase?: boolean;
+  collectCustomerFeedback?: boolean;
   
   // Additional notes
   notes?: string;
