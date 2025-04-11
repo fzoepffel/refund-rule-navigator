@@ -122,6 +122,31 @@ export function calculateDiscount(salePrice: number, rule: any): number | string
     case 'fester_betrag':
       amount = rule.value;
       break;
+    case 'angebotsstaffel':
+      // For offer ladder, this would be handled in the component based on request count
+      // Here we return the first level value if available
+      if (rule.discountLevels && rule.discountLevels.length > 0) {
+        amount = (salePrice * rule.discountLevels[0]) / 100;
+      }
+      break;
+    case 'preisstaffel':
+      if (rule.priceThresholds && rule.priceThresholds.length > 0) {
+        // Find the applicable price threshold
+        const applicableThreshold = rule.priceThresholds.find(
+          (threshold: any) => 
+            salePrice >= threshold.minPrice && 
+            (!threshold.maxPrice || salePrice <= threshold.maxPrice)
+        );
+        
+        if (applicableThreshold) {
+          if (applicableThreshold.valueType === 'percent') {
+            amount = (salePrice * applicableThreshold.value) / 100;
+          } else {
+            amount = applicableThreshold.value;
+          }
+        }
+      }
+      break;
     default:
       return 'Komplexe Berechnung';
   }
@@ -143,6 +168,11 @@ export function calculateDiscount(salePrice: number, rule: any): number | string
     default:
       // No rounding for unknown rules
       break;
+  }
+  
+  // Apply maximum amount if specified
+  if (rule.maxAmount && amount > rule.maxAmount) {
+    amount = rule.maxAmount;
   }
   
   return amount;
