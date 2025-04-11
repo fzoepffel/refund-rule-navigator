@@ -706,7 +706,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   onCheckedChange={(checked) => handleChange("minOrderAgeToDays", checked ? 14 : undefined)}
                 />
                 <Label htmlFor="minOrderAgeToDays" className="flex-shrink-0">
-                  Mindestbestellalter (Tage)
+                  Maximales Bestellungsalter (Tage)
                 </Label>
                 {formData.minOrderAgeToDays !== undefined && (
                   <Input
