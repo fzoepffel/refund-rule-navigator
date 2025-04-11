@@ -4,7 +4,6 @@ import RuleList from "../components/RuleList";
 import RuleDetail from "../components/RuleDetail";
 import RuleForm from "../components/RuleForm";
 import RuleCalculator from "../components/RuleCalculator";
-import DiscountRuleSimulator from "../components/DiscountRuleSimulator";
 import { DiscountRule } from "../models/ruleTypes";
 import { sampleRules } from "../data/sampleRules";
 import { useToast } from "@/hooks/use-toast";
@@ -104,7 +103,6 @@ const Index = () => {
             {viewState.type === "detail" && viewState.selectedRule && (
               <RuleCalculator rule={viewState.selectedRule} />
             )}
-            <DiscountRuleSimulator rules={rules} />
           </div>
         </div>
       </div>
