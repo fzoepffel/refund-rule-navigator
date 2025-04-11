@@ -8,7 +8,8 @@ import {
   CostCenter, 
   ReturnHandling,
   ThresholdValueType,
-  PriceThreshold
+  PriceThreshold,
+  ShippingType
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
@@ -52,6 +53,7 @@ const defaultRule: DiscountRule = {
   roundingRule: "keine_rundung",
   costCenter: "merchant",
   returnHandling: "keine_retoure",
+  shippingType: "paket",
   value: 10
 };
 
@@ -77,6 +79,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const costCenters: CostCenter[] = ['merchant', 'check24'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
+  const shippingTypes: ShippingType[] = ['paket', 'spedition'];
   
   // Effect to manage the automatic checking of "consultPartnerBeforePayout" when calculationBase is "keine_berechnung"
   useEffect(() => {
@@ -204,6 +207,24 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="shippingType">Versandart</Label>
+            <RadioGroup 
+              value={formData.shippingType || 'paket'} 
+              onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
+              className="flex space-x-4 mt-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="paket" id="shipping-type-paket" />
+                <Label htmlFor="shipping-type-paket">Paket</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="spedition" id="shipping-type-spedition" />
+                <Label htmlFor="shipping-type-spedition">Spedition</Label>
+              </div>
+            </RadioGroup>
           </div>
         </CardContent>
       </Card>

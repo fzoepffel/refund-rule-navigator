@@ -36,6 +36,8 @@ export type ReturnHandling =
 
 export type ThresholdValueType = 'percent' | 'fixed';
 
+export type ShippingType = 'paket' | 'spedition';
+
 export interface PriceThreshold {
   minPrice: number;
   maxPrice?: number; // undefined means no upper limit
@@ -52,6 +54,7 @@ export interface DiscountRule {
   roundingRule: RoundingRule;
   costCenter: CostCenter;
   returnHandling: ReturnHandling;
+  shippingType: ShippingType;
   maxAmount?: number;
   
   // For percentage or fixed amount

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -38,7 +37,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           <CardTitle>Grundinformationen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <div className="text-sm text-muted-foreground">Kostenträger</div>
               <div className="font-medium">{getCostCenterLabel(rule.costCenter)}</div>
@@ -46,6 +45,10 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <div>
               <div className="text-sm text-muted-foreground">Retourenabwicklung</div>
               <div className="font-medium">{getReturnHandlingLabel(rule.returnHandling)}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Versandart</div>
+              <div className="font-medium">{rule.shippingType === 'paket' ? 'Paket' : 'Spedition'}</div>
             </div>
           </div>
 
