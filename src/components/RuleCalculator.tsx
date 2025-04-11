@@ -26,17 +26,29 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     setCurrentDiscountLevel(0);
     setOfferingReturn(false);
     
-    const amount = calculateDiscount(salePrice, rule);
-    setDiscountAmount(amount);
-    setRequestCount(prevCount => prevCount + 1);
-    
-    if (typeof amount === 'string') {
+    // If the return strategy is auto_return_full_refund, immediately offer full refund and return
+    if (rule.returnStrategy === 'auto_return_full_refund') {
+      setDiscountAmount(salePrice);
+      setOfferingReturn(true);
+      
       toast({
-        title: "Berechnung nicht möglich",
-        description: amount,
-        variant: "destructive"
+        title: "Vollerstattung angeboten",
+        description: "Der Kunde erhält eine volle Rückerstattung und muss den Artikel zurücksenden.",
       });
+    } else {
+      const amount = calculateDiscount(salePrice, rule);
+      setDiscountAmount(amount);
+      
+      if (typeof amount === 'string') {
+        toast({
+          title: "Berechnung nicht möglich",
+          description: amount,
+          variant: "destructive"
+        });
+      }
     }
+    
+    setRequestCount(prevCount => prevCount + 1);
   };
   
   const handleReject = () => {
