@@ -7,18 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Euro, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 interface SimulatorResult {
   rule: DiscountRule;
   amount: number | string;
   message?: string;
   isReturnRequired?: boolean;
+  hasError?: boolean;
 }
 
 const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
   const [results, setResults] = useState<SimulatorResult[]>([]);
   const [requestCounts, setRequestCounts] = useState<Record<string, number>>({});
+  const { toast } = useToast();
   
   const handleSimulate = () => {
     // Update request counts for each rule
@@ -44,10 +48,26 @@ const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) =
       if (rule.returnStrategy === 'discount_then_keep') {
         // Always offer discount, even after multiple requests
         const amount = calculateDiscount(salePrice, rule);
+        
+        if (typeof amount === 'string') {
+          toast({
+            title: "Fehler bei der Berechnung",
+            description: `Bei Regel "${rule.name}" konnte der Nachlassbetrag nicht berechnet werden.`,
+            variant: "destructive",
+          });
+          return {
+            rule,
+            amount,
+            message: '',
+            isReturnRequired: false,
+            hasError: true
+          };
+        }
+        
         return {
           rule,
           amount,
-          message: typeof amount === 'number' && amount >= salePrice ? 'Keine Retoure' : '',
+          message: amount >= salePrice ? 'Keine Retoure' : '',
           isReturnRequired: false
         };
       }
@@ -91,6 +111,22 @@ const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) =
       
       // First request or default case - calculate normal discount
       const amount = calculateDiscount(salePrice, rule);
+      
+      if (typeof amount === 'string') {
+        toast({
+          title: "Fehler bei der Berechnung",
+          description: `Bei Regel "${rule.name}" konnte der Nachlassbetrag nicht berechnet werden.`,
+          variant: "destructive",
+        });
+        return {
+          rule,
+          amount,
+          message: '',
+          isReturnRequired: false,
+          hasError: true
+        };
+      }
+      
       return { rule, amount, message: '', isReturnRequired: false };
     });
     
@@ -108,6 +144,14 @@ const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) =
     });
     
     setResults(sortedResults);
+  };
+  
+  // Calculate the final price after discount
+  const calculateFinalPrice = (amount: number | string): number | string => {
+    if (typeof amount === 'string') {
+      return amount;
+    }
+    return salePrice - amount;
   };
   
   return (
@@ -135,20 +179,51 @@ const DiscountRuleSimulator: React.FC<{ rules: DiscountRule[] }> = ({ rules }) =
         {results.length > 0 && (
           <div className="space-y-2 mt-4">
             <h3 className="font-medium">Ergebnisse</h3>
-            <div className="grid grid-cols-[1fr_auto] gap-y-3 gap-x-2">
-              {results.map(({ rule, amount, message, isReturnRequired }, index) => (
-                <React.Fragment key={rule.id}>
-                  <div className="truncate flex flex-col">
-                    <span>{rule.name}</span>
-                    {message && (
-                      <span className={`text-xs ${isReturnRequired ? 'text-amber-500 flex items-center' : 'text-muted-foreground'}`}>
-                        {isReturnRequired && <AlertTriangle className="h-3 w-3 mr-1" />}
-                        {message} (Anfrage #{requestCounts[rule.id]})
-                      </span>
-                    )}
+            <div className="grid grid-cols-1 gap-y-4">
+              {results.map(({ rule, amount, message, isReturnRequired, hasError }, index) => (
+                <div key={rule.id} className="border rounded-md p-3">
+                  <div className="flex justify-between items-center mb-1">
+                    <h4 className="font-medium">{rule.name}</h4>
+                    <span className="text-xs text-muted-foreground">
+                      Anfrage #{requestCounts[rule.id]}
+                    </span>
                   </div>
-                  <div className="font-medium text-right">{formatCurrency(amount)}</div>
-                </React.Fragment>
+                  
+                  {hasError ? (
+                    <Alert variant="destructive" className="mt-1 py-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        Der Nachlassbetrag konnte nicht berechnet werden.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="text-muted-foreground">Verkaufspreis:</div>
+                      <div className="font-medium text-right">{formatCurrency(salePrice)}</div>
+                      
+                      <div className="text-muted-foreground">Nachlass:</div>
+                      <div className="font-medium text-right text-destructive">
+                        -{formatCurrency(amount)}
+                      </div>
+                      
+                      {typeof amount === 'number' && !isReturnRequired && (
+                        <>
+                          <div className="text-muted-foreground font-medium">Neuer Preis:</div>
+                          <div className="font-bold text-right border-t pt-1">
+                            {formatCurrency(calculateFinalPrice(amount))}
+                          </div>
+                        </>
+                      )}
+                      
+                      {message && (
+                        <div className={`col-span-2 text-xs mt-1 ${isReturnRequired ? 'text-amber-500 flex items-center' : 'text-muted-foreground'}`}>
+                          {isReturnRequired && <AlertTriangle className="h-3 w-3 mr-1" />}
+                          {message}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
