@@ -1,16 +1,15 @@
 
-export type RequestType = 'return' | 'discount';
+export type RequestType = 
+  | 'Ersatzteil gewünscht'
+  | 'Preisnachlass gewünscht'
+  | 'Kontaktaufnahme gewünscht'
+  | 'Artikel zurücksenden';
 
 export type Trigger = 
-  | 'widerruf' 
-  | 'reklamation' 
-  | 'beschaedigte_ware_leicht' // Aesthetic damage only
-  | 'beschaedigte_ware_mittel' // Limited functionality but usable
-  | 'beschaedigte_ware_schwer' // Significantly impaired functionality
-  | 'beschaedigte_ware_unbrauchbar' // Completely unusable
-  | 'fehlende_teile' 
-  | 'geschmackssache'
-  | 'sonstiges';
+  | 'Artikel beschädigt/funktioniert nicht mehr'
+  | 'Versandverpackung und Artikel beschädigt'
+  | 'Teile oder Zubehör fehlen'
+  | 'Falscher Artikel';
 
 export type CalculationBase = 
   | 'prozent_vom_vk' 

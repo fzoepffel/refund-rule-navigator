@@ -45,8 +45,8 @@ interface RuleFormProps {
 const defaultRule: DiscountRule = {
   id: "",
   name: "",
-  requestType: "discount",
-  triggers: ["beschaedigte_ware_leicht"],
+  requestType: "Preisnachlass gewünscht",
+  triggers: ["Artikel beschädigt/funktioniert nicht mehr"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
   costCenter: "merchant",
@@ -57,16 +57,20 @@ const defaultRule: DiscountRule = {
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const [formData, setFormData] = useState<DiscountRule>(rule || { ...defaultRule, id: Date.now().toString() });
   
-  const requestTypes: RequestType[] = ['return', 'discount'];
-  const triggers: Trigger[] = [
-    'beschaedigte_ware_leicht', 
-    'beschaedigte_ware_mittel',
-    'beschaedigte_ware_schwer',
-    'beschaedigte_ware_unbrauchbar',
-    'fehlende_teile', 
-    'geschmackssache', 
-    'sonstiges'
+  const requestTypes: RequestType[] = [
+    'Ersatzteil gewünscht',
+    'Preisnachlass gewünscht',
+    'Kontaktaufnahme gewünscht',
+    'Artikel zurücksenden'
   ];
+  
+  const triggers: Trigger[] = [
+    'Artikel beschädigt/funktioniert nicht mehr',
+    'Versandverpackung und Artikel beschädigt',
+    'Teile oder Zubehör fehlen',
+    'Falscher Artikel'
+  ];
+  
   const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
   const costCenters: CostCenter[] = ['merchant', 'check24'];
@@ -203,12 +207,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             <RadioGroup 
               value={formData.requestType} 
               onValueChange={(value: RequestType) => handleChange("requestType", value)}
-              className="flex space-x-4"
+              className="flex flex-col space-y-2"
             >
               {requestTypes.map(type => (
                 <div key={type} className="flex items-center space-x-2">
                   <RadioGroupItem value={type} id={`request-type-${type}`} />
-                  <Label htmlFor={`request-type-${type}`}>{getRequestTypeLabel(type)}</Label>
+                  <Label htmlFor={`request-type-${type}`}>{type}</Label>
                 </div>
               ))}
             </RadioGroup>
@@ -218,7 +222,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           
           <div>
             <Label className="mb-2 block">Grund</Label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {triggers.map(trigger => (
                 <div key={trigger} className="flex items-center gap-2">
                   <Checkbox 
@@ -227,7 +231,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     onCheckedChange={() => toggleTrigger(trigger)}
                   />
                   <Label htmlFor={`trigger-${trigger}`}>
-                    {getTriggerLabel(trigger)}
+                    {trigger}
                   </Label>
                 </div>
               ))}
@@ -459,7 +463,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardContent>
       </Card>
       
-      {formData.requestType === 'return' && (
+      {formData.requestType === 'Artikel zurücksenden' && (
         <Card>
           <CardHeader>
             <CardTitle>Retourenabwicklung</CardTitle>

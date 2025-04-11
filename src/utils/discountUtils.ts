@@ -1,129 +1,79 @@
-import { RequestType, RoundingRule, ThresholdValueType } from "../models/ruleTypes";
 
-export function formatCurrency(amount: number): string {
-  return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
-}
+import { 
+  Trigger, 
+  RequestType, 
+  CalculationBase, 
+  RoundingRule, 
+  CostCenter, 
+  ReturnHandling,
+  ThresholdValueType
+} from "../models/ruleTypes";
 
-export function applyRounding(amount: number, roundingRule: RoundingRule): number {
-  switch (roundingRule) {
-    case 'keine_rundung':
-      return amount;
-    case 'auf_5_euro':
-      return Math.ceil(amount / 5) * 5;
-    case 'auf_10_euro':
-      return Math.ceil(amount / 10) * 10;
-    case 'auf_10_cent':
-      return Math.ceil(amount * 10) / 10;
-    default:
-      return amount;
-  }
-}
+export const getTriggerLabel = (trigger: Trigger): string => {
+  return trigger; // The triggers are now readable labels themselves
+};
 
-export function calculateDiscount(salePrice: number, rule: any): number {
-  if (!rule) return 0;
-  
-  let discount = 0;
-  
-  // Handle percentage-based discount
-  if (rule.calculationBase === 'prozent_vom_vk' && rule.value) {
-    discount = salePrice * (rule.value / 100);
-  } 
-  // Handle fixed amount
-  else if (rule.calculationBase === 'fester_betrag' && rule.value) {
-    discount = rule.value;
-  } 
-  // Handle price threshold calculation
-  else if (rule.calculationBase === 'preisstaffel' && rule.priceThresholds) {
-    // Find applicable threshold
-    const threshold = rule.priceThresholds.find((t: any) => 
-      salePrice >= t.minPrice && (!t.maxPrice || salePrice <= t.maxPrice)
-    );
-    
-    if (threshold) {
-      if (threshold.valueType === 'percent') {
-        discount = salePrice * (threshold.value / 100);
-      } else {
-        discount = threshold.value;
-      }
-    }
-  }
-  
-  // Apply rounding
-  discount = applyRounding(discount, rule.roundingRule);
-  
-  // Apply maximum if specified
-  if (rule.maxAmount && discount > rule.maxAmount) {
-    discount = rule.maxAmount;
-  }
-  
-  return discount;
-}
+export const getRequestTypeLabel = (type: RequestType): string => {
+  return type; // The request types are now readable labels themselves
+};
 
-export function getRequestTypeLabel(type: RequestType): string {
-  const labels: Record<string, string> = {
-    'return': 'Retourenanfrage',
-    'discount': 'Preisnachlassanfrage'
-  };
-  return labels[type] || type;
-}
-
-export function getTriggerLabel(trigger: string): string {
-  const labels: Record<string, string> = {
-    'widerruf': 'Widerruf',
-    'reklamation': 'Reklamation',
-    'beschaedigte_ware_leicht': 'Ästhetischer Schaden',
-    'beschaedigte_ware_mittel': 'Eingeschränkt benutzbar',
-    'beschaedigte_ware_schwer': 'Stark eingeschränkt benutzbar',
-    'beschaedigte_ware_unbrauchbar': 'Unbrauchbares Produkt',
-    'fehlende_teile': 'Fehlende Teile',
-    'geschmackssache': 'Geschmackssache',
-    'sonstiges': 'Sonstiges'
-  };
-  return labels[trigger] || trigger;
-}
-
-export function getCalculationBaseLabel(base: string): string {
-  const labels: Record<string, string> = {
-    'prozent_vom_vk': 'Prozentsatz vom VK',
+export const getCalculationBaseLabel = (base: CalculationBase): string => {
+  const labels: Record<CalculationBase, string> = {
+    'prozent_vom_vk': 'Prozent vom Verkaufspreis',
     'fester_betrag': 'Fester Betrag',
-    'preisstaffel': 'Preisstaffel',
-    'angebotsstaffel': 'Mehrstufiges Angebot'
+    'preisstaffel': 'Preisabhängige Staffelung',
+    'angebotsstaffel': 'Mehrere Angebotsstufen'
   };
   return labels[base] || base;
-}
+};
 
-export function getRoundingRuleLabel(rule: string): string {
-  const labels: Record<string, string> = {
+export const getRoundingRuleLabel = (rule: RoundingRule): string => {
+  const labels: Record<RoundingRule, string> = {
     'keine_rundung': 'Keine Rundung',
-    'auf_5_euro': 'Aufrunden auf 5€',
-    'auf_10_euro': 'Aufrunden auf 10€',
-    'auf_10_cent': 'Aufrunden auf 10 Cent'
+    'auf_5_euro': 'Auf 5€ aufrunden',
+    'auf_10_euro': 'Auf 10€ aufrunden',
+    'auf_10_cent': 'Auf 10 Cent aufrunden'
   };
   return labels[rule] || rule;
-}
+};
 
-export function getCostCenterLabel(center: string): string {
-  const labels: Record<string, string> = {
-    'merchant': 'Merchant',
+export const getCostCenterLabel = (center: CostCenter): string => {
+  const labels: Record<CostCenter, string> = {
+    'merchant': 'Händler',
     'check24': 'CHECK24'
   };
   return labels[center] || center;
-}
+};
 
-export function getReturnHandlingLabel(handling: string): string {
-  const labels: Record<string, string> = {
+export const getReturnHandlingLabel = (handling: ReturnHandling): string => {
+  const labels: Record<ReturnHandling, string> = {
     'automatisches_label': 'Automatisches Retourenlabel',
-    'manuelles_label': 'Manuelle Erstellung durch Partner',
+    'manuelles_label': 'Manuelles Retourenlabel',
     'zweitverwerter': 'Zweitverwerter',
-    'keine_retoure': 'Keine Retoure notwendig'
+    'keine_retoure': 'Keine Retoure erforderlich'
   };
   return labels[handling] || handling;
-}
+};
 
-export function getThresholdValueTypeLabel(type: ThresholdValueType): string {
-  const labels: Record<string, string> = {
-    'percent': 'Prozentsatz',
-    'fixed': 'Fester Betrag'
+export const getThresholdValueTypeLabel = (type: ThresholdValueType): string => {
+  const labels: Record<ThresholdValueType, string> = {
+    'percent': '%',
+    'fixed': '€'
   };
   return labels[type] || type;
-}
+};
+
+export const applyRoundingRule = (value: number, rule: RoundingRule): number => {
+  switch (rule) {
+    case 'keine_rundung':
+      return value;
+    case 'auf_5_euro':
+      return Math.ceil(value / 5) * 5;
+    case 'auf_10_euro':
+      return Math.ceil(value / 10) * 10;
+    case 'auf_10_cent':
+      return Math.ceil(value * 10) / 10;
+    default:
+      return value;
+  }
+};
