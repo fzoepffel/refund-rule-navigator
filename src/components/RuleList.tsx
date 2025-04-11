@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface RuleListProps {
   rules: DiscountRule[];
@@ -38,8 +39,7 @@ const RuleList: React.FC<RuleListProps> = ({
 
   const getCostCenterColor = (costCenter: string) => {
     switch (costCenter) {
-      case 'shop': return 'bg-blue-100 text-blue-800';
-      case 'partner': return 'bg-green-100 text-green-800';
+      case 'merchant': return 'bg-blue-100 text-blue-800';
       case 'check24': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -60,9 +60,11 @@ const RuleList: React.FC<RuleListProps> = ({
         <Button variant="outline" className="flex items-center gap-2">
           <Filter className="h-4 w-4" /> Filter
         </Button>
-        <Button className="flex items-center gap-2" onClick={onCreateRule}>
-          <Plus className="h-4 w-4" /> Neue Regel
-        </Button>
+        <Link to="/rule-editor">
+          <Button className="flex items-center gap-2" onClick={onCreateRule}>
+            <Plus className="h-4 w-4" /> Neue Regel
+          </Button>
+        </Link>
       </div>
       
       <div className="space-y-2">
@@ -91,16 +93,18 @@ const RuleList: React.FC<RuleListProps> = ({
                     <Badge className={getCostCenterColor(rule.costCenter)}>
                       {getCostCenterLabel(rule.costCenter)}
                     </Badge>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditRule(rule);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <Link to={`/rule-editor/${rule.id}`}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditRule(rule);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Button 
                       variant="ghost" 
                       size="icon"
