@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -24,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Minus, Save } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Save, ChevronDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Select, 
@@ -33,6 +34,14 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -102,6 +111,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         : [...prev.triggers, trigger];
       return { ...prev, triggers };
     });
+  };
+  
+  const getSelectedTriggersLabel = () => {
+    if (formData.triggers.length === 0) {
+      return "Gründe auswählen";
+    } else if (formData.triggers.length === 1) {
+      return getTriggerLabel(formData.triggers[0]);
+    } else {
+      return `${formData.triggers.length} Gründe ausgewählt`;
+    }
   };
   
   const handleAddPriceThreshold = () => {
@@ -190,6 +209,56 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             />
           </div>
           
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="requestType">Art der Anfrage</Label>
+              <Select 
+                value={formData.requestType} 
+                onValueChange={(value: RequestType) => handleChange("requestType", value)}
+              >
+                <SelectTrigger id="requestType">
+                  <SelectValue placeholder="Art der Anfrage auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {requestTypes.map(type => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="triggers">Grund</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    id="triggers"
+                  >
+                    <span>{getSelectedTriggersLabel()}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel>Gründe auswählen</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {triggers.map(trigger => (
+                    <DropdownMenuCheckboxItem
+                      key={trigger}
+                      checked={formData.triggers.includes(trigger)}
+                      onCheckedChange={() => toggleTrigger(trigger)}
+                    >
+                      {trigger}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          
           <div>
             <Label htmlFor="costCenter">Kostenträger</Label>
             <Select 
@@ -225,49 +294,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Label htmlFor="shipping-type-spedition">Spedition</Label>
               </div>
             </RadioGroup>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Anlässe</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="mb-2 block">Art der Anfrage</Label>
-            <RadioGroup 
-              value={formData.requestType} 
-              onValueChange={(value: RequestType) => handleChange("requestType", value)}
-              className="flex flex-col space-y-2"
-            >
-              {requestTypes.map(type => (
-                <div key={type} className="flex items-center space-x-2">
-                  <RadioGroupItem value={type} id={`request-type-${type}`} />
-                  <Label htmlFor={`request-type-${type}`}>{type}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-          
-          <Separator />
-          
-          <div>
-            <Label className="mb-2 block">Grund</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {triggers.map(trigger => (
-                <div key={trigger} className="flex items-center gap-2">
-                  <Checkbox 
-                    id={`trigger-${trigger}`} 
-                    checked={formData.triggers.includes(trigger)}
-                    onCheckedChange={() => toggleTrigger(trigger)}
-                  />
-                  <Label htmlFor={`trigger-${trigger}`}>
-                    {trigger}
-                  </Label>
-                </div>
-              ))}
-            </div>
           </div>
         </CardContent>
       </Card>

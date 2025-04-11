@@ -1,3 +1,4 @@
+
 import React from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -53,13 +54,19 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           </div>
 
           <Separator />
-
-          <div>
-            <div className="text-sm text-muted-foreground mb-2">Anlässe</div>
-            <div className="flex flex-wrap gap-2">
-              {rule.triggers.map(trigger => (
-                <Badge key={trigger} variant="outline">{getTriggerLabel(trigger)}</Badge>
-              ))}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-sm text-muted-foreground">Art der Anfrage</div>
+              <div className="font-medium">{rule.requestType}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">Gründe</div>
+              <div className="flex flex-wrap gap-2">
+                {rule.triggers.map(trigger => (
+                  <Badge key={trigger} variant="outline">{getTriggerLabel(trigger)}</Badge>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -94,7 +101,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                         {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                       </div>
                       <div className="font-medium">
-                        {rule.calculationBase === 'prozent_vom_vk' ? `${threshold.value}%` : `${threshold.value}€`}
+                        {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                       </div>
                     </div>
                   ))}
