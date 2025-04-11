@@ -1,4 +1,3 @@
-
 import { 
   Trigger, 
   RequestType, 
@@ -86,10 +85,7 @@ export const applyRoundingRule = (value: number, rule: RoundingRule): number => 
  */
 export const calculateDiscount = (salePrice: number, rule: DiscountRule): number | string => {
   if (rule.calculationBase === 'keine_berechnung') {
-    if (rule.maxAmount !== undefined) {
-      return 'Rücksprache mit Partner notwendig';
-    }
-    return 0;
+    return 'Rücksprache mit Partner notwendig';
   }
 
   let amount = 0;

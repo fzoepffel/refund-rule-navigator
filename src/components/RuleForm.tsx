@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -78,15 +77,15 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   
-  // Effect to manage the automatic checking of "consultPartnerBeforePayout" when maxAmount is defined and calculationBase is "keine_berechnung"
+  // Effect to manage the automatic checking of "consultPartnerBeforePayout" when calculationBase is "keine_berechnung"
   useEffect(() => {
-    if (formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined) {
+    if (formData.calculationBase === 'keine_berechnung') {
       setFormData(prev => ({
         ...prev,
         consultPartnerBeforePayout: true
       }));
     }
-  }, [formData.calculationBase, formData.maxAmount]);
+  }, [formData.calculationBase]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -596,16 +595,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Checkbox 
                   id="consultPartnerBeforePayout" 
                   checked={formData.consultPartnerBeforePayout || false}
-                  disabled={formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined}
+                  disabled={formData.calculationBase === 'keine_berechnung'}
                   onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
                 />
                 <Label htmlFor="consultPartnerBeforePayout" className={
-                  formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined 
+                  formData.calculationBase === 'keine_berechnung' 
                     ? "text-muted-foreground" 
                     : ""
                 }>
                   Rücksprache mit Partner vor Auszahlung
-                  {formData.calculationBase === 'keine_berechnung' && formData.maxAmount !== undefined && (
+                  {formData.calculationBase === 'keine_berechnung' && (
                     <span className="text-amber-600 ml-1">(Erforderlich)</span>
                   )}
                 </Label>
