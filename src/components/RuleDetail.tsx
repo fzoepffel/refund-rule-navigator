@@ -28,6 +28,15 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
     rule.calculationBase !== 'preisstaffel' && 
     rule.calculationBase !== 'angebotsstaffel';
 
+  // Determine which staffeling to show based on calculation base
+  const showPriceThresholds = rule.calculationBase === 'preisstaffel' && 
+    rule.priceThresholds && 
+    rule.priceThresholds.length > 0;
+    
+  const showDiscountLevels = rule.calculationBase === 'angebotsstaffel' && 
+    rule.discountLevels && 
+    rule.discountLevels.length > 0;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -95,7 +104,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </>
           )}
 
-          {rule.priceThresholds && rule.priceThresholds.length > 0 && (
+          {showPriceThresholds && (
             <>
               <Separator />
               <div>
@@ -117,7 +126,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </>
           )}
 
-          {rule.discountLevels && rule.discountLevels.length > 0 && (
+          {showDiscountLevels && (
             <>
               <Separator />
               <div>
