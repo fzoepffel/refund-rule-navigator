@@ -80,17 +80,12 @@ export interface DiscountRule {
   
   // Special rules
   checkIfProductOpened?: boolean;
-  offerDiscountBeforeReturn?: boolean;
-  noReturnOnFullRefund?: boolean;
-  minOrderAgeToDays?: number;
   customerLoyaltyCheck?: boolean;
+  minOrderAgeToDays?: number;
   
   // Additional actions
   requestPictures?: boolean;
   consultPartnerBeforePayout?: boolean;
-  sendInfoToPartner?: boolean;
-  requestReceiptOrProofOfPurchase?: boolean;
-  collectCustomerFeedback?: boolean;
   
   // Rule completeness check
   isCompleteRule?: boolean;

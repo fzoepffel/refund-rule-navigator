@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
@@ -5,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calculator, Activity, XCircle } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Calculator, Activity, XCircle, FastForward } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface RuleCalculatorProps {
@@ -18,9 +20,33 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [requestCount, setRequestCount] = useState<number>(0);
   const [currentDiscountLevel, setCurrentDiscountLevel] = useState<number>(0);
   const [offeringReturn, setOfferingReturn] = useState<boolean>(false);
+  const [showApologyMessage, setShowApologyMessage] = useState<boolean>(false);
+  const [showDiscountAmount, setShowDiscountAmount] = useState<boolean>(false);
   const { toast } = useToast();
   
-  const handleCalculate = () => {
+  // Helper function to generate an apology message based on the rule's triggers
+  const getApologyMessage = () => {
+    if (rule.triggers && rule.triggers.length > 0) {
+      const trigger = rule.triggers[0];
+      
+      switch (trigger) {
+        case 'Artikel beschädigt/funktioniert nicht mehr':
+          return "Es tut uns leid zu hören, dass Ihr Produkt beschädigt ist oder nicht mehr funktioniert.";
+        case 'Versandverpackung und Artikel beschädigt':
+          return "Es tut uns leid zu hören, dass sowohl die Verpackung als auch Ihr Artikel beschädigt sind.";
+        case 'Teile oder Zubehör fehlen':
+          return "Es tut uns leid zu hören, dass Teile oder Zubehör bei Ihrem Produkt fehlen.";
+        case 'Falscher Artikel':
+          return "Es tut uns leid zu hören, dass Sie einen falschen Artikel erhalten haben.";
+        default:
+          return "Es tut uns leid für die Unannehmlichkeiten mit Ihrem Produkt.";
+      }
+    }
+    
+    return "Es tut uns leid für die Unannehmlichkeiten mit Ihrem Produkt.";
+  };
+  
+  const calculateAndPrepareDiscount = () => {
     // Reset states when calculating a new discount
     setCurrentDiscountLevel(0);
     setOfferingReturn(false);
@@ -50,7 +76,26 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     setRequestCount(prevCount => prevCount + 1);
   };
   
+  const handleCalculate = () => {
+    // Show apology message first
+    setShowApologyMessage(true);
+    setShowDiscountAmount(false);
+    
+    // Calculate the discount in the background
+    calculateAndPrepareDiscount();
+  };
+  
+  const handleForwardSkip = () => {
+    // Show the calculated discount
+    setShowApologyMessage(false);
+    setShowDiscountAmount(true);
+  };
+  
   const handleReject = () => {
+    // Reset the display state
+    setShowApologyMessage(true);
+    setShowDiscountAmount(false);
+    
     // Check for angebotsstaffel rules with multiple discount levels
     if (rule.calculationBase === 'angebotsstaffel' && rule.discountLevels) {
       // Try to offer the next higher discount level
@@ -152,12 +197,38 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           </div>
         </div>
         
-        <Button onClick={handleCalculate} className="w-full">
-          <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
-        </Button>
+        {!showApologyMessage && !showDiscountAmount && (
+          <Button onClick={handleCalculate} className="w-full">
+            <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
+          </Button>
+        )}
         
-        {discountAmount !== null && (
+        {showApologyMessage && (
+          <div className="space-y-4">
+            <Alert className="bg-blue-50 border-blue-200">
+              <AlertTitle>{getApologyMessage()}</AlertTitle>
+              <AlertDescription>
+                Wir senden eine Nachricht an unseren Partner, um nach einem angemessenen Preisnachlass zu fragen. 
+                Bitte haben Sie einen Moment Geduld.
+              </AlertDescription>
+            </Alert>
+            
+            <Button onClick={handleForwardSkip} className="w-full">
+              <FastForward className="h-4 w-4 mr-2" /> Vorspulen
+            </Button>
+          </div>
+        )}
+        
+        {showDiscountAmount && discountAmount !== null && (
           <div className="mt-4">
+            <Alert className="bg-green-50 border-green-200 mb-4">
+              <AlertTitle>Vielen Dank für Ihre Geduld!</AlertTitle>
+              <AlertDescription>
+                Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass 
+                von {typeof discountAmount === 'number' ? formatCurrency(discountAmount) : "0,00 €"} gewähren.
+              </AlertDescription>
+            </Alert>
+            
             <div className="flex justify-between items-center">
               <div className="text-sm text-muted-foreground">Berechneter Nachlass</div>
               <div className="flex items-center text-sm text-muted-foreground">
@@ -175,21 +246,12 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                     : formatCurrency(salePrice - discountAmount)}
                 </div>
                 
-                {/* Show reject button in the following cases:
-                    1. For angebotsstaffel rules with more discount levels available
-                    2. For rules with discount_then_return strategy that haven't yet offered a return
-                    3. For rules with discount_then_keep strategy that haven't offered a full refund
-                */}
+                {/* Show reject button in the following cases */}
                 {(
-                  // For angebotsstaffel rules with more levels
                   (rule.calculationBase === 'angebotsstaffel' && 
                    rule.discountLevels && 
                    currentDiscountLevel < rule.discountLevels.length - 1) ||
-                  
-                  // For rules with discount_then_return strategy that haven't offered a return yet
                   (rule.returnStrategy === 'discount_then_return' && !offeringReturn) ||
-                  
-                  // For rules with discount_then_keep strategy that haven't offered a full refund yet
                   (rule.returnStrategy === 'discount_then_keep' && discountAmount < salePrice)
                 ) && (
                   <Button 
