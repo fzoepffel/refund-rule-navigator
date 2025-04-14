@@ -80,8 +80,11 @@ export interface DiscountRule {
   
   // Special rules
   checkIfProductOpened?: boolean;
+  offerDiscountBeforeReturn?: boolean; // Added missing property
+  noReturnOnFullRefund?: boolean;      // Added missing property
   customerLoyaltyCheck?: boolean;
   minOrderAgeToDays?: number;
+  sendInfoToPartner?: boolean;         // Added missing property
   
   // Additional actions
   requestPictures?: boolean;

@@ -1,4 +1,5 @@
-import { DiscountRule, DiscountLevel } from "../models/ruleTypes";
+
+import { DiscountRule } from "../models/ruleTypes";
 
 export const sampleRules: DiscountRule[] = [
   {
