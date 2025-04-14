@@ -6,8 +6,7 @@ import {
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
   getCostCenterLabel, 
-  getReturnHandlingLabel,
-  getThresholdValueTypeLabel 
+  getReturnStrategyLabel 
 } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,8 +59,12 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               <div className="font-medium">{getCostCenterLabel(rule.costCenter)}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground">Retourenabwicklung</div>
-              <div className="font-medium">{getReturnHandlingLabel(rule.returnHandling)}</div>
+              <div className="text-sm text-muted-foreground">Rückgabestrategie</div>
+              <div className="font-medium">
+                {rule.returnStrategy 
+                  ? getReturnStrategyLabel(rule.returnStrategy) 
+                  : 'Keine Strategie definiert'}
+              </div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground">Versandart</div>
