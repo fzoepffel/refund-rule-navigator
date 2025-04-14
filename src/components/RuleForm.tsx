@@ -667,29 +667,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </div>
               <div className="flex items-center gap-2">
                 <Checkbox 
-                  id="offerDiscountBeforeReturn" 
-                  checked={formData.offerDiscountBeforeReturn || false}
-                  onCheckedChange={(checked) => handleChange("offerDiscountBeforeReturn", checked)}
-                  disabled={formData.returnStrategy === 'auto_return_full_refund'}
-                />
-                <Label htmlFor="offerDiscountBeforeReturn" className={
-                  formData.returnStrategy === 'auto_return_full_refund' ? "text-muted-foreground" : ""
-                }>
-                  Erst Nachlass anbieten, dann Retoure
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="noReturnOnFullRefund" 
-                  checked={formData.noReturnOnFullRefund || false}
-                  onCheckedChange={(checked) => handleChange("noReturnOnFullRefund", checked)}
-                />
-                <Label htmlFor="noReturnOnFullRefund">
-                  Bei voller Erstattung keine Retoure notwendig
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
                   id="customerLoyaltyCheck" 
                   checked={formData.customerLoyaltyCheck || false}
                   onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
@@ -725,36 +702,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 />
                 <Label htmlFor="requestPictures">
                   Bilder anfordern
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="requestReceiptOrProofOfPurchase" 
-                  checked={formData.requestReceiptOrProofOfPurchase || false}
-                  onCheckedChange={(checked) => handleChange("requestReceiptOrProofOfPurchase", checked)}
-                />
-                <Label htmlFor="requestReceiptOrProofOfPurchase">
-                  Kaufbeleg/Nachweise anfordern
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="collectCustomerFeedback" 
-                  checked={formData.collectCustomerFeedback || false}
-                  onCheckedChange={(checked) => handleChange("collectCustomerFeedback", checked)}
-                />
-                <Label htmlFor="collectCustomerFeedback">
-                  Kundenfeedback zum Produkt einholen
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="sendInfoToPartner" 
-                  checked={formData.sendInfoToPartner || false}
-                  onCheckedChange={(checked) => handleChange("sendInfoToPartner", checked)}
-                />
-                <Label htmlFor="sendInfoToPartner">
-                  Info über Gründe an Partner senden
                 </Label>
               </div>
             </div>
