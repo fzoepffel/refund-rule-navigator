@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
@@ -22,6 +21,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [offeringReturn, setOfferingReturn] = useState<boolean>(false);
   const [showApologyMessage, setShowApologyMessage] = useState<boolean>(false);
   const [showDiscountAmount, setShowDiscountAmount] = useState<boolean>(false);
+  const [showNegotiatingMessage, setShowNegotiatingMessage] = useState<boolean>(false);
   const { toast } = useToast();
   
   // Helper function to generate an apology message based on the rule's triggers
@@ -80,29 +80,36 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     // Show apology message first
     setShowApologyMessage(true);
     setShowDiscountAmount(false);
+    setShowNegotiatingMessage(false);
     
     // Calculate the discount in the background
     calculateAndPrepareDiscount();
   };
   
   const handleForwardSkip = () => {
-    // Show the calculated discount
-    setShowApologyMessage(false);
-    setShowDiscountAmount(true);
+    // If we're showing the negotiating message, show the calculated discount with the next level
+    if (showNegotiatingMessage) {
+      setShowNegotiatingMessage(false);
+      setShowDiscountAmount(true);
+    } else {
+      // Otherwise, just show the calculated discount
+      setShowApologyMessage(false);
+      setShowDiscountAmount(true);
+    }
   };
   
   const handleReject = () => {
-    // Reset the display state
-    setShowApologyMessage(true);
-    setShowDiscountAmount(false);
-    
     // Check for angebotsstaffel rules with multiple discount levels
     if (rule.calculationBase === 'angebotsstaffel' && rule.discountLevels) {
       // Try to offer the next higher discount level
       const nextLevel = currentDiscountLevel + 1;
       
-      // If we have more discount levels available, show the next one
+      // If we have more discount levels available, show negotiating message first
       if (nextLevel < rule.discountLevels.length) {
+        // Hide the discount amount and show negotiating message
+        setShowDiscountAmount(false);
+        setShowNegotiatingMessage(true);
+        
         // Get the next level discount object
         const nextLevelDiscount = rule.discountLevels[nextLevel];
         
@@ -124,6 +131,10 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       // If we've exhausted all discount levels or if the return strategy is "discount_then_return" or "discount_then_keep"
       else if (rule.returnStrategy === 'discount_then_return' || 
               rule.returnStrategy === 'discount_then_keep') {
+        // Show negotiating message
+        setShowDiscountAmount(false);
+        setShowNegotiatingMessage(true);
+        
         // Offer full refund based on return strategy
         if (rule.returnStrategy === 'discount_then_return') {
           handleFullRefundAndReturn();
@@ -140,6 +151,10 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     } 
     // For non-ladder rules or rules without discount levels
     else {
+      // Hide the discount amount and show negotiating message
+      setShowDiscountAmount(false);
+      setShowNegotiatingMessage(true);
+      
       // Handle based on return strategy
       if (rule.returnStrategy === 'discount_then_return' && !offeringReturn) {
         handleFullRefundAndReturn();
@@ -197,7 +212,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           </div>
         </div>
         
-        {!showApologyMessage && !showDiscountAmount && (
+        {!showApologyMessage && !showNegotiatingMessage && !showDiscountAmount && (
           <Button onClick={handleCalculate} className="w-full">
             <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
           </Button>
@@ -209,6 +224,23 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
               <AlertTitle>{getApologyMessage()}</AlertTitle>
               <AlertDescription>
                 Wir senden eine Nachricht an unseren Partner, um nach einem angemessenen Preisnachlass zu fragen. 
+                Bitte haben Sie einen Moment Geduld.
+              </AlertDescription>
+            </Alert>
+            
+            <Button onClick={handleForwardSkip} className="w-full">
+              <FastForward className="h-4 w-4 mr-2" /> Vorspulen
+            </Button>
+          </div>
+        )}
+        
+        {showNegotiatingMessage && (
+          <div className="space-y-4">
+            <Alert className="bg-blue-50 border-blue-200">
+              <AlertTitle>Wir setzen uns erneut für Sie ein!</AlertTitle>
+              <AlertDescription>
+                Wir sprechen noch einmal mit unserem Partner und versuchen alles Mögliche, 
+                um einen höheren Preisnachlass für Sie zu erreichen.
                 Bitte haben Sie einen Moment Geduld.
               </AlertDescription>
             </Alert>
