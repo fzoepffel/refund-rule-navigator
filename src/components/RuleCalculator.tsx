@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
@@ -256,8 +257,10 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
             <Alert className="bg-green-50 border-green-200 mb-4">
               <AlertTitle>Vielen Dank für Ihre Geduld!</AlertTitle>
               <AlertDescription>
-                Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass 
-                von {typeof discountAmount === 'number' ? formatCurrency(discountAmount) : "0,00 €"} gewähren.
+                {offeringReturn 
+                  ? "Leider kann unser Partner keinen weiteren Preisnachlass anbieten. Allerdings können wir Ihnen eine volle Rückerstattung anbieten, wenn Sie den Artikel zurücksenden."
+                  : `Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass von ${typeof discountAmount === 'number' ? formatCurrency(discountAmount) : "0,00 €"} gewähren.`
+                }
               </AlertDescription>
             </Alert>
             
