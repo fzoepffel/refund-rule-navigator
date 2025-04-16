@@ -91,4 +91,5 @@ export interface DiscountRule {
   
   // Additional notes
   notes?: string;
+  packageOpened?: 'yes' | 'no';
 }

@@ -47,6 +47,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Check, X } from "lucide-react";
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -64,7 +65,8 @@ const defaultRule: DiscountRule = {
   returnHandling: "keine_retoure",
   shippingType: "paket",
   returnStrategy: "discount_then_return",
-  value: 10
+  value: 10,
+  packageOpened: 'no'
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
@@ -634,109 +636,135 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           <CardTitle>Sonderregeln & Zusatzaktionen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="checkIfProductOpened" 
-                  checked={formData.checkIfProductOpened || false}
-                  onCheckedChange={(checked) => handleChange("checkIfProductOpened", checked)}
-                />
-                <Label htmlFor="checkIfProductOpened">
-                  Prüfung ob Produkt geöffnet ist
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="customerLoyaltyCheck" 
-                  checked={formData.customerLoyaltyCheck || false}
-                  onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
-                />
-                <Label htmlFor="customerLoyaltyCheck">
-                  Kundenhistorie prüfen (Bestandskunde)
-                </Label>
-              </div>
-              <div className="flex items-center gap-4">
-                <Checkbox 
-                  id="minOrderAgeToDays" 
-                  checked={!!formData.minOrderAgeToDays}
-                  onCheckedChange={(checked) => handleChange("minOrderAgeToDays", checked ? 14 : undefined)}
-                />
-                <Label htmlFor="minOrderAgeToDays" className="flex-shrink-0">
-                  Maximales Bestellungsalter (Tage)
-                </Label>
-                {formData.minOrderAgeToDays !== undefined && (
-                  <Input
-                    type="number"
-                    min={1}
-                    className="w-20"
-                    value={formData.minOrderAgeToDays}
-                    onChange={(e) => handleChange("minOrderAgeToDays", parseInt(e.target.value))}
-                  />
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="requestPictures" 
-                  checked={formData.requestPictures || false}
-                  onCheckedChange={(checked) => handleChange("requestPictures", checked)}
-                />
-                <Label htmlFor="requestPictures">
-                  Bilder anfordern
-                </Label>
-              </div>
-            </div>
-          </div>
-          
-          <Separator className="my-2" />
-          
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Checkbox 
-                id="isCompleteRule" 
-                checked={formData.isCompleteRule || false}
-                onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
-              />
-              <div>
-                <Label htmlFor="isCompleteRule" className="text-base">
-                  Regel konnte komplett und eindeutig erfasst werden
-                </Label>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
-                  In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
-                </p>
+            <div>
+              <Label>Paket geöffnet?</Label>
+              <RadioGroup
+                value={formData.packageOpened || 'no'}
+                onValueChange={(value: 'yes' | 'no') => handleChange("packageOpened", value)}
+                className="flex items-center space-x-4 mt-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="package-opened-yes" />
+                  <Label htmlFor="package-opened-yes" className="flex items-center">
+                    <Check className="h-4 w-4 mr-1" />
+                    Ja
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="package-opened-no" />
+                  <Label htmlFor="package-opened-no" className="flex items-center">
+                    <X className="h-4 w-4 mr-1" />
+                    Nein
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="checkIfProductOpened" 
+                    checked={formData.checkIfProductOpened || false}
+                    onCheckedChange={(checked) => handleChange("checkIfProductOpened", checked)}
+                  />
+                  <Label htmlFor="checkIfProductOpened">
+                    Prüfung ob Produkt geöffnet ist
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="customerLoyaltyCheck" 
+                    checked={formData.customerLoyaltyCheck || false}
+                    onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
+                  />
+                  <Label htmlFor="customerLoyaltyCheck">
+                    Kundenhistorie prüfen (Bestandskunde)
+                  </Label>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Checkbox 
+                    id="minOrderAgeToDays" 
+                    checked={!!formData.minOrderAgeToDays}
+                    onCheckedChange={(checked) => handleChange("minOrderAgeToDays", checked ? 14 : undefined)}
+                  />
+                  <Label htmlFor="minOrderAgeToDays" className="flex-shrink-0">
+                    Maximales Bestellungsalter (Tage)
+                  </Label>
+                  {formData.minOrderAgeToDays !== undefined && (
+                    <Input
+                      type="number"
+                      min={1}
+                      className="w-20"
+                      value={formData.minOrderAgeToDays}
+                      onChange={(e) => handleChange("minOrderAgeToDays", parseInt(e.target.value))}
+                    />
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="requestPictures" 
+                    checked={formData.requestPictures || false}
+                    onCheckedChange={(checked) => handleChange("requestPictures", checked)}
+                  />
+                  <Label htmlFor="requestPictures">
+                    Bilder anfordern
+                  </Label>
+                </div>
               </div>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <Checkbox 
-                id="consultPartnerBeforePayout" 
-                checked={formData.consultPartnerBeforePayout || false}
-                disabled={formData.calculationBase === 'keine_berechnung'}
-                onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
-              />
-              <Label htmlFor="consultPartnerBeforePayout" className={
-                formData.calculationBase === 'keine_berechnung' 
-                  ? "text-muted-foreground" 
-                  : ""
-              }>
-                Rücksprache mit Partner vor Auszahlung
-                {formData.calculationBase === 'keine_berechnung' && (
-                  <span className="text-amber-600 ml-1">(Erforderlich)</span>
-                )}
-              </Label>
-            </div>
-          </div>
           
-          <div>
-            <Label htmlFor="notes">Notizen</Label>
-            <Textarea 
-              id="notes" 
-              value={formData.notes || ''} 
-              onChange={(e) => handleChange("notes", e.target.value)}
-              placeholder="Zusätzliche Hinweise zur Regel"
-              rows={4}
-            />
+            <Separator className="my-2" />
+          
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="isCompleteRule" 
+                  checked={formData.isCompleteRule || false}
+                  onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
+                />
+                <div>
+                  <Label htmlFor="isCompleteRule" className="text-base">
+                    Regel konnte komplett und eindeutig erfasst werden
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
+                    In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
+                  </p>
+                </div>
+              </div>
+            
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="consultPartnerBeforePayout" 
+                  checked={formData.consultPartnerBeforePayout || false}
+                  disabled={formData.calculationBase === 'keine_berechnung'}
+                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
+                />
+                <Label htmlFor="consultPartnerBeforePayout" className={
+                  formData.calculationBase === 'keine_berechnung' 
+                    ? "text-muted-foreground" 
+                    : ""
+                }>
+                  Rücksprache mit Partner vor Auszahlung
+                  {formData.calculationBase === 'keine_berechnung' && (
+                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
+                  )}
+                </Label>
+              </div>
+            </div>
+          
+            <div>
+              <Label htmlFor="notes">Notizen</Label>
+              <Textarea 
+                id="notes" 
+                value={formData.notes || ''} 
+                onChange={(e) => handleChange("notes", e.target.value)}
+                placeholder="Zusätzliche Hinweise zur Regel"
+                rows={4}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
