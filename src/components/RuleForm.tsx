@@ -61,7 +61,6 @@ const defaultRule: DiscountRule = {
   name: "",
   requestType: "Egal",
   requestCategory: "Egal",
-  requestPictures: false,
   triggers: ["Egal"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
@@ -69,9 +68,7 @@ const defaultRule: DiscountRule = {
   shippingType: "Egal",
   packageOpened: "Egal",
   returnStrategy: "discount_then_return",
-  value: 10,
-  packageOpened: 'no',
-  requestCategory: 'Reklamation'
+  value: 10
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {

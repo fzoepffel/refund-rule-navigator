@@ -86,6 +86,7 @@ export interface DiscountRule {
   consultPartnerBeforePayout?: boolean,
   isCompleteRule?: boolean,
   notes?: string,
-  noReturnOnFullRefund?: boolean
+  noReturnOnFullRefund?: boolean,
+  offerDiscountBeforeReturn?: boolean,
+  sendInfoToPartner?: boolean
 }
-

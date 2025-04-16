@@ -5,6 +5,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "1",
     name: "Standard Widerruf bis 50€",
+    requestCategory: "Widerruf",
     requestType: "Artikel zurücksenden",
     triggers: ["Teile oder Zubehör fehlen", "Falscher Artikel"],
     calculationBase: "fester_betrag",
@@ -16,6 +17,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "2",
     name: "20% vom VK",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Falscher Artikel", "Teile oder Zubehör fehlen"],
     calculationBase: "prozent_vom_vk",
@@ -27,6 +29,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "3",
     name: "Komplexe Widerruf/Reklamation Staffelung",
+    requestCategory: "Widerruf",
     requestType: "Artikel zurücksenden",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "preisstaffel",
@@ -41,6 +44,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "4",
     name: "40%-60% Mehrstufiges Angebot",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "angebotsstaffel",
@@ -59,6 +63,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "5",
     name: "Betragsstaffel nach VK",
+    requestCategory: "Widerruf",
     requestType: "Artikel zurücksenden",
     triggers: ["Teile oder Zubehör fehlen", "Falscher Artikel"],
     calculationBase: "preisstaffel",
@@ -75,6 +80,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "6",
     name: "10% Leifheit ohne Rundung",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Falscher Artikel", "Artikel beschädigt/funktioniert nicht mehr"],
     calculationBase: "prozent_vom_vk",
@@ -87,6 +93,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "7",
     name: "CHECK24 30% mit 10€ Rundung",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Falscher Artikel", "Artikel beschädigt/funktioniert nicht mehr"],
     calculationBase: "prozent_vom_vk",
@@ -98,6 +105,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "8",
     name: "Beschädigte Produkte - Ästhetischer Schaden",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr"],
     calculationBase: "prozent_vom_vk",
@@ -110,6 +118,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "9",
     name: "Stark beschädigte Produkte - Eingeschränkt benutzbar",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Versandverpackung und Artikel beschädigt"],
     calculationBase: "prozent_vom_vk",
@@ -123,6 +132,7 @@ export const sampleRules: DiscountRule[] = [
   {
     id: "10",
     name: "Schwer beschädigte Produkte",
+    requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "angebotsstaffel",
