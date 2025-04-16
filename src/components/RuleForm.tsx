@@ -81,6 +81,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   ];
   
   const triggers: Trigger[] = [
+    'Leistung oder Qualität ungenügend',
+    'Inkompatibel oder für den vorgesehenen Einsatz ungeeignet',
+    'Gefällt mir nicht mehr',
+    'Irrtümlich bestellt',
+    'Günstigeren Preis entdeckt',
+    'Keinen Grund angegeben',
     'Artikel beschädigt/funktioniert nicht mehr',
     'Versandverpackung und Artikel beschädigt',
     'Teile oder Zubehör fehlen',

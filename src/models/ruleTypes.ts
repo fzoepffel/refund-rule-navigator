@@ -10,7 +10,13 @@ export type Trigger =
   | 'Versandverpackung und Artikel beschädigt'
   | 'Teile oder Zubehör fehlen'
   | 'Falscher Artikel'
-  | 'Sonstiges';
+  | 'Sonstiges'
+  | 'Leistung oder Qualität ungenügend'
+  | 'Inkompatibel oder für den vorgesehenen Einsatz ungeeignet'
+  | 'Gefällt mir nicht mehr'
+  | 'Irrtümlich bestellt'
+  | 'Günstigeren Preis entdeckt'
+  | 'Keinen Grund angegeben';
 
 export type CalculationBase = 
   | 'prozent_vom_vk' 
