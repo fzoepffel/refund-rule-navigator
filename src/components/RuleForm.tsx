@@ -421,25 +421,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Gewünschte Vorgehensweise */}
-            <div>
-              <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
-              <Select 
-                value={formData.requestType} 
-                onValueChange={(value: RequestType) => handleChange("requestType", value)}
-              >
-                <SelectTrigger id="requestType">
-                  <SelectValue placeholder="Vorgehensweise auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {requestTypes.map(type => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
+            {formData.requestCategory === 'Reklamation' && (
+              <div>
+                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
+                <Select 
+                  value={formData.requestType} 
+                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
+                >
+                  <SelectTrigger id="requestType">
+                    <SelectValue placeholder="Vorgehensweise auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {requestTypes.map(type => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             
             {/* Grund */}
             <div>
