@@ -10,7 +10,6 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "fester_betrag",
     value: 50,
     roundingRule: "keine_rundung",
-    costCenter: "merchant",
     returnHandling: "automatisches_label",
     shippingType: "paket"
   },
@@ -22,7 +21,6 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 20,
     roundingRule: "keine_rundung",
-    costCenter: "merchant",
     returnHandling: "automatisches_label",
     shippingType: "paket"
   },
@@ -33,7 +31,6 @@ export const sampleRules: DiscountRule[] = [
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "preisstaffel",
     roundingRule: "auf_5_euro",
-    costCenter: "merchant",
     returnHandling: "manuelles_label",
     shippingType: "spedition",
     priceThresholds: [
@@ -48,7 +45,6 @@ export const sampleRules: DiscountRule[] = [
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "angebotsstaffel",
     roundingRule: "keine_rundung",
-    costCenter: "merchant",
     returnHandling: "manuelles_label",
     shippingType: "spedition",
     discountLevels: [
@@ -67,7 +63,6 @@ export const sampleRules: DiscountRule[] = [
     triggers: ["Teile oder Zubehör fehlen", "Falscher Artikel"],
     calculationBase: "preisstaffel",
     roundingRule: "keine_rundung",
-    costCenter: "merchant",
     returnHandling: "automatisches_label",
     shippingType: "paket",
     priceThresholds: [
@@ -85,7 +80,6 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 10,
     roundingRule: "keine_rundung",
-    costCenter: "merchant",
     returnHandling: "manuelles_label",
     shippingType: "paket",
     notes: "Leifheit legt Retourenlabel im Paket bei."
@@ -98,7 +92,6 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 30,
     roundingRule: "auf_10_euro",
-    costCenter: "check24",
     returnHandling: "automatisches_label",
     shippingType: "paket"
   },
@@ -110,7 +103,6 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 15,
     roundingRule: "auf_5_euro",
-    costCenter: "merchant",
     returnHandling: "keine_retoure",
     shippingType: "paket",
     requestPictures: true
@@ -123,7 +115,6 @@ export const sampleRules: DiscountRule[] = [
     calculationBase: "prozent_vom_vk",
     value: 35,
     roundingRule: "auf_5_euro",
-    costCenter: "merchant",
     returnHandling: "keine_retoure",
     shippingType: "paket",
     requestPictures: true,
@@ -141,7 +132,6 @@ export const sampleRules: DiscountRule[] = [
       { value: 100, valueType: 'percent' }
     ],
     roundingRule: "keine_rundung",
-    costCenter: "check24",
     returnHandling: "keine_retoure",
     shippingType: "spedition",
     requestPictures: true,

@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
-  getCostCenterLabel, 
   getCalculationBaseLabel, 
   getRoundingRuleLabel 
 } from "../utils/discountUtils";
@@ -32,18 +31,8 @@ const RuleList: React.FC<RuleListProps> = ({
   
   const filteredRules = rules.filter(rule => {
     const matchesSearch = rule.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = !filter || rule.costCenter === filter;
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
-
-  const getCostCenterColor = (costCenter: string) => {
-    switch (costCenter) {
-      case 'shop': return 'bg-blue-100 text-blue-800';
-      case 'partner': return 'bg-green-100 text-green-800';
-      case 'check24': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -88,9 +77,6 @@ const RuleList: React.FC<RuleListProps> = ({
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={getCostCenterColor(rule.costCenter)}>
-                      {getCostCenterLabel(rule.costCenter)}
-                    </Badge>
                     <Button 
                       variant="ghost" 
                       size="icon" 

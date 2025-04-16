@@ -1,11 +1,9 @@
-
 import React from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
-  getCostCenterLabel, 
   getReturnStrategyLabel 
 } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,11 +51,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           <CardTitle>Grundinformationen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <div className="text-sm text-muted-foreground">Kostenträger</div>
-              <div className="font-medium">{getCostCenterLabel(rule.costCenter)}</div>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-sm text-muted-foreground">Rückgabestrategie</div>
               <div className="font-medium">

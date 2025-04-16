@@ -3,7 +3,6 @@ import {
   RequestType, 
   CalculationBase, 
   RoundingRule, 
-  CostCenter, 
   ReturnHandling,
   ThresholdValueType,
   DiscountRule,
@@ -39,14 +38,6 @@ export const getRoundingRuleLabel = (rule: RoundingRule): string => {
     'auf_10_cent': 'Auf 10 Cent aufrunden'
   };
   return labels[rule] || rule;
-};
-
-export const getCostCenterLabel = (center: CostCenter): string => {
-  const labels: Record<CostCenter, string> = {
-    'merchant': 'Händler',
-    'check24': 'CHECK24'
-  };
-  return labels[center] || center;
 };
 
 export const getReturnHandlingLabel = (handling: ReturnHandling): string => {
