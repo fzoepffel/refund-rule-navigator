@@ -41,7 +41,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuRadioItem
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -141,23 +142,19 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
   
-  const toggleTrigger = (trigger: Trigger) => {
-    setFormData(prev => {
-      const triggers = prev.triggers.includes(trigger)
-        ? prev.triggers.filter(t => t !== trigger)
-        : [...prev.triggers, trigger];
-      return { ...prev, triggers };
-    });
+  // Replace toggleTrigger with a direct setter
+  const setTrigger = (trigger: Trigger) => {
+    setFormData(prev => ({
+      ...prev,
+      triggers: [trigger] // Now we only store a single trigger
+    }));
   };
-  
-  const getSelectedTriggersLabel = () => {
+
+  const getSelectedTriggerLabel = () => {
     if (formData.triggers.length === 0) {
-      return "Gründe auswählen";
-    } else if (formData.triggers.length === 1) {
-      return getTriggerLabel(formData.triggers[0]);
-    } else {
-      return `${formData.triggers.length} Gründe ausgewählt`;
+      return "Grund auswählen";
     }
+    return getTriggerLabel(formData.triggers[0]);
   };
   
   const handleAddPriceThreshold = () => {
@@ -370,21 +367,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     className="w-full justify-between"
                     id="triggers"
                   >
-                    <span>{getSelectedTriggersLabel()}</span>
+                    <span>{getSelectedTriggerLabel()}</span>
                     <ChevronDown className="h-4 w-4 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>Gründe auswählen</DropdownMenuLabel>
+                  <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {triggers.map(trigger => (
-                    <DropdownMenuCheckboxItem
+                    <DropdownMenuRadioItem
                       key={trigger}
-                      checked={formData.triggers.includes(trigger)}
-                      onCheckedChange={() => toggleTrigger(trigger)}
+                      value={trigger}
+                      checked={formData.triggers[0] === trigger}
+                      onSelect={() => setTrigger(trigger)}
                     >
                       {trigger}
-                    </DropdownMenuCheckboxItem>
+                    </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
