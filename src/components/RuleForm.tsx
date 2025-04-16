@@ -382,6 +382,63 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
 
+          {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
+          {formData.requestCategory === 'Reklamation' && (
+            <div>
+              <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
+              <Select 
+                value={formData.requestType} 
+                onValueChange={(value: RequestType) => handleChange("requestType", value)}
+              >
+                <SelectTrigger id="requestType">
+                  <SelectValue placeholder="Vorgehensweise auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {requestTypes.map(type => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Grund */}
+          <div>
+            <Label htmlFor="triggers">Grund</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between"
+                  id="triggers"
+                >
+                  <span>{getSelectedTriggerLabel()}</span>
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup 
+                  value={formData.triggers[0]} 
+                  onValueChange={(value: string) => setTrigger(value as Trigger)}
+                >
+                  {triggers.map(trigger => (
+                    <DropdownMenuRadioItem
+                      key={trigger}
+                      value={trigger}
+                    >
+                      {trigger}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          
           {/* Versandart */}
           <div>
             <Label htmlFor="shippingType">Versandart</Label>
@@ -420,421 +477,1180 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
-            {formData.requestCategory === 'Reklamation' && (
-              <div>
-                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
-                <Select 
-                  value={formData.requestType} 
-                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
-                >
-                  <SelectTrigger id="requestType">
-                    <SelectValue placeholder="Vorgehensweise auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {requestTypes.map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            {/* Grund */}
-            <div>
-              <Label htmlFor="triggers">Grund</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between"
-                    id="triggers"
-                  >
-                    <span>{getSelectedTriggerLabel()}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup 
-                    value={formData.triggers[0]} 
-                    onValueChange={(value: string) => setTrigger(value as Trigger)}
-                  >
-                    {triggers.map(trigger => (
-                      <DropdownMenuRadioItem
-                        key={trigger}
-                        value={trigger}
-                      >
-                        {trigger}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
           
-          <div>
-            <Label htmlFor="returnStrategy">Rückgabestrategie</Label>
-            <Select 
-              value={formData.returnStrategy || 'discount_then_return'} 
-              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
-            >
-              <SelectTrigger id="returnStrategy">
-                <SelectValue placeholder="Rückgabestrategie auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {returnStrategies.map(strategy => (
-                  <SelectItem key={strategy.value} value={strategy.value}>
-                    {strategy.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formData.returnStrategy === 'auto_return_full_refund' && (
-              <Alert className="mt-2">
-                <AlertDescription>
-                  Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {formData.returnStrategy !== 'auto_return_full_refund' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Berechnungsgrundlage</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="calculationBase">Art der Berechnung</Label>
-              <Select 
-                value={formData.calculationBase} 
-                onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
-              >
-                <SelectTrigger id="calculationBase">
-                  <SelectValue placeholder="Berechnungsgrundlage auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {calculationBases.map(base => (
-                    <SelectItem key={base} value={base}>
-                      {getCalculationBaseLabel(base)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.calculationBase === 'keine_berechnung' && (formData.maxAmount === undefined || formData.maxAmount === null) && (
-                <Alert className="mt-2">
-                  <AlertDescription>
-                    Bei 'Keine Berechnung' ist eine Rücksprache mit Partner erforderlich.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-            
-            {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'fester_betrag') && (
-              <div>
-                <Label htmlFor="value">
-                  {formData.calculationBase === 'prozent_vom_vk' ? 'Prozentsatz' : 'Betrag (€)'}
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input 
-                    id="value" 
-                    type="number" 
-                    value={formData.value || ''} 
-                    onChange={(e) => handleChange("value", parseFloat(e.target.value))}
-                    min={0}
-                  />
-                  <div className="text-lg font-medium w-6">
-                    {formData.calculationBase === 'prozent_vom_vk' ? '%' : '€'}
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {formData.calculationBase === 'preisstaffel' && (
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label>Preisstaffelung</Label>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleAddPriceThreshold}
-                  >
-                    <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
-                  </Button>
-                </div>
-                
-                {(formData.priceThresholds || []).map((threshold, index) => (
-                  <div key={index} className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_auto] items-center gap-2 mb-4">
-                    <div>
-                      <Label htmlFor={`min-${index}`}>Min (€)</Label>
-                      <Input 
-                        id={`min-${index}`} 
-                        type="number" 
-                        value={threshold.minPrice} 
-                        onChange={(e) => handlePriceThresholdChange(index, "minPrice", parseFloat(e.target.value))}
-                        min={0}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`max-${index}`}>Max (€)</Label>
-                      <Input 
-                        id={`max-${index}`} 
-                        type="number" 
-                        value={threshold.maxPrice || ''} 
-                        onChange={(e) => {
-                          const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                          handlePriceThresholdChange(index, "maxPrice", value);
-                        }}
-                        min={threshold.minPrice + 1}
-                        placeholder="Unbegrenzt"
-                      />
-                    </div>
-                    <div className="self-end text-lg font-medium pt-2">:</div>
-                    <div>
-                      <Label htmlFor={`value-${index}`}>Wert</Label>
-                      <Input 
-                        id={`value-${index}`} 
-                        type="number" 
-                        value={threshold.value} 
-                        onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
-                        min={0}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`valueType-${index}`}>Art</Label>
-                      <Select
-                        value={threshold.valueType || 'percent'}
-                        onValueChange={(value: ThresholdValueType) => 
-                          handlePriceThresholdChange(index, "valueType", value)
-                        }
-                      >
-                        <SelectTrigger id={`valueType-${index}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {thresholdValueTypes.map(type => (
-                            <SelectItem key={type} value={type}>
-                              {getThresholdValueTypeLabel(type)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon" 
-                      className="self-end"
-                      disabled={formData.priceThresholds?.length === 1}
-                      onClick={() => handleRemovePriceThreshold(index)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                
-                {(!formData.priceThresholds || formData.priceThresholds.length === 0) && (
-                  <Button type="button" variant="outline" onClick={handleAddPriceThreshold}>
-                    <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
-                  </Button>
-                )}
-              </div>
-            )}
-            
-            {renderDiscountLevelsSection()}
-            
-            <div>
-              <Label htmlFor="roundingRule">Rundungsregel</Label>
-              <Select 
-                value={formData.roundingRule} 
-                onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
-              >
-                <SelectTrigger id="roundingRule">
-                  <SelectValue placeholder="Rundungsregel auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roundingRules.map(rule => (
-                    <SelectItem key={rule} value={rule}>
-                      {getRoundingRuleLabel(rule)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
-              <Input 
-                id="maxAmount" 
-                type="number" 
-                value={formData.maxAmount || ''} 
-                onChange={(e) => {
-                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                  handleChange("maxAmount", value);
-                }}
-                min={0}
-                placeholder="Kein Maximum"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      {formData.requestType === 'Artikel zurücksenden' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Retourenabwicklung</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="returnHandling">Art der Retourenabwicklung</Label>
-              <Select 
-                value={formData.returnHandling} 
-                onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
-                disabled={formData.returnStrategy === 'auto_return_full_refund'}
-              >
-                <SelectTrigger id="returnHandling">
-                  <SelectValue placeholder="Retourenabwicklung auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {returnHandlings.map(handling => (
-                    <SelectItem key={handling} value={handling}>
-                      {getReturnHandlingLabel(handling)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Sonderregeln & Zusatzaktionen</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            
-
-            <div className="space-y-2">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="checkIfProductOpened" 
-                    checked={formData.checkIfProductOpened || false}
-                    onCheckedChange={(checked) => handleChange("checkIfProductOpened", checked)}
-                  />
-                  <Label htmlFor="checkIfProductOpened">
-                    Prüfung ob Produkt geöffnet ist
-                  </Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="customerLoyaltyCheck" 
-                    checked={formData.customerLoyaltyCheck || false}
-                    onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
-                  />
-                  <Label htmlFor="customerLoyaltyCheck">
-                    Kundenhistorie prüfen (Bestandskunde)
-                  </Label>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Checkbox 
-                    id="minOrderAgeToDays" 
-                    checked={!!formData.minOrderAgeToDays}
-                    onCheckedChange={(checked) => handleChange("minOrderAgeToDays", checked ? 14 : undefined)}
-                  />
-                  <Label htmlFor="minOrderAgeToDays" className="flex-shrink-0">
-                    Maximales Bestellungsalter (Tage)
-                  </Label>
-                  {formData.minOrderAgeToDays !== undefined && (
-                    <Input
-                      type="number"
-                      min={1}
-                      className="w-20"
-                      value={formData.minOrderAgeToDays}
-                      onChange={(e) => handleChange("minOrderAgeToDays", parseInt(e.target.value))}
-                    />
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="requestPictures" 
-                    checked={formData.requestPictures || false}
-                    onCheckedChange={(checked) => handleChange("requestPictures", checked)}
-                  />
-                  <Label htmlFor="requestPictures">
-                    Bilder anfordern
-                  </Label>
-                </div>
-              </div>
-            </div>
           
-            <Separator className="my-2" />
           
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="isCompleteRule" 
-                  checked={formData.isCompleteRule || false}
-                  onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
-                />
-                <div>
-                  <Label htmlFor="isCompleteRule" className="text-base">
-                    Regel konnte komplett und eindeutig erfasst werden
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
-                    In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
-                  </p>
-                </div>
-              </div>
-            
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="consultPartnerBeforePayout" 
-                  checked={formData.consultPartnerBeforePayout || false}
-                  disabled={formData.calculationBase === 'keine_berechnung'}
-                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
-                />
-                <Label htmlFor="consultPartnerBeforePayout" className={
-                  formData.calculationBase === 'keine_berechnung' 
-                    ? "text-muted-foreground" 
-                    : ""
-                }>
-                  Rücksprache mit Partner vor Auszahlung
-                  {formData.calculationBase === 'keine_berechnung' && (
-                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
-                  )}
-                </Label>
-              </div>
-            </div>
           
-            <div>
-              <Label htmlFor="notes">Notizen</Label>
-              <Textarea 
-                id="notes" 
-                value={formData.notes || ''} 
-                onChange={(e) => handleChange("notes", e.target.value)}
-                placeholder="Zusätzliche Hinweise zur Regel"
-                rows={4}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </form>
-  );
-};
-
-export default RuleForm;
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
