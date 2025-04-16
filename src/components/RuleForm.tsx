@@ -75,14 +75,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     'Ersatzteil gewünscht',
     'Preisnachlass gewünscht',
     'Kontaktaufnahme gewünscht',
-    'Artikel zurücksenden'
+    'Artikel zurücksenden',
+    'Rücksendung gewünscht'
   ];
   
   const triggers: Trigger[] = [
     'Artikel beschädigt/funktioniert nicht mehr',
     'Versandverpackung und Artikel beschädigt',
     'Teile oder Zubehör fehlen',
-    'Falscher Artikel'
+    'Falscher Artikel',
+    'Sonstiges'
   ];
   
   const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
