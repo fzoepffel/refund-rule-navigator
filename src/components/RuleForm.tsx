@@ -5,7 +5,6 @@ import {
   RequestType,
   CalculationBase, 
   RoundingRule, 
-  CostCenter, 
   ReturnHandling,
   ThresholdValueType,
   PriceThreshold,
@@ -18,7 +17,6 @@ import {
   getRequestTypeLabel,
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
-  getCostCenterLabel, 
   getReturnHandlingLabel,
   getThresholdValueTypeLabel
 } from "../utils/discountUtils";
@@ -63,7 +61,6 @@ const defaultRule: DiscountRule = {
   triggers: ["Artikel beschädigt/funktioniert nicht mehr"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
-  costCenter: "merchant",
   returnHandling: "keine_retoure",
   shippingType: "paket",
   returnStrategy: "discount_then_return",
@@ -91,7 +88,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   
   const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
-  const costCenters: CostCenter[] = ['merchant', 'check24'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['paket', 'spedition'];
@@ -391,25 +387,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="costCenter">Kostenträger</Label>
-            <Select 
-              value={formData.costCenter} 
-              onValueChange={(value: CostCenter) => handleChange("costCenter", value)}
-            >
-              <SelectTrigger id="costCenter">
-                <SelectValue placeholder="Kostenträger auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {costCenters.map(center => (
-                  <SelectItem key={center} value={center}>
-                    {getCostCenterLabel(center)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           
           <div>

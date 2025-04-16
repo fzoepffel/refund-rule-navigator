@@ -1,17 +1,16 @@
-
 export type RequestType = 
   | 'Ersatzteil gewünscht'
   | 'Preisnachlass gewünscht'
   | 'Kontaktaufnahme gewünscht'
   | 'Artikel zurücksenden'
-  | 'Rücksendung gewünscht'; // New option added
+  | 'Rücksendung gewünscht';
 
 export type Trigger = 
   | 'Artikel beschädigt/funktioniert nicht mehr'
   | 'Versandverpackung und Artikel beschädigt'
   | 'Teile oder Zubehör fehlen'
   | 'Falscher Artikel'
-  | 'Sonstiges'; // New option added
+  | 'Sonstiges';
 
 export type CalculationBase = 
   | 'prozent_vom_vk' 
@@ -25,10 +24,6 @@ export type RoundingRule =
   | 'auf_5_euro' 
   | 'auf_10_euro' 
   | 'auf_10_cent';
-
-export type CostCenter = 
-  | 'merchant' 
-  | 'check24';
 
 export type ReturnHandling = 
   | 'automatisches_label' 
@@ -65,7 +60,6 @@ export interface DiscountRule {
   triggers: Trigger[];
   calculationBase: CalculationBase;
   roundingRule: RoundingRule;
-  costCenter: CostCenter;
   returnHandling: ReturnHandling;
   shippingType: ShippingType;
   returnStrategy?: ReturnStrategy;
