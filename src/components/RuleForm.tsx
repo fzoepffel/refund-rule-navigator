@@ -337,6 +337,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
           
+          <div>
+            <Label htmlFor="packageOpened">Paket geöffnet?</Label>
+            <Select 
+              value={formData.packageOpened || 'no'} 
+              onValueChange={(value: 'yes' | 'no') => handleChange("packageOpened", value)}
+            >
+              <SelectTrigger id="packageOpened">
+                <SelectValue placeholder="Bitte auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="yes">Ja</SelectItem>
+                <SelectItem value="no">Nein</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="requestType">Art der Anfrage</Label>
@@ -418,7 +434,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
         </CardContent>
       </Card>
-      
+
       {formData.returnStrategy !== 'auto_return_full_refund' && (
         <Card>
           <CardHeader>
@@ -637,29 +653,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
-            <div>
-              <Label>Paket geöffnet?</Label>
-              <RadioGroup
-                value={formData.packageOpened || 'no'}
-                onValueChange={(value: 'yes' | 'no') => handleChange("packageOpened", value)}
-                className="flex items-center space-x-4 mt-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="package-opened-yes" />
-                  <Label htmlFor="package-opened-yes" className="flex items-center">
-                    <Check className="h-4 w-4 mr-1" />
-                    Ja
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="package-opened-no" />
-                  <Label htmlFor="package-opened-no" className="flex items-center">
-                    <X className="h-4 w-4 mr-1" />
-                    Nein
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
+            
 
             <div className="space-y-2">
               <div className="space-y-2">
