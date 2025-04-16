@@ -1,7 +1,7 @@
-
-export type RequestCategory = 'Widerruf' | 'Reklamation';
+export type RequestCategory = 'Egal' | 'Widerruf' | 'Reklamation';
 
 export type RequestType = 
+  'Egal' |
   'Ersatzteil gewünscht' | 
   'Preisnachlass gewünscht' | 
   'Kontaktaufnahme gewünscht' | 
@@ -9,6 +9,7 @@ export type RequestType =
   'Rücksendung gewünscht';
 
 export type Trigger = 
+  'Egal' |
   'Leistung oder Qualität ungenügend' | 
   'Inkompatibel oder für den vorgesehenen Einsatz ungeeignet' | 
   'Gefällt mir nicht mehr' | 
@@ -42,9 +43,10 @@ export type ReturnHandling =
 
 export type ThresholdValueType = 'percent' | 'fixed';
 
-export type ShippingType = 'paket' | 'spedition';
+export type ShippingType = 'Egal' | 'paket' | 'spedition';
 
 export type ReturnStrategy = 
+  'Egal' |
   'auto_return_full_refund' | 
   'discount_then_return' | 
   'discount_then_keep';
@@ -73,7 +75,7 @@ export interface DiscountRule {
   shippingType: ShippingType;
   returnStrategy: ReturnStrategy;
   value?: number;
-  packageOpened?: 'yes' | 'no';
+  packageOpened?: 'yes' | 'no' | 'Egal';
   priceThresholds?: PriceThreshold[];
   discountLevels?: DiscountLevel[];
   checkIfProductOpened?: boolean;
@@ -85,4 +87,3 @@ export interface DiscountRule {
   notes?: string;
   maxAmount?: number;
 }
-
