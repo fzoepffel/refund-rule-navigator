@@ -42,7 +42,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuRadioItem
+  DropdownMenuRadioItem,
+  DropdownMenuRadioGroup
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
@@ -142,7 +143,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
   
-  // Replace toggleTrigger with a direct setter
+  // Set the trigger directly when selected from radio group
   const setTrigger = (trigger: Trigger) => {
     setFormData(prev => ({
       ...prev,
@@ -374,16 +375,19 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {triggers.map(trigger => (
-                    <DropdownMenuRadioItem
-                      key={trigger}
-                      value={trigger}
-                      checked={formData.triggers[0] === trigger}
-                      onSelect={() => setTrigger(trigger)}
-                    >
-                      {trigger}
-                    </DropdownMenuRadioItem>
-                  ))}
+                  <DropdownMenuRadioGroup 
+                    value={formData.triggers[0]} 
+                    onValueChange={(value: string) => setTrigger(value as Trigger)}
+                  >
+                    {triggers.map(trigger => (
+                      <DropdownMenuRadioItem
+                        key={trigger}
+                        value={trigger}
+                      >
+                        {trigger}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
