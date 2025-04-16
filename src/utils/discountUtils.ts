@@ -7,7 +7,7 @@ export const getReturnStrategyLabel = (strategy: ReturnStrategy): string => {
     'discount_then_return': 'Rabatt anbieten, dann Retoure',
     'discount_then_keep': 'Rabatt anbieten, Artikel behalten'
   };
-  return labels[strategy];
+  return labels[strategy] || strategy;
 };
 
 // Add the missing exported functions
@@ -159,4 +159,3 @@ export const calculateDiscount = (salePrice: number, rule: any): number | string
     return "Fehler bei der Berechnung";
   }
 };
-

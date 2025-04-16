@@ -1,4 +1,5 @@
-import { DiscountRule } from "../models/ruleTypes";
+
+import { DiscountRule, ReturnStrategy } from "../models/ruleTypes";
 
 export const sampleRules: DiscountRule[] = [
   {
@@ -6,7 +7,7 @@ export const sampleRules: DiscountRule[] = [
     name: "Standard Widerruf bis 50€",
     requestType: "Artikel zurücksenden",
     requestCategory: "Egal",
-    returnStrategy: "auto_return_full_refund", // Changed from "Egal"
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Teile oder Zubehör fehlen", "Falscher Artikel"],
     calculationBase: "fester_betrag",
     value: 50,
@@ -19,7 +20,7 @@ export const sampleRules: DiscountRule[] = [
     name: "20% vom VK",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "discount_then_return", // Changed from "Egal"
+    returnStrategy: "discount_then_return",
     triggers: ["Falscher Artikel", "Teile oder Zubehör fehlen"],
     calculationBase: "prozent_vom_vk",
     value: 20,
@@ -48,7 +49,7 @@ export const sampleRules: DiscountRule[] = [
     name: "40%-60% Mehrstufiges Angebot",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "discount_then_keep",
+    returnStrategy: "discount_then_keep" as ReturnStrategy,
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "angebotsstaffel",
     roundingRule: "keine_rundung",
@@ -157,9 +158,4 @@ export const sampleRules: DiscountRule[] = [
     consultPartnerBeforePayout: true,
     noReturnOnFullRefund: true
   }
-].map(rule => {
-  if (rule.returnStrategy === "Egal") {
-    rule.returnStrategy = "auto_return_full_refund"; // Default strategy
-  }
-  return rule;
-});
+];
