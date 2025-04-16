@@ -1,3 +1,4 @@
+
 export type RequestCategory = 'Egal' | 'Widerruf' | 'Reklamation';
 
 export type RequestType = 
@@ -84,6 +85,9 @@ export interface DiscountRule {
   requestPictures?: boolean;
   isCompleteRule?: boolean;
   consultPartnerBeforePayout?: boolean;
+  offerDiscountBeforeReturn?: boolean;
+  sendInfoToPartner?: boolean;
+  noReturnOnFullRefund?: boolean;
   notes?: string;
   maxAmount?: number;
 }
