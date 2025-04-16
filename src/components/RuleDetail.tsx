@@ -1,4 +1,3 @@
-
 import React from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -159,7 +158,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </>
           )}
 
-          {(rule.checkIfProductOpened || rule.offerDiscountBeforeReturn || rule.requestPictures || rule.consultPartnerBeforePayout || rule.sendInfoToPartner) && (
+          {(rule.checkIfProductOpened || rule.requestPictures || rule.consultPartnerBeforePayout) && (
             <>
               <Separator />
               <div>
@@ -170,11 +169,6 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                       <Badge variant="outline">Prüfung ob Produkt geöffnet</Badge>
                     </div>
                   )}
-                  {rule.offerDiscountBeforeReturn && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Erst Nachlass anbieten, dann Retoure</Badge>
-                    </div>
-                  )}
                   {rule.requestPictures && (
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">Bilder anfordern</Badge>
@@ -183,11 +177,6 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                   {rule.consultPartnerBeforePayout && (
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">Rücksprache mit Partner vor Auszahlung</Badge>
-                    </div>
-                  )}
-                  {rule.sendInfoToPartner && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Info über Gründe an Partner senden</Badge>
                     </div>
                   )}
                 </div>
