@@ -115,20 +115,45 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' }
   ];
   
-  // Generate rule name if empty
+  // Generate rule name according to new schema
   const generateRuleName = () => {
     if (formData.name) return formData.name;
     
-    const shippingTypeLabel = formData.shippingType === "paket" ? "Paket" : "Spedition";
-    const requestTypeLabel = formData.requestType;
-    
-    // Use the first trigger or "Unbekannt" if no triggers are selected
-    let triggerLabel = "Unbekannt";
-    if (formData.triggers && formData.triggers.length > 0) {
-      triggerLabel = formData.triggers[0];
+    const parts: string[] = [];
+
+    // Part 1: Art der Anfrage
+    if (formData.requestCategory !== "Egal") {
+      parts.push(formData.requestCategory);
+    } else {
+      parts.push("Widerruf und Reklamation");
     }
-    
-    return `${shippingTypeLabel}_${requestTypeLabel}_${triggerLabel}`;
+
+    // Part 2: Versandart
+    if (formData.shippingType !== "Egal") {
+      parts.push(formData.shippingType === "paket" ? "Paket" : "Spedition");
+    } else {
+      parts.push("Alle Versandarten");
+    }
+
+    // Part 3: Paket geöffnet
+    if (formData.packageOpened === "yes") {
+      parts.push("Paket geöffnet");
+    } else if (formData.packageOpened === "no") {
+      parts.push("Paket nicht geöffnet");
+    }
+
+    // Part 4: Gewünschte Vorgehensweise (nur bei Egal oder Reklamation)
+    if ((formData.requestCategory === "Egal" || formData.requestCategory === "Reklamation") && 
+        formData.requestType !== "Egal") {
+      parts.push(formData.requestType);
+    }
+
+    // Part 5: Grund
+    if (formData.triggers.length > 0 && formData.triggers[0] !== "Egal") {
+      parts.push(formData.triggers[0]);
+    }
+
+    return parts.filter(part => part).join(", ");
   };
   
   // Effect to manage the automatic checking of "consultPartnerBeforePayout" when calculationBase is "keine_berechnung"
