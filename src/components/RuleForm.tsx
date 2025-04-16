@@ -59,12 +59,15 @@ interface RuleFormProps {
 const defaultRule: DiscountRule = {
   id: "",
   name: "",
-  requestType: "Preisnachlass gewünscht",
-  triggers: ["Artikel beschädigt/funktioniert nicht mehr"],
+  requestType: "Egal",
+  requestCategory: "Egal",
+  requestPictures: false,
+  triggers: ["Egal"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
   returnHandling: "keine_retoure",
-  shippingType: "paket",
+  shippingType: "Egal",
+  packageOpened: "Egal",
   returnStrategy: "discount_then_return",
   value: 10,
   packageOpened: 'no',
@@ -78,9 +81,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     requestCategory: 'Reklamation' // Set default
   });
   
-  const requestCategories: RequestCategory[] = ['Widerruf', 'Reklamation'];
+  const requestCategories: RequestCategory[] = ['Egal', 'Widerruf', 'Reklamation'];
   
   const requestTypes: RequestType[] = [
+    'Egal',
     'Ersatzteil gewünscht',
     'Preisnachlass gewünscht',
     'Kontaktaufnahme gewünscht',
@@ -89,6 +93,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   ];
   
   const triggers: Trigger[] = [
+    'Egal',
     'Leistung oder Qualität ungenügend',
     'Inkompatibel oder für den vorgesehenen Einsatz ungeeignet',
     'Gefällt mir nicht mehr',
@@ -106,7 +111,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
-  const shippingTypes: ShippingType[] = ['paket', 'spedition'];
+  const shippingTypes: ShippingType[] = ['Egal', 'paket', 'spedition'];
   const returnStrategies: {value: ReturnStrategy; label: string}[] = [
     { value: 'auto_return_full_refund', label: 'Automatische Retoure mit voller Kostenerstattung' },
     { value: 'discount_then_return', label: 'Preisnachlass anbieten, bei Ablehnung Retoure' },
@@ -165,7 +170,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
 
   const getSelectedTriggerLabel = () => {
     if (formData.triggers.length === 0) {
-      return "Grund auswählen";
+      return "Egal";
     }
     return getTriggerLabel(formData.triggers[0]);
   };
@@ -335,10 +340,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </p>
           </div>
           
+          {/* Art der Anfrage */}
           <div>
             <Label htmlFor="requestCategory">Art der Anfrage</Label>
             <Select 
-              value={formData.requestCategory || 'Reklamation'} 
+              value={formData.requestCategory || 'Egal'} 
               onValueChange={(value: RequestCategory) => handleChange("requestCategory", value)}
             >
               <SelectTrigger id="requestCategory">
@@ -354,32 +360,38 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
 
+          {/* Versandart */}
           <div>
             <Label htmlFor="shippingType">Versandart</Label>
             <Select 
-              value={formData.shippingType || 'paket'} 
+              value={formData.shippingType || 'Egal'} 
               onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
             >
               <SelectTrigger id="shippingType">
                 <SelectValue placeholder="Versandart auswählen" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="paket">Paket</SelectItem>
-                <SelectItem value="spedition">Spedition</SelectItem>
+                {shippingTypes.map(type => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           
+          {/* Paket geöffnet? */}
           <div>
             <Label htmlFor="packageOpened">Paket geöffnet?</Label>
             <Select 
-              value={formData.packageOpened || 'no'} 
-              onValueChange={(value: 'yes' | 'no') => handleChange("packageOpened", value)}
+              value={formData.packageOpened || 'Egal'} 
+              onValueChange={(value: 'yes' | 'no' | 'Egal') => handleChange("packageOpened", value)}
             >
               <SelectTrigger id="packageOpened">
                 <SelectValue placeholder="Bitte auswählen" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="Egal">Egal</SelectItem>
                 <SelectItem value="yes">Ja</SelectItem>
                 <SelectItem value="no">Nein</SelectItem>
               </SelectContent>
@@ -387,6 +399,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Gewünschte Vorgehensweise */}
             <div>
               <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
               <Select 
@@ -406,6 +419,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </Select>
             </div>
             
+            {/* Grund */}
             <div>
               <Label htmlFor="triggers">Grund</Label>
               <DropdownMenu>
