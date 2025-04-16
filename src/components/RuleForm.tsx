@@ -3,6 +3,7 @@ import {
   DiscountRule, 
   Trigger, 
   RequestType,
+  RequestCategory,
   CalculationBase, 
   RoundingRule, 
   ReturnHandling,
@@ -66,11 +67,18 @@ const defaultRule: DiscountRule = {
   shippingType: "paket",
   returnStrategy: "discount_then_return",
   value: 10,
-  packageOpened: 'no'
+  packageOpened: 'no',
+  requestCategory: 'Reklamation'
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
-  const [formData, setFormData] = useState<DiscountRule>(rule || { ...defaultRule, id: Date.now().toString() });
+  const [formData, setFormData] = useState<DiscountRule>(rule || { 
+    ...defaultRule, 
+    id: Date.now().toString(),
+    requestCategory: 'Reklamation' // Set default
+  });
+  
+  const requestCategories: RequestCategory[] = ['Widerruf', 'Reklamation'];
   
   const requestTypes: RequestType[] = [
     'Ersatzteil gewünscht',
@@ -328,6 +336,25 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
           
           <div>
+            <Label htmlFor="requestCategory">Art der Anfrage</Label>
+            <Select 
+              value={formData.requestCategory || 'Reklamation'} 
+              onValueChange={(value: RequestCategory) => handleChange("requestCategory", value)}
+            >
+              <SelectTrigger id="requestCategory">
+                <SelectValue placeholder="Art der Anfrage auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {requestCategories.map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label htmlFor="shippingType">Versandart</Label>
             <Select 
               value={formData.shippingType || 'paket'} 
@@ -361,13 +388,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="requestType">Art der Anfrage</Label>
+              <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
               <Select 
                 value={formData.requestType} 
                 onValueChange={(value: RequestType) => handleChange("requestType", value)}
               >
                 <SelectTrigger id="requestType">
-                  <SelectValue placeholder="Art der Anfrage auswählen" />
+                  <SelectValue placeholder="Vorgehensweise auswählen" />
                 </SelectTrigger>
                 <SelectContent>
                   {requestTypes.map(type => (
