@@ -1,4 +1,3 @@
-
 import { DiscountRule } from "../models/ruleTypes";
 
 export const sampleRules: DiscountRule[] = [
@@ -7,7 +6,7 @@ export const sampleRules: DiscountRule[] = [
     name: "Standard Widerruf bis 50€",
     requestType: "Artikel zurücksenden",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund", // Changed from "Egal"
     triggers: ["Teile oder Zubehör fehlen", "Falscher Artikel"],
     calculationBase: "fester_betrag",
     value: 50,
@@ -20,7 +19,7 @@ export const sampleRules: DiscountRule[] = [
     name: "20% vom VK",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "discount_then_return", // Changed from "Egal"
     triggers: ["Falscher Artikel", "Teile oder Zubehör fehlen"],
     calculationBase: "prozent_vom_vk",
     value: 20,
@@ -33,7 +32,7 @@ export const sampleRules: DiscountRule[] = [
     name: "Komplexe Widerruf/Reklamation Staffelung",
     requestType: "Artikel zurücksenden",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "preisstaffel",
     roundingRule: "auf_5_euro",
@@ -69,7 +68,7 @@ export const sampleRules: DiscountRule[] = [
     name: "Betragsstaffel nach VK",
     requestType: "Artikel zurücksenden",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Teile oder Zubehör fehlen", "Falscher Artikel"],
     calculationBase: "preisstaffel",
     roundingRule: "keine_rundung",
@@ -87,7 +86,7 @@ export const sampleRules: DiscountRule[] = [
     name: "10% Leifheit ohne Rundung",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Falscher Artikel", "Artikel beschädigt/funktioniert nicht mehr"],
     calculationBase: "prozent_vom_vk",
     value: 10,
@@ -101,7 +100,7 @@ export const sampleRules: DiscountRule[] = [
     name: "CHECK24 30% mit 10€ Rundung",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Falscher Artikel", "Artikel beschädigt/funktioniert nicht mehr"],
     calculationBase: "prozent_vom_vk",
     value: 30,
@@ -114,7 +113,7 @@ export const sampleRules: DiscountRule[] = [
     name: "Beschädigte Produkte - Ästhetischer Schaden",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr"],
     calculationBase: "prozent_vom_vk",
     value: 15,
@@ -128,7 +127,7 @@ export const sampleRules: DiscountRule[] = [
     name: "Stark beschädigte Produkte - Eingeschränkt benutzbar",
     requestType: "Preisnachlass gewünscht",
     requestCategory: "Egal",
-    returnStrategy: "Egal",
+    returnStrategy: "auto_return_full_refund",
     triggers: ["Versandverpackung und Artikel beschädigt"],
     calculationBase: "prozent_vom_vk",
     value: 35,
@@ -158,4 +157,9 @@ export const sampleRules: DiscountRule[] = [
     consultPartnerBeforePayout: true,
     noReturnOnFullRefund: true
   }
-];
+].map(rule => {
+  if (rule.returnStrategy === "Egal") {
+    rule.returnStrategy = "auto_return_full_refund"; // Default strategy
+  }
+  return rule;
+});
