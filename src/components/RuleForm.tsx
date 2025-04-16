@@ -437,7 +437,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
           
           {/* Versandart */}
           <div>
@@ -477,1180 +476,300 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
+          {/* Berechnungsgrundlage */}
+          <div>
+            <Label htmlFor="calculationBase">Berechnungsgrundlage</Label>
+            <Select
+              value={formData.calculationBase}
+              onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
+            >
+              <SelectTrigger id="calculationBase">
+                <SelectValue placeholder="Bitte auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {calculationBases.map(base => (
+                  <SelectItem key={base} value={base}>
+                    {getCalculationBaseLabel(base)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Wert (Prozent vom VK / Fester Betrag) */}
+          {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'fester_betrag') && (
+            <div>
+              <Label htmlFor="value">Wert</Label>
+              <Input
+                type="number"
+                id="value"
+                value={formData.value || 0}
+                onChange={(e) => handleChange("value", parseFloat(e.target.value))}
+                placeholder="Wert eingeben"
+                min={1}
+                max={100}
+              />
+            </div>
+          )}
+          
+          {/* Rundungsregel */}
+          <div>
+            <Label htmlFor="roundingRule">Rundungsregel</Label>
+            <Select
+              value={formData.roundingRule}
+              onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+            >
+              <SelectTrigger id="roundingRule">
+                <SelectValue placeholder="Bitte auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {roundingRules.map(rule => (
+                  <SelectItem key={rule} value={rule}>
+                    {getRoundingRuleLabel(rule)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Retourenabwicklung */}
+          <div>
+            <Label htmlFor="returnHandling">Retourenabwicklung</Label>
+            <Select
+              value={formData.returnHandling}
+              onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
+            >
+              <SelectTrigger id="returnHandling">
+                <SelectValue placeholder="Bitte auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {returnHandlings.map(handling => (
+                  <SelectItem key={handling} value={handling}>
+                    {getReturnHandlingLabel(handling)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Preisstaffeln */}
+          {formData.calculationBase === 'preisstaffel' && (
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label>Preisstaffeln</Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleAddPriceThreshold}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
+                </Button>
+              </div>
+              
+              <div className="flex items-center flex-wrap gap-2">
+                {(formData.priceThresholds || []).map((threshold, index) => (
+                  <div key={index} className="flex items-center gap-1">
+                    <Input 
+                      type="number" 
+                      className="w-20"
+                      value={threshold.minPrice} 
+                      onChange={(e) => handlePriceThresholdChange(index, "minPrice", parseFloat(e.target.value))}
+                      placeholder="Min."
+                    />
+                    <span className="mx-1">-</span>
+                    <Input 
+                      type="number" 
+                      className="w-20"
+                      value={threshold.maxPrice || ""} 
+                      onChange={(e) => handlePriceThresholdChange(index, "maxPrice", e.target.value === "" ? undefined : parseFloat(e.target.value))}
+                      placeholder="Max."
+                    />
+                    <Input 
+                      type="number" 
+                      className="w-20"
+                      value={threshold.value} 
+                      onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
+                    />
+                    <Select
+                      value={threshold.valueType}
+                      onValueChange={(value: ThresholdValueType) => 
+                        handlePriceThresholdChange(index, "valueType", value)
+                      }
+                    >
+                      <SelectTrigger className="w-14">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="percent">%</SelectItem>
+                        <SelectItem value="fixed">€</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      disabled={formData.priceThresholds?.length === 1}
+                      onClick={() => handleRemovePriceThreshold(index)}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                
+                {(!formData.priceThresholds || formData.priceThresholds.length === 0) && (
+                  <Button type="button" variant="outline" onClick={handleAddPriceThreshold}>
+                    <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {renderDiscountLevelsSection()}
+          
+          {/* Retourenstrategie */}
+          <div>
+            <Label htmlFor="returnStrategy">Retourenstrategie</Label>
+            <Select
+              value={formData.returnStrategy}
+              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
+            >
+              <SelectTrigger id="returnStrategy">
+                <SelectValue placeholder="Bitte auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {returnStrategies.map(strategy => (
+                  <SelectItem key={strategy.value} value={strategy.value}>
+                    {strategy.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Request Pictures */}
+          <div>
+            <Label htmlFor="requestPictures">Anfragebilder erforderlich</Label>
+            <Checkbox
+              id="requestPictures"
+              checked={formData.requestPictures || false}
+              onCheckedChange={(checked) => handleChange("requestPictures", checked)}
+            />
+          </div>
+          
+          {/* Check if Product Opened */}
+          <div>
+            <Label htmlFor="checkIfProductOpened">Prüfen, ob Produkt geöffnet wurde</Label>
+            <Checkbox
+              id="checkIfProductOpened"
+              checked={formData.checkIfProductOpened || false}
+              onCheckedChange={(checked) => handleChange("checkIfProductOpened", checked)}
+            />
+          </div>
+          
+          {/* Customer Loyalty Check */}
+          <div>
+            <Label htmlFor="customerLoyaltyCheck">Kundenbindung prüfen</Label>
+            <Checkbox
+              id="customerLoyaltyCheck"
+              checked={formData.customerLoyaltyCheck || false}
+              onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
+            />
+          </div>
+          
+          {/* Min Order Age To Days */}
+          <div>
+            <Label htmlFor="minOrderAgeToDays">Mindestbestellalter in Tagen</Label>
+            <Input
+              type="number"
+              id="minOrderAgeToDays"
+              value={formData.minOrderAgeToDays || 0}
+              onChange={(e) => handleChange("minOrderAgeToDays", parseInt(e.target.value))}
+              placeholder="Tage eingeben"
+              min={0}
+            />
+          </div>
+          
+          {/* Max Amount */}
+          <div>
+            <Label htmlFor="maxAmount">Maximaler Betrag</Label>
+            <Input
+              type="number"
+              id="maxAmount"
+              value={formData.maxAmount || 0}
+              onChange={(e) => handleChange("maxAmount", parseFloat(e.target.value))}
+              placeholder="Betrag eingeben"
+              min={0}
+            />
+          </div>
+          
+          {/* Consult Partner Before Payout */}
+          <div>
+            <Label htmlFor="consultPartnerBeforePayout">Partner vor Auszahlung konsultieren</Label>
+            <Checkbox
+              id="consultPartnerBeforePayout"
+              checked={formData.consultPartnerBeforePayout || false}
+              disabled={formData.calculationBase === 'keine_berechnung'}
+              onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
+            />
+          </div>
+          
+          {/* Is Complete Rule */}
+          <div>
+            <Label htmlFor="isCompleteRule">Vollständige Regel</Label>
+            <Checkbox
+              id="isCompleteRule"
+              checked={formData.isCompleteRule || false}
+              onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
+            />
+          </div>
+          
+          {/* No Return On Full Refund */}
+          <div>
+            <Label htmlFor="noReturnOnFullRefund">Keine Rücksendung bei voller Erstattung</Label>
+            <Checkbox
+              id="noReturnOnFullRefund"
+              checked={formData.noReturnOnFullRefund || false}
+              onCheckedChange={(checked) => handleChange("noReturnOnFullRefund", checked)}
+            />
+          </div>
+          
+          {/* Offer Discount Before Return */}
+          <div>
+            <Label htmlFor="offerDiscountBeforeReturn">Preisnachlass vor Rücksendung anbieten</Label>
+            <Checkbox
+              id="offerDiscountBeforeReturn"
+              checked={formData.offerDiscountBeforeReturn || false}
+              onCheckedChange={(checked) => handleChange("offerDiscountBeforeReturn", checked)}
+            />
+          </div>
+          
+          {/* Send Info To Partner */}
+          <div>
+            <Label htmlFor="sendInfoToPartner">Informationen an Partner senden</Label>
+            <Checkbox
+              id="sendInfoToPartner"
+              checked={formData.sendInfoToPartner || false}
+              onCheckedChange={(checked) => handleChange("sendInfoToPartner", checked)}
+            />
+          </div>
+          
+          {/* Notes */}
+          <div>
+            <Label htmlFor="notes">Notizen</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes || ""}
+              onChange={(e) => handleChange("notes", e.target.value)}
+              placeholder="Notizen eingeben"
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </form>
+  );
+};
+
+export default RuleForm;
