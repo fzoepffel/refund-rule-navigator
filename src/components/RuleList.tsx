@@ -10,28 +10,10 @@ import {
 } from "../utils/discountUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Plus, Edit, Trash2, ChevronDown } from "lucide-react";
+import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 interface RuleListProps {
   rules: DiscountRule[];
@@ -50,16 +32,9 @@ const RuleList: React.FC<RuleListProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<string | null>(null);
-  const [selectedReturnStrategy, setSelectedReturnStrategy] = useState<string | null>(null);
   
   const filteredRules = rules.filter(rule => {
     const matchesSearch = rule.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Filter by return strategy if selected
-    if (selectedReturnStrategy && rule.returnStrategy !== selectedReturnStrategy) {
-      return false;
-    }
-    
     return matchesSearch;
   });
 
@@ -78,15 +53,6 @@ const RuleList: React.FC<RuleListProps> = ({
       default: return shippingType;
     }
   };
-
-  // Extract unique return strategies from rules
-  const returnStrategies = Array.from(
-    new Set(
-      rules
-        .map(rule => rule.returnStrategy)
-        .filter((strategy): strategy is string => Boolean(strategy))
-    )
-  );
 
   // Helper function to render discount information based on calculation base
   const renderDiscountInfo = (rule: DiscountRule) => {
@@ -146,31 +112,6 @@ const RuleList: React.FC<RuleListProps> = ({
         </Button>
       </div>
       
-      {/* Return Strategy Filter Card */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="font-medium">Rückgabestrategie</div>
-            <Select 
-              value={selectedReturnStrategy || ''} 
-              onValueChange={(value) => setSelectedReturnStrategy(value || null)}
-            >
-              <SelectTrigger className="w-[280px]">
-                <SelectValue placeholder="Alle Strategien" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Alle Strategien</SelectItem>
-                {returnStrategies.map(strategy => (
-                  <SelectItem key={strategy} value={strategy}>
-                    {getReturnStrategyLabel(strategy)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-      
       <div className="space-y-2">
         {filteredRules.length === 0 ? (
           <Card>
@@ -225,7 +166,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       )}
                     </div>
 
-                    {/* Return strategy display */}
+                    {/* Return strategy display (now before calculation info) */}
                     {rule.returnStrategy && (
                       <div className="text-muted-foreground mt-2 text-sm">
                         <strong>Rückgabestrategie:</strong>{' '}
