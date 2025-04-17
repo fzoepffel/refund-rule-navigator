@@ -184,6 +184,38 @@ const RuleList: React.FC<RuleListProps> = ({
                         <Badge variant="secondary" className="text-xs">Max: {rule.maxAmount}€</Badge>
                       </div>
                     )}
+                    
+                    {/* Special rules and notes */}
+                    <div className="mt-2 text-sm">
+                      {/* Special rules display */}
+                      {(rule.requestPictures || 
+                        rule.previousRefundsCheck || 
+                        rule.customerLoyaltyCheck || 
+                        rule.minOrderAgeToDays || 
+                        rule.consultPartnerBeforePayout ||
+                        rule.noReturnOnFullRefund ||
+                        rule.offerDiscountBeforeReturn ||
+                        rule.sendInfoToPartner) && (
+                        <div className="text-muted-foreground">
+                          <strong>Sonderregeln:</strong>{' '}
+                          {rule.requestPictures && <span>Fotos anfordern</span>}
+                          {rule.previousRefundsCheck && <span>{rule.requestPictures ? ' • ' : ''}Vorherige Erstattungen prüfen</span>}
+                          {rule.customerLoyaltyCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Kundentreue prüfen</span>}
+                          {rule.minOrderAgeToDays && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck) ? ' • ' : ''}Min. Bestellalter: {rule.minOrderAgeToDays} Tage</span>}
+                          {rule.consultPartnerBeforePayout && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Partner vor Auszahlung konsultieren</span>}
+                          {rule.noReturnOnFullRefund && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout) ? ' • ' : ''}Keine Rücksendung bei voller Erstattung</span>}
+                          {rule.offerDiscountBeforeReturn && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund) ? ' • ' : ''}Nachlass vor Rücksendung anbieten</span>}
+                          {rule.sendInfoToPartner && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund || rule.offerDiscountBeforeReturn) ? ' • ' : ''}Partner informieren</span>}
+                        </div>
+                      )}
+                      
+                      {/* Notes display */}
+                      {rule.notes && (
+                        <div className="text-muted-foreground mt-1">
+                          <strong>Notizen:</strong> {rule.notes}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 
