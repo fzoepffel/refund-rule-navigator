@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -61,7 +60,7 @@ const defaultRule: DiscountRule = {
   id: "",
   name: "",
   requestType: "Egal",
-  requestCategory: "Egal",
+  requestCategory: "Egal", // Ensure default is "Egal"
   triggers: ["Egal"],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
@@ -76,7 +75,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const [formData, setFormData] = useState<DiscountRule>(rule || { 
     ...defaultRule, 
     id: Date.now().toString(),
-    requestCategory: 'Reklamation' // Set default
   });
   
   const requestCategories: RequestCategory[] = ['Egal', 'Widerruf', 'Reklamation'];
