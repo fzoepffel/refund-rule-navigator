@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -106,7 +105,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     'Sonstiges'
   ];
   
-  const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel'];
+  const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel', 'angebotsstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
@@ -226,7 +225,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     return getTriggerLabel(formData.triggers[0]);
   };
   
-  const handleAddPriceThreshold = (stageId?: string) => {
+  const handleAddPriceThreshold = (event: React.MouseEvent<HTMLButtonElement>, stageId?: string) => {
     if (stageId) {
       // Add price threshold to a specific calculation stage
       setFormData(prev => {
@@ -463,7 +462,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   type="button" 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => handleAddPriceThreshold(stage.id)}
+                  onClick={(e) => handleAddPriceThreshold(e, stage.id)}
                 >
                   <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
                 </Button>
@@ -567,7 +566,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               ))}
               
               {(!stage.priceThresholds || stage.priceThresholds.length === 0) && (
-                <Button type="button" variant="outline" onClick={() => handleAddPriceThreshold(stage.id)}>
+                <Button type="button" variant="outline" onClick={(e) => handleAddPriceThreshold(e, stage.id)}>
                   <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
                 </Button>
               )}
@@ -698,7 +697,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     type="button" 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleAddPriceThreshold()}
+                    onClick={(e) => handleAddPriceThreshold(e)}
                   >
                     <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
                   </Button>
@@ -802,7 +801,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 ))}
                 
                 {(!formData.priceThresholds || formData.priceThresholds.length === 0) && (
-                  <Button type="button" variant="outline" onClick={handleAddPriceThreshold}>
+                  <Button type="button" variant="outline" onClick={(e) => handleAddPriceThreshold(e)}>
                     <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
                   </Button>
                 )}
@@ -872,338 +871,4 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             <Label htmlFor="name">Regelname (optional)</Label>
             <Input 
               id="name" 
-              value={formData.name} 
-              onChange={(e) => handleChange("name", e.target.value)} 
-              placeholder={generateRuleName()}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Leer lassen für automatisch generierten Namen: {generateRuleName()}
-            </p>
-          </div>
-          
-          {/* Art der Anfrage */}
-          <div>
-            <Label htmlFor="requestCategory">Art der Anfrage</Label>
-            <Select 
-              value={formData.requestCategory || 'Egal'} 
-              onValueChange={(value: RequestCategory) => handleChange("requestCategory", value)}
-            >
-              <SelectTrigger id="requestCategory">
-                <SelectValue placeholder="Art der Anfrage auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {requestCategories.map(category => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            {/* Grund */}
-            <div>
-              <Label htmlFor="triggers">Grund</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between"
-                    id="triggers"
-                  >
-                    <span>{getSelectedTriggerLabel()}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup 
-                    value={formData.triggers[0]} 
-                    onValueChange={(value: string) => setTrigger(value as Trigger)}
-                  >
-                    {triggers.map(trigger => (
-                      <DropdownMenuRadioItem
-                        key={trigger}
-                        value={trigger}
-                      >
-                        {trigger}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
-            {formData.requestCategory === 'Reklamation' && (
-              <div>
-                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
-                <Select 
-                  value={formData.requestType} 
-                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
-                >
-                  <SelectTrigger id="requestType">
-                    <SelectValue placeholder="Vorgehensweise auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {requestTypes.map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-          </div>
-
-          {/* Versandart */}
-          <div>
-            <Label htmlFor="shippingType">Versandart</Label>
-            <Select 
-              value={formData.shippingType || 'Egal'} 
-              onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
-            >
-              <SelectTrigger id="shippingType">
-                <SelectValue placeholder="Versandart auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {shippingTypes.map(type => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Produkt geöffnet? */}
-          <div>
-            <Label htmlFor="packageOpened">Produkt geöffnet?</Label>
-            <Select 
-              value={formData.packageOpened || 'Egal'} 
-              onValueChange={(value: 'yes' | 'no' | 'Egal') => handleChange("packageOpened", value)}
-            >
-              <SelectTrigger id="packageOpened">
-                <SelectValue placeholder="Bitte auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Egal">Egal</SelectItem>
-                <SelectItem value="yes">Ja</SelectItem>
-                <SelectItem value="no">Nein</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Return Strategy in its own card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Preisnachlassstrategie</CardTitle>
-          <CardDescription>Hier wird definiert, nach welcher Strategie der oben definierte Regelfall behandelt wird.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Select 
-              value={formData.returnStrategy || 'discount_then_return'} 
-              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
-            >
-              <SelectTrigger id="returnStrategy">
-                <SelectValue placeholder="Rückgabestrategie auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {returnStrategies.map(strategy => (
-                  <SelectItem key={strategy.value} value={strategy.value}>
-                    {strategy.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formData.returnStrategy === 'auto_return_full_refund' && (
-              <Alert className="mt-2">
-                <AlertDescription>
-                  Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
-                </AlertDescription>
-              </Alert>
-            )}
-            {formData.returnStrategy === 'contact_merchant_immediately' && (
-              <Alert className="mt-2">
-                <AlertDescription>
-                  Bei direkter Merchant-Kontaktierung wird keine Berechnung durchgeführt und Rücksprache ist erforderlich.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-          
-          {/* Only show multi-stage option for applicable return strategies */}
-          {isMultiStageApplicable() && (
-            <div className="flex items-center space-x-2 mt-4">
-              <Checkbox 
-                id="multiStageDiscount" 
-                checked={formData.multiStageDiscount || false}
-                onCheckedChange={(checked) => toggleMultiStageDiscount(!!checked)}
-              />
-              <Label htmlFor="multiStageDiscount" className="font-medium">
-                Mehrere Angebotsstufen
-              </Label>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Render calculation section based on return strategy and multi-stage selection */}
-      {renderCalculationSection()}
-      
-      {formData.requestType === 'Artikel zurücksenden' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Retourenabwicklung</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div>
-              <Label htmlFor="returnHandling">Art der Retourenabwicklung</Label>
-              <Select 
-                value={formData.returnHandling} 
-                onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
-                disabled={formData.returnStrategy === 'auto_return_full_refund'}
-              >
-                <SelectTrigger id="returnHandling">
-                  <SelectValue placeholder="Retourenabwicklung auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {returnHandlings.map(handling => (
-                    <SelectItem key={handling} value={handling}>
-                      {getReturnHandlingLabel(handling)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Sonderregeln & Zusatzaktionen</CardTitle>
-          <CardDescription>Hier werden zusätzliche Regeln und Aktionen definiert, die vor der Auszahlung eines Preisnachlasses berücksichtigt werden sollen.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="previousRefundsCheck" 
-                    checked={formData.previousRefundsCheck || false}
-                    onCheckedChange={(checked) => handleChange("previousRefundsCheck", checked)}
-                  />
-                  <Label htmlFor="previousRefundsCheck" className="flex items-center gap-1">
-                    <History className="h-4 w-4" />
-                    Kundenhistorie prüfen (Anzahl vorheriger Rückzahlungen)
-                  </Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="customerLoyaltyCheck" 
-                    checked={formData.customerLoyaltyCheck || false}
-                    onCheckedChange={(checked) => handleChange("customerLoyaltyCheck", checked)}
-                  />
-                  <Label htmlFor="customerLoyaltyCheck">
-                    Kundenhistorie prüfen (Bestandskunde)
-                  </Label>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Checkbox 
-                    id="minOrderAgeToDays" 
-                    checked={!!formData.minOrderAgeToDays}
-                    onCheckedChange={(checked) => handleChange("minOrderAgeToDays", checked ? 14 : undefined)}
-                  />
-                  <Label htmlFor="minOrderAgeToDays" className="flex-shrink-0">
-                    Maximales Bestellungsalter (Tage)
-                  </Label>
-                  {formData.minOrderAgeToDays !== undefined && (
-                    <Input
-                      type="number"
-                      min={1}
-                      className="w-20"
-                      value={formData.minOrderAgeToDays}
-                      onChange={(e) => handleChange("minOrderAgeToDays", parseInt(e.target.value))}
-                    />
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox 
-                    id="requestPictures" 
-                    checked={formData.requestPictures || false}
-                    onCheckedChange={(checked) => handleChange("requestPictures", checked)}
-                  />
-                  <Label htmlFor="requestPictures">
-                    Bilder anfordern
-                  </Label>
-                </div>
-              </div>
-            </div>
-          
-            <Separator className="my-2" />
-          
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="isCompleteRule" 
-                  checked={formData.isCompleteRule || false}
-                  onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
-                />
-                <div>
-                  <Label htmlFor="isCompleteRule" className="text-base">
-                    Regel konnte komplett und eindeutig erfasst werden
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
-                    In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
-                  </p>
-                </div>
-              </div>
-            
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="consultPartnerBeforePayout" 
-                  checked={formData.consultPartnerBeforePayout || false}
-                  disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
-                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
-                />
-                <Label htmlFor="consultPartnerBeforePayout" className={
-                  formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false
-                    ? "text-muted-foreground" 
-                    : ""
-                }>
-                  Rücksprache mit Partner vor Auszahlung
-                  {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
-                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
-                  )}
-                </Label>
-              </div>
-            </div>
-          
-            <div>
-              <Label htmlFor="notes">Notizen</Label>
-              <Textarea 
-                id="notes" 
-                value={formData.notes || ''} 
-                onChange={(e) => handleChange("notes", e.target.value)}
-                placeholder="Zusätzliche Hinweise zur Regel"
-                rows={4}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </form>
-  );
-};
-
-export default RuleForm;
+              value={formData.name}

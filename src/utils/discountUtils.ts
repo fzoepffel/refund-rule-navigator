@@ -1,4 +1,3 @@
-
 import { 
   Trigger, 
   RequestType, 
@@ -25,7 +24,8 @@ export const getCalculationBaseLabel = (base: CalculationBase): string => {
     'prozent_vom_vk': 'Prozent vom Verkaufspreis',
     'fester_betrag': 'Fester Betrag',
     'preisstaffel': 'Preisabhängige Staffelung',
-    'keine_berechnung': 'Keine Berechnung'
+    'keine_berechnung': 'Keine Berechnung',
+    'angebotsstaffel': 'Mehrstufige Angebote'  // Added label for angebotsstaffel
   };
   return labels[base] || base;
 };
@@ -91,12 +91,17 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
   if (rule.calculationBase === 'keine_berechnung') {
     return 'Rücksprache mit Partner notwendig';
   }
-
+  
   // If this is a multi-stage discount, we only calculate the first stage here
   // (for display purposes in the rule list)
   if (rule.multiStageDiscount && rule.calculationStages && rule.calculationStages.length > 0) {
     const firstStage = rule.calculationStages[0];
     return calculateDiscountForStage(salePrice, firstStage, rule);
+  }
+
+  // Handle angebotsstaffel similarly to multiStageDiscount
+  if (rule.calculationBase === 'angebotsstaffel') {
+    return 'Mehrstufiges Angebot';
   }
 
   let amount = 0;
