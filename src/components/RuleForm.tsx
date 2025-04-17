@@ -408,7 +408,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               size="icon" 
               className="h-8 w-8"
               disabled={(formData.calculationStages || []).length <= 1}
-              onClick={() => handleRemoveCalculationStage(stage.id)}
+              onClick={()={() => handleRemoveCalculationStage(stage.id)}
             >
               <Trash className="h-4 w-4" />
             </Button>
