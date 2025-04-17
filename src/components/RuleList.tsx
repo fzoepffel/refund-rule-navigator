@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -165,6 +166,14 @@ const RuleList: React.FC<RuleListProps> = ({
                       )}
                     </div>
 
+                    {/* Return strategy display (now before calculation info) */}
+                    {rule.returnStrategy && (
+                      <div className="text-muted-foreground mt-2 text-sm">
+                        <strong>Rückgabestrategie:</strong>{' '}
+                        {getReturnStrategyLabel(rule.returnStrategy)}
+                      </div>
+                    )}
+
                     {/* Calculation information */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
@@ -186,14 +195,6 @@ const RuleList: React.FC<RuleListProps> = ({
                     
                     {/* Special rules and notes */}
                     <div className="mt-2 text-sm">
-                      {/* Return strategy display */}
-                      {rule.returnStrategy && (
-                        <div className="text-muted-foreground mt-1">
-                          <strong>Rückgabestrategie:</strong>{' '}
-                          {getReturnStrategyLabel(rule.returnStrategy)}
-                        </div>
-                      )}
-
                       {/* Special rules display */}
                       {(rule.requestPictures || 
                         rule.previousRefundsCheck || 
