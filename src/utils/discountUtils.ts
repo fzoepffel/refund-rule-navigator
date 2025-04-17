@@ -1,4 +1,3 @@
-
 import { 
   Trigger, 
   RequestType, 
@@ -122,6 +121,8 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
           } else {
             amount = applicableThreshold.value;
           }
+          // Apply the threshold-specific rounding rule
+          return applyRoundingRule(amount, applicableThreshold.roundingRule);
         }
       }
       break;
@@ -137,6 +138,8 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
           // Fixed amount
           amount = firstLevel.value;
         }
+        // Apply the level-specific rounding rule
+        return applyRoundingRule(amount, firstLevel.roundingRule);
       }
       break;
   }
@@ -146,7 +149,7 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
     amount = rule.maxAmount;
   }
   
-  // Apply rounding rule
+  // Apply general rounding rule (for fixed amount or percentage calculations)
   return applyRoundingRule(amount, rule.roundingRule);
 };
 
@@ -171,8 +174,8 @@ export const calculateDiscountForLevel = (
     amount = rule.maxAmount;
   }
   
-  // Apply rounding rule
-  return applyRoundingRule(amount, rule.roundingRule);
+  // Apply level-specific rounding rule
+  return applyRoundingRule(amount, level.roundingRule);
 };
 
 /**

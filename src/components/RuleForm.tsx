@@ -114,7 +114,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     { value: 'auto_return_full_refund', label: 'Automatische Retoure mit voller Kostenerstattung' },
     { value: 'discount_then_return', label: 'Preisnachlass anbieten, bei Ablehnung Retoure' },
     { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' },
-    { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren' },
+    { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, dann Merchant kontaktieren' },
     { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
   ];
   
@@ -215,7 +215,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       ...prev,
       priceThresholds: [
         ...(prev.priceThresholds || []),
-        { minPrice: newMin, value: 10, valueType: 'percent' }
+        { minPrice: newMin, value: 10, valueType: 'percent', roundingRule: 'keine_rundung' }
       ]
     }));
   };
@@ -240,7 +240,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       ...prev,
       discountLevels: [
         ...(prev.discountLevels || []),
-        { value: 10, valueType: 'percent' }
+        { value: 10, valueType: 'percent', roundingRule: 'keine_rundung' }
       ]
     }));
   };
@@ -276,7 +276,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     if (formData.calculationBase !== 'angebotsstaffel') return null;
     
     return (
-      <div className="space-y-2">
+      <div className="space-y-4">
         <div className="flex justify-between items-center">
           <Label>Angebotsabfolge</Label>
           <Button 
@@ -289,9 +289,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </Button>
         </div>
         
-        <div className="flex items-center flex-wrap gap-2">
-          {(formData.discountLevels || []).map((level, index) => (
-            <div key={index} className="flex items-center gap-1">
+        {(formData.discountLevels || []).map((level, index) => (
+          <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4 border p-4 rounded-md">
+            <div className="flex items-center gap-2">
               <Input 
                 type="number" 
                 className="w-20"
@@ -313,9 +313,34 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   <SelectItem value="fixed">€</SelectItem>
                 </SelectContent>
               </Select>
+              
               {index < (formData.discountLevels?.length || 0) - 1 && (
                 <span className="mx-1">→</span>
               )}
+            </div>
+            
+            <div>
+              <Label htmlFor={`level-rounding-${index}`}>Rundungsregel</Label>
+              <Select
+                value={level.roundingRule}
+                onValueChange={(value: RoundingRule) => 
+                  handleDiscountLevelChange(index, "roundingRule", value)
+                }
+              >
+                <SelectTrigger id={`level-rounding-${index}`}>
+                  <SelectValue placeholder="Rundungsregel auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roundingRules.map(rule => (
+                    <SelectItem key={rule} value={rule}>
+                      {getRoundingRuleLabel(rule)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex justify-end">
               <Button 
                 type="button" 
                 variant="ghost" 
@@ -327,14 +352,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Minus className="h-4 w-4" />
               </Button>
             </div>
-          ))}
-          
-          {(!formData.discountLevels || formData.discountLevels.length === 0) && (
-            <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
-              <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
-            </Button>
-          )}
-        </div>
+          </div>
+        ))}
+        
+        {(!formData.discountLevels || formData.discountLevels.length === 0) && (
+          <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
+            <Plus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
+          </Button>
+        )}
       </div>
     );
   };
@@ -576,7 +601,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             )}
             
             {formData.calculationBase === 'preisstaffel' && (
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <Label>Preisstaffelung</Label>
                   <Button 
@@ -590,72 +615,99 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </div>
                 
                 {(formData.priceThresholds || []).map((threshold, index) => (
-                  <div key={index} className="grid grid-cols-[1fr_1fr_auto_1fr_1fr_auto] items-center gap-2 mb-4">
-                    <div>
-                      <Label htmlFor={`min-${index}`}>Min (€)</Label>
-                      <Input 
-                        id={`min-${index}`} 
-                        type="number" 
-                        value={threshold.minPrice} 
-                        onChange={(e) => handlePriceThresholdChange(index, "minPrice", parseFloat(e.target.value))}
-                        min={0}
-                      />
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor={`min-${index}`}>Min (€)</Label>
+                        <Input 
+                          id={`min-${index}`} 
+                          type="number" 
+                          value={threshold.minPrice} 
+                          onChange={(e) => handlePriceThresholdChange(index, "minPrice", parseFloat(e.target.value))}
+                          min={0}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`max-${index}`}>Max (€)</Label>
+                        <Input 
+                          id={`max-${index}`} 
+                          type="number" 
+                          value={threshold.maxPrice || ''} 
+                          onChange={(e) => {
+                            const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                            handlePriceThresholdChange(index, "maxPrice", value);
+                          }}
+                          min={threshold.minPrice + 1}
+                          placeholder="Unbegrenzt"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor={`max-${index}`}>Max (€)</Label>
-                      <Input 
-                        id={`max-${index}`} 
-                        type="number" 
-                        value={threshold.maxPrice || ''} 
-                        onChange={(e) => {
-                          const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                          handlePriceThresholdChange(index, "maxPrice", value);
-                        }}
-                        min={threshold.minPrice + 1}
-                        placeholder="Unbegrenzt"
-                      />
+                    
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <Label htmlFor={`value-${index}`}>Wert</Label>
+                        <Input 
+                          id={`value-${index}`} 
+                          type="number" 
+                          value={threshold.value} 
+                          onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
+                          min={0}
+                        />
+                      </div>
+                      <div className="w-20">
+                        <Label htmlFor={`valueType-${index}`}>Art</Label>
+                        <Select
+                          value={threshold.valueType || 'percent'}
+                          onValueChange={(value: ThresholdValueType) => 
+                            handlePriceThresholdChange(index, "valueType", value)
+                          }
+                        >
+                          <SelectTrigger id={`valueType-${index}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {thresholdValueTypes.map(type => (
+                              <SelectItem key={type} value={type}>
+                                {getThresholdValueTypeLabel(type)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="self-end text-lg font-medium pt-2">:</div>
-                    <div>
-                      <Label htmlFor={`value-${index}`}>Wert</Label>
-                      <Input 
-                        id={`value-${index}`} 
-                        type="number" 
-                        value={threshold.value} 
-                        onChange={(e) => handlePriceThresholdChange(index, "value", parseFloat(e.target.value))}
-                        min={0}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor={`valueType-${index}`}>Art</Label>
-                      <Select
-                        value={threshold.valueType || 'percent'}
-                        onValueChange={(value: ThresholdValueType) => 
-                          handlePriceThresholdChange(index, "valueType", value)
-                        }
+                    
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
+                        <Select
+                          value={threshold.roundingRule}
+                          onValueChange={(value: RoundingRule) => 
+                            handlePriceThresholdChange(index, "roundingRule", value)
+                          }
+                        >
+                          <SelectTrigger id={`threshold-rounding-${index}`}>
+                            <SelectValue placeholder="Rundungsregel auswählen" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roundingRules.map(rule => (
+                              <SelectItem key={rule} value={rule}>
+                                {getRoundingRuleLabel(rule)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-10 w-10 self-end"
+                        disabled={formData.priceThresholds?.length === 1}
+                        onClick={() => handleRemovePriceThreshold(index)}
                       >
-                        <SelectTrigger id={`valueType-${index}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {thresholdValueTypes.map(type => (
-                            <SelectItem key={type} value={type}>
-                              {getThresholdValueTypeLabel(type)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <Minus className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon" 
-                      className="self-end"
-                      disabled={formData.priceThresholds?.length === 1}
-                      onClick={() => handleRemovePriceThreshold(index)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
                   </div>
                 ))}
                 
@@ -669,24 +721,26 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             
             {renderDiscountLevelsSection()}
             
-            <div>
-              <Label htmlFor="roundingRule">Rundungsregel</Label>
-              <Select 
-                value={formData.roundingRule} 
-                onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
-              >
-                <SelectTrigger id="roundingRule">
-                  <SelectValue placeholder="Rundungsregel auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roundingRules.map(rule => (
-                    <SelectItem key={rule} value={rule}>
-                      {getRoundingRuleLabel(rule)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'angebotsstaffel' && (
+              <div>
+                <Label htmlFor="roundingRule">Rundungsregel</Label>
+                <Select 
+                  value={formData.roundingRule} 
+                  onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+                >
+                  <SelectTrigger id="roundingRule">
+                    <SelectValue placeholder="Rundungsregel auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roundingRules.map(rule => (
+                      <SelectItem key={rule} value={rule}>
+                        {getRoundingRuleLabel(rule)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             
             <div>
               <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>

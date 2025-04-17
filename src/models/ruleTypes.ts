@@ -1,3 +1,4 @@
+
 export type RequestCategory = 'Egal' | 'Widerruf' | 'Reklamation';
 
 export type RequestType = 
@@ -56,12 +57,14 @@ export interface PriceThreshold {
   minPrice: number,
   maxPrice?: number,
   value: number,
-  valueType: ThresholdValueType
+  valueType: ThresholdValueType,
+  roundingRule: RoundingRule  // Add individual rounding rule
 }
 
 export interface DiscountLevel {
   value: number,
-  valueType: ThresholdValueType
+  valueType: ThresholdValueType,
+  roundingRule: RoundingRule  // Add individual rounding rule
 }
 
 export interface DiscountRule {
