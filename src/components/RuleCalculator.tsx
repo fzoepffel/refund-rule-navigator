@@ -23,6 +23,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [showApologyMessage, setShowApologyMessage] = useState<boolean>(false);
   const [showDiscountAmount, setShowDiscountAmount] = useState<boolean>(false);
   const [showNegotiatingMessage, setShowNegotiatingMessage] = useState<boolean>(false);
+  const [showMerchantContactMessage, setShowMerchantContactMessage] = useState<boolean>(false);
   const { toast } = useToast();
   
   // Helper function to generate an apology message based on the rule's triggers
@@ -51,6 +52,20 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     // Reset states when calculating a new discount
     setCurrentDiscountLevel(0);
     setOfferingReturn(false);
+    setShowMerchantContactMessage(false);
+    
+    // Handle the contact_merchant_immediately strategy immediately
+    if (rule.returnStrategy === 'contact_merchant_immediately') {
+      setShowMerchantContactMessage(true);
+      setShowApologyMessage(false);
+      setShowDiscountAmount(false);
+      
+      toast({
+        title: "Händlerkontakt erforderlich",
+        description: "Dieser Fall erfordert Rücksprache mit dem Händler.",
+      });
+      return;
+    }
     
     // If the return strategy is auto_return_full_refund, immediately offer full refund and return
     if (rule.returnStrategy === 'auto_return_full_refund') {
@@ -78,10 +93,20 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   };
   
   const handleCalculate = () => {
-    // Show apology message first
+    // For immediate merchant contact, show that message right away
+    if (rule.returnStrategy === 'contact_merchant_immediately') {
+      setShowMerchantContactMessage(true);
+      setShowApologyMessage(false);
+      setShowDiscountAmount(false);
+      setRequestCount(prevCount => prevCount + 1);
+      return;
+    }
+    
+    // For other strategies, show apology message first
     setShowApologyMessage(true);
     setShowDiscountAmount(false);
     setShowNegotiatingMessage(false);
+    setShowMerchantContactMessage(false);
     
     // Calculate the discount in the background
     calculateAndPrepareDiscount();
@@ -100,6 +125,20 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   };
   
   const handleReject = () => {
+    // Special handling for discount_then_contact_merchant strategy
+    if (rule.returnStrategy === 'discount_then_contact_merchant') {
+      setShowDiscountAmount(false);
+      setShowNegotiatingMessage(false);
+      setShowMerchantContactMessage(true);
+      
+      toast({
+        title: "Händlerkontakt erforderlich",
+        description: "Dieser Fall erfordert nun Rücksprache mit dem Händler.",
+      });
+      
+      return;
+    }
+    
     // Check for angebotsstaffel rules with multiple discount levels
     if (rule.calculationBase === 'angebotsstaffel' && rule.discountLevels) {
       // Try to offer the next higher discount level
@@ -213,7 +252,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           </div>
         </div>
         
-        {!showApologyMessage && !showNegotiatingMessage && !showDiscountAmount && (
+        {!showApologyMessage && !showNegotiatingMessage && !showDiscountAmount && !showMerchantContactMessage && (
           <Button onClick={handleCalculate} className="w-full">
             <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
           </Button>
@@ -232,6 +271,19 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
             <Button onClick={handleForwardSkip} className="w-full">
               <FastForward className="h-4 w-4 mr-2" /> Vorspulen
             </Button>
+          </div>
+        )}
+        
+        {showMerchantContactMessage && (
+          <div className="space-y-4">
+            <Alert className="bg-yellow-50 border-yellow-200">
+              <AlertTitle>Händlerkontakt erforderlich</AlertTitle>
+              <AlertDescription>
+                {rule.returnStrategy === 'contact_merchant_immediately' 
+                  ? "Wir müssen dies mit dem Händler besprechen. Wir werden uns in Kürze bei ihnen melden. Vielen Dank für ihre Geduld."
+                  : "Wir müssen dies mit dem Händler besprechen."}
+              </AlertDescription>
+            </Alert>
           </div>
         )}
         
@@ -287,7 +339,8 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                    rule.discountLevels && 
                    currentDiscountLevel < rule.discountLevels.length - 1) ||
                   (rule.returnStrategy === 'discount_then_return' && !offeringReturn) ||
-                  (rule.returnStrategy === 'discount_then_keep' && discountAmount < salePrice)
+                  (rule.returnStrategy === 'discount_then_keep' && discountAmount < salePrice) ||
+                  (rule.returnStrategy === 'discount_then_contact_merchant')
                 ) && (
                   <Button 
                     variant="destructive" 
