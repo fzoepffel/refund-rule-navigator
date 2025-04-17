@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -165,6 +166,24 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       }));
     }
   }, [formData.calculationBase]);
+  
+  // Effect for handling rule completeness and consultation checkbox relationship
+  useEffect(() => {
+    // If rule is not complete, partner consultation is required
+    if (formData.isCompleteRule === false) {
+      setFormData(prev => ({
+        ...prev,
+        consultPartnerBeforePayout: true
+      }));
+    }
+    // If rule is complete, remove partner consultation requirement (unless calculation base requires it)
+    else if (formData.isCompleteRule === true && formData.calculationBase !== 'keine_berechnung') {
+      setFormData(prev => ({
+        ...prev,
+        consultPartnerBeforePayout: false
+      }));
+    }
+  }, [formData.isCompleteRule]);
   
   // Effect to handle setting a full refund when auto_return_full_refund is selected
   useEffect(() => {
@@ -880,16 +899,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Checkbox 
                   id="consultPartnerBeforePayout" 
                   checked={formData.consultPartnerBeforePayout || false}
-                  disabled={formData.calculationBase === 'keine_berechnung'}
+                  disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
                   onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
                 />
                 <Label htmlFor="consultPartnerBeforePayout" className={
-                  formData.calculationBase === 'keine_berechnung' 
+                  formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false
                     ? "text-muted-foreground" 
                     : ""
                 }>
                   Rücksprache mit Partner vor Auszahlung
-                  {formData.calculationBase === 'keine_berechnung' && (
+                  {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
                     <span className="text-amber-600 ml-1">(Erforderlich)</span>
                   )}
                 </Label>
