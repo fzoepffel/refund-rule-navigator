@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -22,7 +21,7 @@ import {
   getReturnHandlingLabel,
   getThresholdValueTypeLabel
 } from "../utils/discountUtils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -398,7 +397,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Grundinformationen</CardTitle>
+          <CardTitle>Grundinformationen zum Regelfall</CardTitle>
+          <CardDescription>Hier wird der Fall definiert, für welchen eine Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -536,7 +536,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       {/* Return Strategy in its own card */}
       <Card>
         <CardHeader>
-          <CardTitle>Rückgabestrategie</CardTitle>
+          <CardTitle>Preisnachlassstrategie</CardTitle>
+          <CardDescription>Hier wird definiert, nach welcher Strategie der oben definierte Regelfall behandelt wird.</CardDescription>
         </CardHeader>
         <CardContent>
           <div>
@@ -577,6 +578,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         <Card>
           <CardHeader>
             <CardTitle>Berechnungsgrundlage</CardTitle>
+            <CardDescription>Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -817,6 +819,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       <Card>
         <CardHeader>
           <CardTitle>Sonderregeln & Zusatzaktionen</CardTitle>
+          <CardDescription>Hier werden zusätzliche Regeln und Aktionen definiert, die vor der Auszahlung eines Preisnachlasses berücksichtigt werden sollen.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
