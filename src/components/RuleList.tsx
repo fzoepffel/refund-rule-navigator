@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -187,6 +186,14 @@ const RuleList: React.FC<RuleListProps> = ({
                     
                     {/* Special rules and notes */}
                     <div className="mt-2 text-sm">
+                      {/* Return strategy display */}
+                      {rule.returnStrategy && (
+                        <div className="text-muted-foreground mt-1">
+                          <strong>Rückgabestrategie:</strong>{' '}
+                          {getReturnStrategyLabel(rule.returnStrategy)}
+                        </div>
+                      )}
+
                       {/* Special rules display */}
                       {(rule.requestPictures || 
                         rule.previousRefundsCheck || 
