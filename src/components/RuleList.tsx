@@ -95,11 +95,20 @@ const RuleList: React.FC<RuleListProps> = ({
   const getContextInfoParts = (rule: DiscountRule) => {
     const parts = [];
     
-    if (rule.requestType !== 'Egal') {
+    if (rule.requestCategory === 'Egal') {
       parts.push(
-        <span key="requestType">
+        <span key="requestCategory">
           <strong>Art der Anfrage:</strong>{' '}
-          <span>{rule.requestType}</span>
+          <span>Widerruf und Reklamation</span>
+        </span>
+      );
+    }
+
+    if (rule.requestCategory !== 'Egal') {
+      parts.push(
+        <span key="requestCategory">
+          <strong>Art der Anfrage:</strong>{' '}
+          <span>{rule.requestCategory}</span>
         </span>
       );
     }
@@ -126,7 +135,7 @@ const RuleList: React.FC<RuleListProps> = ({
     if (packageOpenedLabel) {
       parts.push(
         <span key="packageOpened">
-          <strong>Produkt geöffnet:</strong>{' '}
+          <strong>Produkt geöffnet?:</strong>{' '}
           <span>{packageOpenedLabel}</span>
         </span>
       );
