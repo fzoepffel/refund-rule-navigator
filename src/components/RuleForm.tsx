@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   DiscountRule, 
@@ -511,10 +512,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </SelectContent>
             </Select>
           </div>
-          
-          {/* Return Strategy - Moved here as requested */}
+        </CardContent>
+      </Card>
+      
+      {/* Return Strategy in its own card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Rückgabestrategie</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div>
-            <Label htmlFor="returnStrategy">Rückgabestrategie</Label>
             <Select 
               value={formData.returnStrategy || 'discount_then_return'} 
               onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
