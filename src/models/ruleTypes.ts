@@ -1,4 +1,3 @@
-
 export type RequestCategory = 'Egal' | 'Widerruf' | 'Reklamation';
 
 export type RequestType = 
@@ -49,7 +48,9 @@ export type ShippingType = 'Egal' | 'paket' | 'spedition';
 export type ReturnStrategy = 
   'auto_return_full_refund' | 
   'discount_then_return' | 
-  'discount_then_keep';
+  'discount_then_keep' |
+  'discount_then_contact_merchant' |
+  'contact_merchant_immediately';
 
 export interface PriceThreshold {
   minPrice: number,

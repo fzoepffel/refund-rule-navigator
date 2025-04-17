@@ -109,10 +109,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['Egal', 'paket', 'spedition'];
+  
   const returnStrategies: {value: ReturnStrategy; label: string}[] = [
     { value: 'auto_return_full_refund', label: 'Automatische Retoure mit voller Kostenerstattung' },
     { value: 'discount_then_return', label: 'Preisnachlass anbieten, bei Ablehnung Retoure' },
-    { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' }
+    { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' },
+    { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren' },
+    { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
   ];
   
   // Generate rule name according to new schema
@@ -149,7 +152,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     }
 
     // Part 5: Grund
-    if (formData.triggers.length > 0 && formData.triggers[0] !== "Egal") {
+    if (formData.triggers.length >0 && formData.triggers[0] !== "Egal") {
       parts.push(formData.triggers[0]);
     }
 
@@ -174,6 +177,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         calculationBase: 'fester_betrag',
         value: 100,
         returnHandling: 'automatisches_label'
+      }));
+    } else if (formData.returnStrategy === 'contact_merchant_immediately') {
+      setFormData(prev => ({
+        ...prev,
+        consultPartnerBeforePayout: true,
+        calculationBase: 'keine_berechnung'
       }));
     }
   }, [formData.returnStrategy]);
@@ -502,11 +511,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </AlertDescription>
               </Alert>
             )}
+            {formData.returnStrategy === 'contact_merchant_immediately' && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei direkter Merchant-Kontaktierung wird keine Berechnung durchgeführt und Rücksprache ist erforderlich.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {formData.returnStrategy !== 'auto_return_full_refund' && (
+      {(formData.returnStrategy !== 'auto_return_full_refund' && formData.returnStrategy !== 'contact_merchant_immediately') && (
         <Card>
           <CardHeader>
             <CardTitle>Berechnungsgrundlage</CardTitle>

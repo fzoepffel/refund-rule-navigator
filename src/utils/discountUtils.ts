@@ -1,3 +1,4 @@
+
 import { 
   Trigger, 
   RequestType, 
@@ -62,7 +63,9 @@ export const getReturnStrategyLabel = (strategy: ReturnStrategy): string => {
   const labels: Record<ReturnStrategy, string> = {
     'auto_return_full_refund': 'Automatische Rückerstattung bei Retoure',
     'discount_then_return': 'Rabatt anbieten, dann Retoure',
-    'discount_then_keep': 'Rabatt anbieten, Artikel behalten'
+    'discount_then_keep': 'Rabatt anbieten, Artikel behalten',
+    'discount_then_contact_merchant': 'Rabatt anbieten, dann Merchant kontaktieren',
+    'contact_merchant_immediately': 'Sofort Merchant kontaktieren'
   };
   return labels[strategy] || strategy;
 };
