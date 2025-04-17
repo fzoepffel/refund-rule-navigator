@@ -1,3 +1,4 @@
+
 import { 
   Trigger, 
   RequestType, 
@@ -7,7 +8,7 @@ import {
   ThresholdValueType,
   DiscountRule,
   PriceThreshold,
-  DiscountLevel,
+  CalculationStage,
   ReturnStrategy
 } from "../models/ruleTypes";
 
@@ -24,7 +25,6 @@ export const getCalculationBaseLabel = (base: CalculationBase): string => {
     'prozent_vom_vk': 'Prozent vom Verkaufspreis',
     'fester_betrag': 'Fester Betrag',
     'preisstaffel': 'Preisabhängige Staffelung',
-    'angebotsstaffel': 'Mehrere Angebotsstufen',
     'keine_berechnung': 'Keine Berechnung'
   };
   return labels[base] || base;
@@ -92,6 +92,13 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
     return 'Rücksprache mit Partner notwendig';
   }
 
+  // If this is a multi-stage discount, we only calculate the first stage here
+  // (for display purposes in the rule list)
+  if (rule.multiStageDiscount && rule.calculationStages && rule.calculationStages.length > 0) {
+    const firstStage = rule.calculationStages[0];
+    return calculateDiscountForStage(salePrice, firstStage, rule);
+  }
+
   let amount = 0;
   
   switch (rule.calculationBase) {
@@ -126,22 +133,6 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
         }
       }
       break;
-      
-    case 'angebotsstaffel':
-      // For discount levels, use the first level as a simple implementation
-      if (rule.discountLevels && rule.discountLevels.length > 0) {
-        const firstLevel = rule.discountLevels[0];
-        
-        if (firstLevel.valueType === 'percent') {
-          amount = (salePrice * firstLevel.value) / 100;
-        } else {
-          // Fixed amount
-          amount = firstLevel.value;
-        }
-        // Apply the level-specific rounding rule
-        return applyRoundingRule(amount, firstLevel.roundingRule);
-      }
-      break;
   }
   
   // Apply max amount limit if it exists
@@ -154,19 +145,51 @@ export const calculateDiscount = (salePrice: number, rule: DiscountRule): number
 };
 
 /**
- * Calculate discount for a specific level in a discount ladder
+ * Calculate discount for a specific stage
  */
-export const calculateDiscountForLevel = (
+export const calculateDiscountForStage = (
   salePrice: number, 
-  level: DiscountLevel, 
+  stage: CalculationStage, 
   rule: DiscountRule
-): number => {
+): number | string => {
+  if (stage.calculationBase === 'keine_berechnung') {
+    return 'Rücksprache mit Partner notwendig';
+  }
+
   let amount = 0;
   
-  if (level.valueType === 'percent') {
-    amount = (salePrice * level.value) / 100;
-  } else {
-    amount = level.value;
+  switch (stage.calculationBase) {
+    case 'fester_betrag':
+      // For fixed amount, just use the value directly
+      amount = stage.value || 0;
+      break;
+      
+    case 'prozent_vom_vk':
+      // For percentage, calculate based on sale price
+      const percentage = stage.value || 0;
+      amount = (salePrice * percentage) / 100;
+      break;
+      
+    case 'preisstaffel':
+      // For price thresholds, find the applicable threshold
+      if (stage.priceThresholds && stage.priceThresholds.length > 0) {
+        const applicableThreshold = stage.priceThresholds.find(
+          threshold => 
+            salePrice >= threshold.minPrice && 
+            (!threshold.maxPrice || salePrice <= threshold.maxPrice)
+        );
+        
+        if (applicableThreshold) {
+          if (applicableThreshold.valueType === 'percent') {
+            amount = (salePrice * applicableThreshold.value) / 100;
+          } else {
+            amount = applicableThreshold.value;
+          }
+          // Apply the threshold-specific rounding rule
+          return applyRoundingRule(amount, applicableThreshold.roundingRule);
+        }
+      }
+      break;
   }
   
   // Apply max amount limit if it exists
@@ -174,8 +197,22 @@ export const calculateDiscountForLevel = (
     amount = rule.maxAmount;
   }
   
-  // Apply level-specific rounding rule
-  return applyRoundingRule(amount, level.roundingRule);
+  // Apply stage-specific rounding rule
+  return applyRoundingRule(amount, stage.roundingRule);
+};
+
+/**
+ * Calculate discounts for all stages in a multi-stage discount
+ */
+export const calculateMultiStageDiscounts = (
+  salePrice: number, 
+  rule: DiscountRule
+): (number | string)[] => {
+  if (!rule.multiStageDiscount || !rule.calculationStages || rule.calculationStages.length === 0) {
+    return [calculateDiscount(salePrice, rule)];
+  }
+  
+  return rule.calculationStages.map(stage => calculateDiscountForStage(salePrice, stage, rule));
 };
 
 /**
