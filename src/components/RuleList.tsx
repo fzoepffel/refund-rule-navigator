@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -92,6 +91,59 @@ const RuleList: React.FC<RuleListProps> = ({
     }
   };
 
+  // Helper function to generate context info parts as an array
+  const getContextInfoParts = (rule: DiscountRule) => {
+    const parts = [];
+    
+    if (rule.requestType !== 'Egal') {
+      parts.push(
+        <span key="requestType">
+          <strong>Art der Anfrage:</strong>{' '}
+          <span>{rule.requestType}</span>
+        </span>
+      );
+    }
+
+    if (rule.triggers[0] !== 'Egal') {
+      parts.push(
+        <span key="trigger">
+          <strong>Grund:</strong>{' '}
+          <span>{getTriggerLabel(rule.triggers[0])}</span>
+        </span>
+      );
+    }
+
+    if (rule.requestType !== 'Egal') {
+      parts.push(
+        <span key="procedure">
+          <strong>Gewünschte Vorgehensweise:</strong>{' '}
+          <span>{rule.requestType}</span>
+        </span>
+      );
+    }
+    
+    const packageOpenedLabel = getPackageOpenedLabel(rule.packageOpened);
+    if (packageOpenedLabel) {
+      parts.push(
+        <span key="packageOpened">
+          <strong>Produkt geöffnet:</strong>{' '}
+          <span>{packageOpenedLabel}</span>
+        </span>
+      );
+    }
+    
+    if (rule.shippingType !== 'Egal') {
+      parts.push(
+        <span key="shippingType">
+          <strong>Versandart:</strong>{' '}
+          <span>{getShippingTypeLabel(rule.shippingType)}</span>
+        </span>
+      );
+    }
+
+    return parts;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
@@ -131,51 +183,17 @@ const RuleList: React.FC<RuleListProps> = ({
                   <div className="flex-1">
                     <h3 className="font-medium">{rule.name}</h3>
                     
-                    {/* Context information line in gray */}
+                    {/* Context information line with dynamic separator dots */}
                     <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
-                      
-                      {rule.requestType !== 'Egal' && (
-                        <>
-                          <span>•</span>
-                          <strong>Art der Anfrage:</strong>{' '}
-                          <span>{rule.requestType}</span>
-                        </>
-                      )}
-
-                      {rule.triggers[0] !== 'Egal' && (
-                        <>
-                          {rule.returnStrategy && <span>•</span>}
-                          <strong>Grund:</strong>{' '}
-                          <span>{getTriggerLabel(rule.triggers[0])}</span>
-                        </>
-                      )}
-
-                      {rule.requestType !== 'Egal' && (
-                        <>
-                          <span>•</span>
-                          <strong>Gewünschte Vorgehensweise:</strong>{' '}
-                          <span>{rule.requestType}</span>
-                        </>
-                      )}
-                      
-                      {getPackageOpenedLabel(rule.packageOpened) && (
-                        <>
-                          <span>•</span>
-                          <strong>Produkt geöffnet:</strong>{' '}
-                          <span>{getPackageOpenedLabel(rule.packageOpened)}</span>
-                        </>
-                      )}
-                      
-                      {rule.shippingType !== 'Egal' && (
-                        <>
-                          <span>•</span>
-                          <strong>Versandart:</strong>{' '}
-                          <span>{getShippingTypeLabel(rule.shippingType)}</span>
-                        </>
-                      )}
+                      {getContextInfoParts(rule).map((part, index, array) => (
+                        <React.Fragment key={`fragment-${index}`}>
+                          {part}
+                          {index < array.length - 1 && <span className="mx-1">•</span>}
+                        </React.Fragment>
+                      ))}
                     </div>
 
-                    {/* Return strategy display (now before calculation info) */}
+                    {/* Return strategy display */}
                     {rule.returnStrategy && (
                       <div className="text-muted-foreground mt-2 text-sm">
                         <strong>Rückgabestrategie:</strong>{' '}
