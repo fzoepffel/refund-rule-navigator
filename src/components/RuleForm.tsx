@@ -69,7 +69,9 @@ const defaultRule: DiscountRule = {
   shippingType: "Egal",
   packageOpened: "Egal",
   returnStrategy: "discount_then_return",
-  value: 10
+  value: 10,
+  isCompleteRule: false,         // Default to false
+  consultPartnerBeforePayout: true  // Default to true
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
