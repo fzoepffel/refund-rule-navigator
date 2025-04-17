@@ -429,6 +429,40 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
           
+          {/* Return Strategy - Moved here as requested */}
+          <div>
+            <Label htmlFor="returnStrategy">Rückgabestrategie</Label>
+            <Select 
+              value={formData.returnStrategy || 'discount_then_return'} 
+              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
+            >
+              <SelectTrigger id="returnStrategy">
+                <SelectValue placeholder="Rückgabestrategie auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {returnStrategies.map(strategy => (
+                  <SelectItem key={strategy.value} value={strategy.value}>
+                    {strategy.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {formData.returnStrategy === 'auto_return_full_refund' && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
+                </AlertDescription>
+              </Alert>
+            )}
+            {formData.returnStrategy === 'contact_merchant_immediately' && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei direkter Merchant-Kontaktierung wird keine Berechnung durchgeführt und Rücksprache ist erforderlich.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
             {formData.requestCategory === 'Reklamation' && (
@@ -485,39 +519,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-          
-          <div>
-            <Label htmlFor="returnStrategy">Rückgabestrategie</Label>
-            <Select 
-              value={formData.returnStrategy || 'discount_then_return'} 
-              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
-            >
-              <SelectTrigger id="returnStrategy">
-                <SelectValue placeholder="Rückgabestrategie auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {returnStrategies.map(strategy => (
-                  <SelectItem key={strategy.value} value={strategy.value}>
-                    {strategy.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formData.returnStrategy === 'auto_return_full_refund' && (
-              <Alert className="mt-2">
-                <AlertDescription>
-                  Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
-                </AlertDescription>
-              </Alert>
-            )}
-            {formData.returnStrategy === 'contact_merchant_immediately' && (
-              <Alert className="mt-2">
-                <AlertDescription>
-                  Bei direkter Merchant-Kontaktierung wird keine Berechnung durchgeführt und Rücksprache ist erforderlich.
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
         </CardContent>
       </Card>
