@@ -1,4 +1,3 @@
-
 import React from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -9,7 +8,7 @@ import {
 } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit } from "lucide-react";
+import { ArrowLeft, Edit, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -202,15 +201,23 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </>
           )}
 
-          {(rule.checkIfProductOpened || rule.offerDiscountBeforeReturn || rule.requestPictures || rule.consultPartnerBeforePayout || rule.sendInfoToPartner) && (
+          {(rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.requestPictures || rule.offerDiscountBeforeReturn || rule.consultPartnerBeforePayout || rule.sendInfoToPartner) && (
             <>
               <Separator />
               <div>
                 <div className="text-sm text-muted-foreground mb-2">Zusatzaktionen</div>
                 <div className="space-y-2">
-                  {rule.checkIfProductOpened && (
+                  {rule.previousRefundsCheck && (
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">Prüfung ob Produkt geöffnet</Badge>
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <History className="h-3 w-3" />
+                        Kundenhistorie prüfen (Anzahl vorheriger Rückzahlungen)
+                      </Badge>
+                    </div>
+                  )}
+                  {rule.customerLoyaltyCheck && (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">Kundenhistorie prüfen (Bestandskunde)</Badge>
                     </div>
                   )}
                   {rule.offerDiscountBeforeReturn && (

@@ -83,7 +83,7 @@ export interface DiscountRule {
   priceThresholds?: PriceThreshold[],
   discountLevels?: DiscountLevel[],
   requestPictures?: boolean,
-  checkIfProductOpened?: boolean,
+  previousRefundsCheck?: boolean,
   customerLoyaltyCheck?: boolean,
   minOrderAgeToDays?: number,
   maxAmount?: number,

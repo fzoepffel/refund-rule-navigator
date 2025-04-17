@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Minus, Save, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Save, ChevronDown, History } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Select, 
@@ -801,12 +801,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Checkbox 
-                    id="checkIfProductOpened" 
-                    checked={formData.checkIfProductOpened || false}
-                    onCheckedChange={(checked) => handleChange("checkIfProductOpened", checked)}
+                    id="previousRefundsCheck" 
+                    checked={formData.previousRefundsCheck || false}
+                    onCheckedChange={(checked) => handleChange("previousRefundsCheck", checked)}
                   />
-                  <Label htmlFor="checkIfProductOpened">
-                    Prüfung ob Produkt geöffnet ist
+                  <Label htmlFor="previousRefundsCheck" className="flex items-center gap-1">
+                    <History className="h-4 w-4" />
+                    Kundenhistorie prüfen (Anzahl vorheriger Rückzahlungen)
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
