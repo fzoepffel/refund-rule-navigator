@@ -37,8 +37,8 @@ export const sampleRules: DiscountRule[] = [
     returnHandling: "manuelles_label",
     shippingType: "spedition",
     priceThresholds: [
-      { minPrice: 0, maxPrice: 400, value: 10, valueType: "percent" },
-      { minPrice: 400, value: 5, valueType: "percent" }
+      { minPrice: 0, maxPrice: 400, value: 10, valueType: "percent", roundingRule: "keine_rundung" },
+      { minPrice: 400, value: 5, valueType: "percent", roundingRule: "keine_rundung" }
     ]
   },
   {
@@ -52,9 +52,9 @@ export const sampleRules: DiscountRule[] = [
     returnHandling: "manuelles_label",
     shippingType: "spedition",
     discountLevels: [
-      { value: 40, valueType: 'percent' }, 
-      { value: 60, valueType: 'percent' }, 
-      { value: 100, valueType: 'percent' }
+      { value: 40, valueType: 'percent', roundingRule: "keine_rundung" }, 
+      { value: 60, valueType: 'percent', roundingRule: "keine_rundung" }, 
+      { value: 100, valueType: 'percent', roundingRule: "keine_rundung" }
     ],
     checkIfProductOpened: true,
     offerDiscountBeforeReturn: true,
@@ -71,10 +71,10 @@ export const sampleRules: DiscountRule[] = [
     returnHandling: "automatisches_label",
     shippingType: "paket",
     priceThresholds: [
-      { minPrice: 0, maxPrice: 100, value: 10, valueType: "fixed" },
-      { minPrice: 100, maxPrice: 150, value: 15, valueType: "fixed" },
-      { minPrice: 150, maxPrice: 200, value: 20, valueType: "fixed" },
-      { minPrice: 200, value: 30, valueType: "fixed" }
+      { minPrice: 0, maxPrice: 100, value: 10, valueType: "fixed", roundingRule: "keine_rundung" },
+      { minPrice: 100, maxPrice: 150, value: 15, valueType: "fixed", roundingRule: "keine_rundung" },
+      { minPrice: 150, maxPrice: 200, value: 20, valueType: "fixed", roundingRule: "keine_rundung" },
+      { minPrice: 200, value: 30, valueType: "fixed", roundingRule: "keine_rundung" }
     ]
   },
   {
@@ -137,9 +137,9 @@ export const sampleRules: DiscountRule[] = [
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
     calculationBase: "angebotsstaffel",
     discountLevels: [
-      { value: 50, valueType: 'percent' },
-      { value: 70, valueType: 'percent' },
-      { value: 100, valueType: 'percent' }
+      { value: 50, valueType: 'percent', roundingRule: "keine_rundung" },
+      { value: 70, valueType: 'percent', roundingRule: "keine_rundung" },
+      { value: 100, valueType: 'percent', roundingRule: "keine_rundung" }
     ],
     roundingRule: "keine_rundung",
     returnHandling: "keine_retoure",
