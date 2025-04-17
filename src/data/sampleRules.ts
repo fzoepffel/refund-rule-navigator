@@ -56,7 +56,7 @@ export const sampleRules: DiscountRule[] = [
       { value: 60, valueType: 'percent', roundingRule: "keine_rundung" }, 
       { value: 100, valueType: 'percent', roundingRule: "keine_rundung" }
     ],
-    checkIfProductOpened: true,
+    previousRefundsCheck: true,
     offerDiscountBeforeReturn: true,
     notes: "Zusätzlich zu Bildern vorher immer abfragen, ob Produkt/Matratze bereits geöffnet wurde!"
   },
