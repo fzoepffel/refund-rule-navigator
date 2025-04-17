@@ -27,8 +27,8 @@ export type CalculationBase =
   'keine_berechnung' | 
   'prozent_vom_vk' | 
   'fester_betrag' | 
-  'preisstaffel' |
-  'angebotsstaffel'; // Added 'angebotsstaffel' as a valid type
+  'preisstaffel' | 
+  'angebotsstaffel';
 
 export type RoundingRule = 
   'keine_rundung' | 
@@ -61,13 +61,10 @@ export interface PriceThreshold {
   roundingRule: RoundingRule  // Add individual rounding rule
 }
 
-// New interface to represent a single calculation stage
-export interface CalculationStage {
-  id: string,
-  calculationBase: CalculationBase,
-  value?: number,
-  roundingRule: RoundingRule,
-  priceThresholds?: PriceThreshold[]
+export interface DiscountLevel {
+  value: number,
+  valueType: ThresholdValueType,
+  roundingRule: RoundingRule  // Add individual rounding rule
 }
 
 export interface DiscountRule {
@@ -84,8 +81,7 @@ export interface DiscountRule {
   returnHandling: ReturnHandling,
   shippingType: ShippingType,
   priceThresholds?: PriceThreshold[],
-  multiStageDiscount?: boolean,
-  calculationStages?: CalculationStage[],
+  discountLevels?: DiscountLevel[],
   requestPictures?: boolean,
   previousRefundsCheck?: boolean,
   customerLoyaltyCheck?: boolean,

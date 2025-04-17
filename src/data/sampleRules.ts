@@ -47,30 +47,14 @@ export const sampleRules: DiscountRule[] = [
     requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
-    calculationBase: "preisstaffel", // Changed from "angebotsstaffel" to a valid value
+    calculationBase: "angebotsstaffel",
     roundingRule: "keine_rundung",
     returnHandling: "manuelles_label",
     shippingType: "spedition",
-    multiStageDiscount: true, // Added this flag to indicate multi-stage discount
-    calculationStages: [
-      {
-        id: "stage1",
-        calculationBase: "prozent_vom_vk",
-        value: 40,
-        roundingRule: "keine_rundung"
-      },
-      {
-        id: "stage2",
-        calculationBase: "prozent_vom_vk",
-        value: 60,
-        roundingRule: "keine_rundung"
-      },
-      {
-        id: "stage3",
-        calculationBase: "prozent_vom_vk",
-        value: 100,
-        roundingRule: "keine_rundung"
-      }
+    discountLevels: [
+      { value: 40, valueType: 'percent', roundingRule: "keine_rundung" }, 
+      { value: 60, valueType: 'percent', roundingRule: "keine_rundung" }, 
+      { value: 100, valueType: 'percent', roundingRule: "keine_rundung" }
     ],
     previousRefundsCheck: true,
     offerDiscountBeforeReturn: true,
@@ -151,27 +135,11 @@ export const sampleRules: DiscountRule[] = [
     requestCategory: "Reklamation",
     requestType: "Preisnachlass gewünscht",
     triggers: ["Artikel beschädigt/funktioniert nicht mehr", "Versandverpackung und Artikel beschädigt"],
-    calculationBase: "preisstaffel", // Changed from "angebotsstaffel" to a valid value
-    multiStageDiscount: true, // Added this flag to indicate multi-stage discount
-    calculationStages: [
-      {
-        id: "stage1",
-        calculationBase: "prozent_vom_vk",
-        value: 50,
-        roundingRule: "keine_rundung"
-      },
-      {
-        id: "stage2",
-        calculationBase: "prozent_vom_vk",
-        value: 70,
-        roundingRule: "keine_rundung"
-      },
-      {
-        id: "stage3",
-        calculationBase: "prozent_vom_vk",
-        value: 100,
-        roundingRule: "keine_rundung"
-      }
+    calculationBase: "angebotsstaffel",
+    discountLevels: [
+      { value: 50, valueType: 'percent', roundingRule: "keine_rundung" },
+      { value: 70, valueType: 'percent', roundingRule: "keine_rundung" },
+      { value: 100, valueType: 'percent', roundingRule: "keine_rundung" }
     ],
     roundingRule: "keine_rundung",
     returnHandling: "keine_retoure",
