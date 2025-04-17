@@ -4,7 +4,9 @@ import { DiscountRule } from "../models/ruleTypes";
 import { 
   getCalculationBaseLabel, 
   getRoundingRuleLabel,
-  getThresholdValueTypeLabel
+  getThresholdValueTypeLabel,
+  getReturnStrategyLabel,
+  getTriggerLabel
 } from "../utils/discountUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +37,22 @@ const RuleList: React.FC<RuleListProps> = ({
     const matchesSearch = rule.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  // Helper function to format package opened status
+  const getPackageOpenedLabel = (packageOpened?: 'yes' | 'no' | 'Egal') => {
+    if (!packageOpened || packageOpened === 'Egal') return '';
+    return packageOpened === 'yes' ? 'Paket geöffnet' : 'Paket ungeöffnet';
+  };
+
+  // Helper function to get shipping type in German
+  const getShippingTypeLabel = (shippingType: string) => {
+    switch(shippingType) {
+      case 'paket': return 'Paket';
+      case 'spedition': return 'Spedition';
+      case 'Egal': return '';
+      default: return shippingType;
+    }
+  };
 
   // Helper function to render discount information based on calculation base
   const renderDiscountInfo = (rule: DiscountRule) => {
@@ -113,7 +131,43 @@ const RuleList: React.FC<RuleListProps> = ({
                   <div className="flex-1">
                     <h3 className="font-medium">{rule.name}</h3>
                     
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {/* Context information line in gray */}
+                    <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                      {rule.returnStrategy && (
+                        <span>{getReturnStrategyLabel(rule.returnStrategy)}</span>
+                      )}
+                      
+                      {rule.triggers[0] && (
+                        <>
+                          {rule.returnStrategy && <span>•</span>}
+                          <span>{getTriggerLabel(rule.triggers[0])}</span>
+                        </>
+                      )}
+                      
+                      {getPackageOpenedLabel(rule.packageOpened) && (
+                        <>
+                          <span>•</span>
+                          <span>{getPackageOpenedLabel(rule.packageOpened)}</span>
+                        </>
+                      )}
+                      
+                      {rule.requestType !== 'Egal' && (
+                        <>
+                          <span>•</span>
+                          <span>{rule.requestType}</span>
+                        </>
+                      )}
+                      
+                      {rule.shippingType !== 'Egal' && (
+                        <>
+                          <span>•</span>
+                          <span>{getShippingTypeLabel(rule.shippingType)}</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Calculation information */}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
                       <span>•</span>
                       <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
@@ -130,23 +184,6 @@ const RuleList: React.FC<RuleListProps> = ({
                         <Badge variant="secondary" className="text-xs">Max: {rule.maxAmount}€</Badge>
                       </div>
                     )}
-
-                    {/* Show request type and top trigger for context */}
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      <Badge variant="outline" className="bg-muted/50">
-                        {rule.requestType}
-                      </Badge>
-                      {rule.triggers[0] && (
-                        <Badge variant="outline" className="bg-muted/50">
-                          {rule.triggers[0]}
-                        </Badge>
-                      )}
-                      {rule.triggers.length > 1 && (
-                        <Badge variant="outline" className="bg-muted/50">
-                          +{rule.triggers.length - 1} mehr
-                        </Badge>
-                      )}
-                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 
