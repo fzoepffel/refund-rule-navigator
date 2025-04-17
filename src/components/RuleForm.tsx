@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Minus, Save, ChevronDown, History } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Save, ChevronDown, History, Car } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Select, 
@@ -416,6 +416,64 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
+            {formData.requestCategory === 'Reklamation' && (
+              <div>
+                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
+                <Select 
+                  value={formData.requestType} 
+                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
+                >
+                  <SelectTrigger id="requestType">
+                    <SelectValue placeholder="Vorgehensweise auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {requestTypes.map(type => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {/* Grund */}
+            <div>
+              <Label htmlFor="triggers">Grund</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    id="triggers"
+                  >
+                    <span>{getSelectedTriggerLabel()}</span>
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuRadioGroup 
+                    value={formData.triggers[0]} 
+                    onValueChange={(value: string) => setTrigger(value as Trigger)}
+                  >
+                    {triggers.map(trigger => (
+                      <DropdownMenuRadioItem
+                        key={trigger}
+                        value={trigger}
+                      >
+                        {trigger}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
           {/* Versandart */}
           <div>
             <Label htmlFor="shippingType">Versandart</Label>
@@ -486,64 +544,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </AlertDescription>
               </Alert>
             )}
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
-            {formData.requestCategory === 'Reklamation' && (
-              <div>
-                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
-                <Select 
-                  value={formData.requestType} 
-                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
-                >
-                  <SelectTrigger id="requestType">
-                    <SelectValue placeholder="Vorgehensweise auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {requestTypes.map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            {/* Grund */}
-            <div>
-              <Label htmlFor="triggers">Grund</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between"
-                    id="triggers"
-                  >
-                    <span>{getSelectedTriggerLabel()}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup 
-                    value={formData.triggers[0]} 
-                    onValueChange={(value: string) => setTrigger(value as Trigger)}
-                  >
-                    {triggers.map(trigger => (
-                      <DropdownMenuRadioItem
-                        key={trigger}
-                        value={trigger}
-                      >
-                        {trigger}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
         </CardContent>
       </Card>
