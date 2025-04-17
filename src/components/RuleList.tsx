@@ -3,13 +3,15 @@ import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
   getCalculationBaseLabel, 
-  getRoundingRuleLabel 
+  getRoundingRuleLabel,
+  getThresholdValueTypeLabel
 } from "../utils/discountUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface RuleListProps {
   rules: DiscountRule[];
@@ -33,6 +35,44 @@ const RuleList: React.FC<RuleListProps> = ({
     const matchesSearch = rule.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
+
+  // Helper function to render discount information based on calculation base
+  const renderDiscountInfo = (rule: DiscountRule) => {
+    switch (rule.calculationBase) {
+      case 'prozent_vom_vk':
+        return <Badge variant="outline">{rule.value}% vom Verkaufspreis</Badge>;
+      case 'fester_betrag':
+        return <Badge variant="outline">{rule.value}€ Festbetrag</Badge>;
+      case 'preisstaffel':
+        if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
+        return (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {rule.priceThresholds.map((threshold, idx) => (
+              <Badge key={idx} variant="outline" className="text-xs">
+                {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
+                {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
+              </Badge>
+            ))}
+          </div>
+        );
+      case 'angebotsstaffel':
+        if (!rule.discountLevels || rule.discountLevels.length === 0) return null;
+        return (
+          <div className="flex items-center flex-wrap gap-1 mt-1">
+            {rule.discountLevels.map((level, idx, arr) => (
+              <React.Fragment key={idx}>
+                <Badge variant="outline" className="text-xs">
+                  {level.value}{getThresholdValueTypeLabel(level.valueType)}
+                </Badge>
+                {idx < arr.length - 1 && <span className="text-xs">→</span>}
+              </React.Fragment>
+            ))}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -70,11 +110,43 @@ const RuleList: React.FC<RuleListProps> = ({
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-medium">{rule.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {getCalculationBaseLabel(rule.calculationBase)}, {getRoundingRuleLabel(rule.roundingRule)}
-                    </p>
+                    
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
+                      <span>•</span>
+                      <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                    </div>
+
+                    {/* Discount details */}
+                    <div className="mt-2">
+                      {renderDiscountInfo(rule)}
+                    </div>
+
+                    {/* Max amount if exists */}
+                    {rule.maxAmount && (
+                      <div className="mt-1">
+                        <Badge variant="secondary" className="text-xs">Max: {rule.maxAmount}€</Badge>
+                      </div>
+                    )}
+
+                    {/* Show request type and top trigger for context */}
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <Badge variant="outline" className="bg-muted/50">
+                        {rule.requestType}
+                      </Badge>
+                      {rule.triggers[0] && (
+                        <Badge variant="outline" className="bg-muted/50">
+                          {rule.triggers[0]}
+                        </Badge>
+                      )}
+                      {rule.triggers.length > 1 && (
+                        <Badge variant="outline" className="bg-muted/50">
+                          +{rule.triggers.length - 1} mehr
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 
