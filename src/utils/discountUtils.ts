@@ -227,3 +227,15 @@ export const formatCurrency = (value: number | string): string => {
     currency: 'EUR',
   }).format(value);
 };
+
+/**
+ * This function is needed in RuleCalculator.tsx
+ * It calculates discount for a specific calculation level
+ */
+export const calculateDiscountForLevel = (
+  salePrice: number, 
+  calculationStage: CalculationStage, 
+  rule: DiscountRule
+): number | string => {
+  return calculateDiscountForStage(salePrice, calculationStage, rule);
+};

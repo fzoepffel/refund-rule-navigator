@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { DiscountRule } from "../models/ruleTypes";
+import { DiscountRule, CalculationStage } from "../models/ruleTypes";
 import { 
   getCalculationBaseLabel, 
   getRoundingRuleLabel,
@@ -55,6 +56,23 @@ const RuleList: React.FC<RuleListProps> = ({
 
   // Helper function to render discount information based on calculation base
   const renderDiscountInfo = (rule: DiscountRule) => {
+    // For multi-stage discounts, show the stages
+    if (rule.multiStageDiscount && rule.calculationStages && rule.calculationStages.length > 0) {
+      return (
+        <div className="flex flex-wrap gap-1 mt-1">
+          {rule.calculationStages.map((stage, idx, arr) => (
+            <React.Fragment key={idx}>
+              <Badge variant="outline" className="text-xs">
+                {renderStageLabel(stage)}
+              </Badge>
+              {idx < arr.length - 1 && <span className="text-xs">→</span>}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    }
+    
+    // For single-stage calculations
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
         return <Badge variant="outline">{rule.value}% vom Verkaufspreis</Badge>;
@@ -72,22 +90,24 @@ const RuleList: React.FC<RuleListProps> = ({
             ))}
           </div>
         );
-      case 'angebotsstaffel':
-        if (!rule.discountLevels || rule.discountLevels.length === 0) return null;
-        return (
-          <div className="flex items-center flex-wrap gap-1 mt-1">
-            {rule.discountLevels.map((level, idx, arr) => (
-              <React.Fragment key={idx}>
-                <Badge variant="outline" className="text-xs">
-                  {level.value}{getThresholdValueTypeLabel(level.valueType)}
-                </Badge>
-                {idx < arr.length - 1 && <span className="text-xs">→</span>}
-              </React.Fragment>
-            ))}
-          </div>
-        );
       default:
         return null;
+    }
+  };
+  
+  // Helper function to render a label for a calculation stage
+  const renderStageLabel = (stage: CalculationStage) => {
+    switch (stage.calculationBase) {
+      case 'prozent_vom_vk':
+        return `${stage.value}%`;
+      case 'fester_betrag':
+        return `${stage.value}€`;
+      case 'preisstaffel':
+        return 'Preisstaffel';
+      case 'keine_berechnung':
+        return 'Keine Berechnung';
+      default:
+        return getCalculationBaseLabel(stage.calculationBase);
     }
   };
 
@@ -207,15 +227,23 @@ const RuleList: React.FC<RuleListProps> = ({
                       <div className="text-muted-foreground mt-2 text-sm">
                         <strong>Rückgabestrategie:</strong>{' '}
                         {getReturnStrategyLabel(rule.returnStrategy)}
+                        {rule.multiStageDiscount && ' • Mehrere Angebotsstufen'}
                       </div>
                     )}
 
                     {/* Calculation information */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <strong>Berechnung:</strong>{' '}
-                      <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                      <span>•</span>
-                      <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                      {rule.multiStageDiscount ? 
+                        'Mehrstufiges Angebot' : 
+                        <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
+                      }
+                      {!rule.multiStageDiscount && (
+                        <>
+                          <span>•</span>
+                          <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                        </>
+                      )}
                     </div>
 
                     {/* Discount details */}

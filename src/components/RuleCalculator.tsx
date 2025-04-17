@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
-import { DiscountRule } from "../models/ruleTypes";
-import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
+import { DiscountRule, CalculationStage } from "../models/ruleTypes";
+import { calculateDiscount, formatCurrency, calculateDiscountForStage, calculateMultiStageDiscounts } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -139,29 +139,34 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       return;
     }
     
-    // Check for angebotsstaffel rules with multiple discount levels
-    if (rule.calculationBase === 'angebotsstaffel' && rule.discountLevels) {
+    // Check for multi-stage discount rules
+    if (rule.multiStageDiscount && rule.calculationStages) {
       // Try to offer the next higher discount level
       const nextLevel = currentDiscountLevel + 1;
       
       // If we have more discount levels available, show negotiating message first
-      if (nextLevel < rule.discountLevels.length) {
+      if (nextLevel < rule.calculationStages.length) {
         // Hide the discount amount and show negotiating message
         setShowDiscountAmount(false);
         setShowNegotiatingMessage(true);
         
         // Get the next level discount object
-        const nextLevelDiscount = rule.discountLevels[nextLevel];
+        const nextStage = rule.calculationStages[nextLevel];
         
-        // Calculate the new amount using our helper function, which applies rounding
-        const newAmount = calculateDiscountForLevel(salePrice, nextLevelDiscount, rule);
+        // Calculate the new amount
+        const newAmount = calculateDiscountForStage(salePrice, nextStage, rule);
         
         setDiscountAmount(newAmount);
         setCurrentDiscountLevel(nextLevel);
         
-        const valueLabel = nextLevelDiscount.valueType === 'percent' 
-          ? `${nextLevelDiscount.value}%` 
-          : `${formatCurrency(nextLevelDiscount.value)}`;
+        let valueLabel = '';
+        if (nextStage.calculationBase === 'prozent_vom_vk') {
+          valueLabel = `${nextStage.value}%`;
+        } else if (nextStage.calculationBase === 'fester_betrag') {
+          valueLabel = `${formatCurrency(nextStage.value || 0)}`;
+        } else {
+          valueLabel = 'Preisstaffelung';
+        }
         
         toast({
           title: "Angebot erhöht",
@@ -189,7 +194,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         }
       }
     } 
-    // For non-ladder rules or rules without discount levels
+    // For non-multi-stage rules
     else {
       // Hide the discount amount and show negotiating message
       setShowDiscountAmount(false);
@@ -335,9 +340,9 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                 
                 {/* Show reject button in the following cases */}
                 {(
-                  (rule.calculationBase === 'angebotsstaffel' && 
-                   rule.discountLevels && 
-                   currentDiscountLevel < rule.discountLevels.length - 1) ||
+                  (rule.multiStageDiscount && 
+                   rule.calculationStages && 
+                   currentDiscountLevel < rule.calculationStages.length - 1) ||
                   (rule.returnStrategy === 'discount_then_return' && !offeringReturn) ||
                   (rule.returnStrategy === 'discount_then_keep' && discountAmount < salePrice) ||
                   (rule.returnStrategy === 'discount_then_contact_merchant')
