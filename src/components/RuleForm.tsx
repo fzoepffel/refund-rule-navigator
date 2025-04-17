@@ -258,7 +258,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       setFormData(prev => ({
         ...prev,
         priceThresholds: [
-          ...(prev.priceThresholds || []),\
+          ...(prev.priceThresholds || []),
           { minPrice: newMin, value: 10, valueType: 'percent', roundingRule: 'keine_rundung' }
         ]
       }));
