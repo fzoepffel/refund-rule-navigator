@@ -1,3 +1,4 @@
+
 import React from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { 
@@ -33,6 +34,31 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
   const showDiscountLevels = rule.calculationBase === 'angebotsstaffel' && 
     rule.discountLevels && 
     rule.discountLevels.length > 0;
+    
+  // Determine if we should show general rounding rule
+  // Don't show if we have price thresholds or discount levels with individual rounding rules
+  const shouldShowGeneralRounding = !showPriceThresholds && !showDiscountLevels;
+
+  // Format package opened status
+  const getPackageOpenedLabel = (value?: 'yes' | 'no' | 'Egal') => {
+    if (!value) return 'Egal';
+    switch(value) {
+      case 'yes': return 'Ja';
+      case 'no': return 'Nein';
+      case 'Egal': return 'Egal';
+      default: return 'Egal';
+    }
+  };
+
+  // Format shipping type
+  const getShippingTypeLabel = (value: string) => {
+    switch(value) {
+      case 'paket': return 'Paket';
+      case 'spedition': return 'Spedition';
+      case 'Egal': return 'Egal';
+      default: return value;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -53,6 +79,19 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <div className="text-sm text-muted-foreground">Paket geöffnet</div>
+              <div className="font-medium">
+                {getPackageOpenedLabel(rule.packageOpened)}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground">Versandart</div>
+              <div className="font-medium">{getShippingTypeLabel(rule.shippingType)}</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <div className="text-sm text-muted-foreground">Rückgabestrategie</div>
               <div className="font-medium">
                 {rule.returnStrategy 
@@ -60,12 +99,8 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                   : 'Keine Strategie definiert'}
               </div>
             </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Versandart</div>
-              <div className="font-medium">{rule.shippingType === 'paket' ? 'Paket' : 'Spedition'}</div>
-            </div>
           </div>
-
+          
           <Separator />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -116,6 +151,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                       <div className="font-medium">
                         {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                       </div>
+                      <div className="text-sm text-muted-foreground">
+                        (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -133,6 +171,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     <React.Fragment key={index}>
                       <Badge>
                         {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
+                        <span className="ml-1 text-xs opacity-70">
+                          ({getRoundingRuleLabel(level.roundingRule)})
+                        </span>
                       </Badge>
                       {index < array.length - 1 && <span>→</span>}
                     </React.Fragment>
@@ -142,12 +183,15 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </>
           )}
 
-          <Separator />
-
-          <div>
-            <div className="text-sm text-muted-foreground">Rundungsregel</div>
-            <div className="font-medium">{getRoundingRuleLabel(rule.roundingRule)}</div>
-          </div>
+          {shouldShowGeneralRounding && (
+            <>
+              <Separator />
+              <div>
+                <div className="text-sm text-muted-foreground">Rundungsregel</div>
+                <div className="font-medium">{getRoundingRuleLabel(rule.roundingRule)}</div>
+              </div>
+            </>
+          )}
 
           {rule.maxAmount && (
             <>
