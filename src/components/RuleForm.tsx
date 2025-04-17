@@ -132,29 +132,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       parts.push("Widerruf und Reklamation");
     }
 
-    // Part 2: Versandart
-    if (formData.shippingType !== "Egal") {
-      parts.push(formData.shippingType === "paket" ? "Paket" : "Spedition");
-    } else {
-      parts.push("Alle Versandarten");
+    // Part 2: Grund
+    if (formData.triggers.length >0 && formData.triggers[0] !== "Egal") {
+      parts.push(formData.triggers[0]);
     }
 
-    // Part 3: Paket geöffnet
-    if (formData.packageOpened === "yes") {
-      parts.push("Paket geöffnet");
-    } else if (formData.packageOpened === "no") {
-      parts.push("Paket nicht geöffnet");
-    }
-
-    // Part 4: Gewünschte Vorgehensweise (nur bei Egal oder Reklamation)
+    // Part 3: Gewünschte Vorgehensweise (nur bei Egal oder Reklamation)
     if ((formData.requestCategory === "Egal" || formData.requestCategory === "Reklamation") && 
         formData.requestType !== "Egal") {
       parts.push(formData.requestType);
     }
 
-    // Part 5: Grund
-    if (formData.triggers.length >0 && formData.triggers[0] !== "Egal") {
-      parts.push(formData.triggers[0]);
+    // Part 4: Versandart
+    if (formData.shippingType !== "Egal") {
+      parts.push(formData.shippingType === "paket" ? "Paket" : "Spedition");
+    } 
+
+    // Part 5: Produkt geöffnet
+    if (formData.packageOpened === "yes") {
+      parts.push("Produkt geöffnet");
+    } else if (formData.packageOpened === "no") {
+      parts.push("Produkt nicht geöffnet");
     }
 
     return parts.filter(part => part).join(", ");
@@ -418,27 +416,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
-            {formData.requestCategory === 'Reklamation' && (
-              <div>
-                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
-                <Select 
-                  value={formData.requestType} 
-                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
-                >
-                  <SelectTrigger id="requestType">
-                    <SelectValue placeholder="Vorgehensweise auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {requestTypes.map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
             
             {/* Grund */}
             <div>
@@ -473,6 +450,28 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
+            {formData.requestCategory === 'Reklamation' && (
+              <div>
+                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
+                <Select 
+                  value={formData.requestType} 
+                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
+                >
+                  <SelectTrigger id="requestType">
+                    <SelectValue placeholder="Vorgehensweise auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {requestTypes.map(type => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
           </div>
 
           {/* Versandart */}
@@ -495,9 +494,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
           
-          {/* Paket geöffnet? */}
+          {/* Produkt geöffnet? */}
           <div>
-            <Label htmlFor="packageOpened">Paket geöffnet?</Label>
+            <Label htmlFor="packageOpened">Produkt geöffnet?</Label>
             <Select 
               value={formData.packageOpened || 'Egal'} 
               onValueChange={(value: 'yes' | 'no' | 'Egal') => handleChange("packageOpened", value)}

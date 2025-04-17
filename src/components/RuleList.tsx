@@ -133,34 +133,43 @@ const RuleList: React.FC<RuleListProps> = ({
                     
                     {/* Context information line in gray */}
                     <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
-                      {rule.returnStrategy && (
-                        <span>{getReturnStrategyLabel(rule.returnStrategy)}</span>
-                      )}
                       
-                      {rule.triggers[0] && (
+                      {rule.requestType !== 'Egal' && (
+                        <>
+                          <span>•</span>
+                          <strong>Art der Anfrage:</strong>{' '}
+                          <span>{rule.requestType}</span>
+                        </>
+                      )}
+
+                      {rule.triggers[0] !== 'Egal' && (
                         <>
                           {rule.returnStrategy && <span>•</span>}
+                          <strong>Grund:</strong>{' '}
                           <span>{getTriggerLabel(rule.triggers[0])}</span>
+                        </>
+                      )}
+
+                      {rule.requestType !== 'Egal' && (
+                        <>
+                          <span>•</span>
+                          <strong>Gewünschte Vorgehensweise:</strong>{' '}
+                          <span>{rule.requestType}</span>
                         </>
                       )}
                       
                       {getPackageOpenedLabel(rule.packageOpened) && (
                         <>
                           <span>•</span>
+                          <strong>Produkt geöffnet:</strong>{' '}
                           <span>{getPackageOpenedLabel(rule.packageOpened)}</span>
-                        </>
-                      )}
-                      
-                      {rule.requestType !== 'Egal' && (
-                        <>
-                          <span>•</span>
-                          <span>{rule.requestType}</span>
                         </>
                       )}
                       
                       {rule.shippingType !== 'Egal' && (
                         <>
                           <span>•</span>
+                          <strong>Versandart:</strong>{' '}
                           <span>{getShippingTypeLabel(rule.shippingType)}</span>
                         </>
                       )}
@@ -176,6 +185,7 @@ const RuleList: React.FC<RuleListProps> = ({
 
                     {/* Calculation information */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                      <strong>Berechnung:</strong>{' '}
                       <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
                       <span>•</span>
                       <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
