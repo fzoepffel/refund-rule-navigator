@@ -1,4 +1,3 @@
-
 export type RequestCategory = 'Egal' | 'Widerruf' | 'Reklamation';
 
 export type RequestType = 
@@ -16,12 +15,10 @@ export type Trigger =
   'Gefällt mir nicht mehr' | 
   'Irrtümlich bestellt' | 
   'Günstigeren Preis entdeckt' | 
-  'Keinen Grund angegeben' | 
   'Artikel beschädigt/funktioniert nicht mehr' | 
   'Versandverpackung und Artikel beschädigt' | 
   'Teile oder Zubehör fehlen' | 
-  'Falscher Artikel' | 
-  'Sonstiges';
+  'Falscher Artikel';
 
 export type CalculationBase = 
   'keine_berechnung' | 
@@ -44,7 +41,7 @@ export type ReturnHandling =
 
 export type ThresholdValueType = 'percent' | 'fixed';
 
-export type ShippingType = 'Egal' | 'paket' | 'spedition';
+export type ShippingType = 'Egal' | 'Paket' | 'Spedition';
 
 export type ReturnStrategy = 
   'auto_return_full_refund' | 
@@ -65,6 +62,14 @@ export interface DiscountLevel {
   value: number,
   valueType: ThresholdValueType,
   roundingRule: RoundingRule  // Add individual rounding rule
+}
+
+export interface CalculationStage {
+  calculationBase: CalculationBase;
+  value?: number;
+  priceThresholds?: PriceThreshold[];
+  roundingRule: RoundingRule;
+  maxAmount?: number;
 }
 
 export interface DiscountRule {
@@ -92,5 +97,7 @@ export interface DiscountRule {
   notes?: string,
   noReturnOnFullRefund?: boolean,
   offerDiscountBeforeReturn?: boolean,
-  sendInfoToPartner?: boolean
+  sendInfoToPartner?: boolean,
+  hasMultipleStages?: boolean,
+  calculationStages?: CalculationStage[]
 }

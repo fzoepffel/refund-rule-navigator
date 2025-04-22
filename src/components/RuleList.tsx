@@ -213,15 +213,23 @@ const RuleList: React.FC<RuleListProps> = ({
                     {/* Calculation information */}
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <strong>Berechnung:</strong>{' '}
-                      <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                      <span>•</span>
-                      <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                      {rule.hasMultipleStages ? (
+                        <span>Mehrere Angebotsstufen</span>
+                      ) : (
+                        <>
+                          <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
+                          <span>•</span>
+                          <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                        </>
+                      )}
                     </div>
 
                     {/* Discount details */}
-                    <div className="mt-2">
-                      {renderDiscountInfo(rule)}
-                    </div>
+                    {!rule.hasMultipleStages && (
+                      <div className="mt-2">
+                        {renderDiscountInfo(rule)}
+                      </div>
+                    )}
 
                     {/* Max amount if exists */}
                     {rule.maxAmount && (
@@ -244,7 +252,7 @@ const RuleList: React.FC<RuleListProps> = ({
                         <div className="text-muted-foreground">
                           <strong>Sonderregeln:</strong>{' '}
                           {rule.requestPictures && <span>Fotos anfordern</span>}
-                          {rule.previousRefundsCheck && <span>{rule.requestPictures ? ' • ' : ''}Vorherige Erstattungen prüfen</span>}
+                          {rule.previousRefundsCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Vorherige Erstattungen prüfen</span>}
                           {rule.customerLoyaltyCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Kundentreue prüfen</span>}
                           {rule.minOrderAgeToDays && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck) ? ' • ' : ''}Min. Bestellalter: {rule.minOrderAgeToDays} Tage</span>}
                           {rule.consultPartnerBeforePayout && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Partner vor Auszahlung konsultieren</span>}

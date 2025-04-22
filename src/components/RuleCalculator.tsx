@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
@@ -18,358 +17,318 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [salePrice, setSalePrice] = useState<number>(100);
   const [discountAmount, setDiscountAmount] = useState<number | string | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
-  const [currentDiscountLevel, setCurrentDiscountLevel] = useState<number>(0);
+  const [currentStage, setCurrentStage] = useState<number>(0);
   const [offeringReturn, setOfferingReturn] = useState<boolean>(false);
-  const [showApologyMessage, setShowApologyMessage] = useState<boolean>(false);
-  const [showDiscountAmount, setShowDiscountAmount] = useState<boolean>(false);
-  const [showNegotiatingMessage, setShowNegotiatingMessage] = useState<boolean>(false);
-  const [showMerchantContactMessage, setShowMerchantContactMessage] = useState<boolean>(false);
+  const [showInitialMessage, setShowInitialMessage] = useState<boolean>(false);
+  const [showRefund, setShowRefund] = useState<boolean>(false);
+  const [showFinalResult, setShowFinalResult] = useState<boolean>(false);
+  const [isFirstRejection, setIsFirstRejection] = useState<boolean>(true);
   const { toast } = useToast();
   
-  // Helper function to generate an apology message based on the rule's triggers
-  const getApologyMessage = () => {
-    if (rule.triggers && rule.triggers.length > 0) {
-      const trigger = rule.triggers[0];
-      
-      switch (trigger) {
-        case 'Artikel beschädigt/funktioniert nicht mehr':
-          return "Es tut uns leid zu hören, dass Ihr Produkt beschädigt ist oder nicht mehr funktioniert.";
-        case 'Versandverpackung und Artikel beschädigt':
-          return "Es tut uns leid zu hören, dass sowohl die Verpackung als auch Ihr Artikel beschädigt sind.";
-        case 'Teile oder Zubehör fehlen':
-          return "Es tut uns leid zu hören, dass Teile oder Zubehör bei Ihrem Produkt fehlen.";
-        case 'Falscher Artikel':
-          return "Es tut uns leid zu hören, dass Sie einen falschen Artikel erhalten haben.";
-        default:
-          return "Es tut uns leid für die Unannehmlichkeiten mit Ihrem Produkt.";
-      }
-    }
-    
-    return "Es tut uns leid für die Unannehmlichkeiten mit Ihrem Produkt.";
-  };
-  
-  const calculateAndPrepareDiscount = () => {
-    // Reset states when calculating a new discount
-    setCurrentDiscountLevel(0);
-    setOfferingReturn(false);
-    setShowMerchantContactMessage(false);
-    
-    // Handle the contact_merchant_immediately strategy immediately
-    if (rule.returnStrategy === 'contact_merchant_immediately') {
-      setShowMerchantContactMessage(true);
-      setShowApologyMessage(false);
-      setShowDiscountAmount(false);
-      
-      toast({
-        title: "Händlerkontakt erforderlich",
-        description: "Dieser Fall erfordert Rücksprache mit dem Händler.",
-      });
-      return;
-    }
-    
-    // If the return strategy is auto_return_full_refund, immediately offer full refund and return
-    if (rule.returnStrategy === 'auto_return_full_refund') {
-      setDiscountAmount(salePrice);
-      setOfferingReturn(true);
-      
-      toast({
-        title: "Vollerstattung angeboten",
-        description: "Der Kunde erhält eine volle Rückerstattung und muss den Artikel zurücksenden.",
-      });
+  const getInitialMessage = () => {
+    if (currentStage === 0) {
+      return "Es tut uns leid für die Unannehmlichkeiten mit Ihrem Produkt.\nWir senden eine Nachricht an unseren Partner, um nach einem angemessenen Preisnachlass zu fragen. Bitte haben Sie einen Moment Geduld.";
     } else {
-      const amount = calculateDiscount(salePrice, rule);
-      setDiscountAmount(amount);
+      return "Wir setzen uns erneut für Sie ein!\nWir sprechen noch einmal mit unserem Partner und versuchen alles Mögliche, um einen höheren Preisnachlass für Sie zu erreichen. Bitte haben Sie einen Moment Geduld.";
+    }
+  };
+
+  const calculateRefund = (price: number, stage: typeof rule.calculationStages[0]) => {
+    if (!stage) return 0;
+
+    let refund = 0;
+
+    switch (stage.calculationBase) {
+      case 'prozent_vom_vk':
+        refund = (price * (stage.value || 0)) / 100;
+        // Apply stage rounding rule
+        if (stage.roundingRule) {
+          refund = applyRoundingRule(refund, stage.roundingRule);
+        }
+        break;
+      case 'fester_betrag':
+        refund = stage.value || 0;
+        // Apply stage rounding rule
+        if (stage.roundingRule) {
+          refund = applyRoundingRule(refund, stage.roundingRule);
+        }
+        break;
+      case 'preisstaffel':
+        const threshold = stage.priceThresholds?.find(t => 
+          price >= t.minPrice && (!t.maxPrice || price <= t.maxPrice)
+        );
+        if (!threshold) return 0;
+        refund = threshold.valueType === 'percent' 
+          ? (price * threshold.value) / 100 
+          : threshold.value;
+        // Apply threshold rounding rule
+        if (threshold.roundingRule) {
+          refund = applyRoundingRule(refund, threshold.roundingRule);
+        }
+        break;
+      default:
+        return 0;
+    }
+
+    return refund;
+  };
+
+  const getCurrentRefund = () => {
+    if (!rule.hasMultipleStages) {
+      // For single stage, use the main rule properties
+      let refund = 0;
       
-      if (typeof amount === 'string') {
-        toast({
-          title: "Berechnung nicht möglich",
-          description: amount,
-          variant: "destructive"
-        });
+      switch (rule.calculationBase) {
+        case 'prozent_vom_vk':
+          refund = (salePrice * (rule.value || 0)) / 100;
+          if (rule.roundingRule) {
+            refund = applyRoundingRule(refund, rule.roundingRule);
+          }
+          break;
+        case 'fester_betrag':
+          refund = rule.value || 0;
+          if (rule.roundingRule) {
+            refund = applyRoundingRule(refund, rule.roundingRule);
+          }
+          break;
+        case 'preisstaffel':
+          const threshold = rule.priceThresholds?.find(t => 
+            salePrice >= t.minPrice && (!t.maxPrice || salePrice <= t.maxPrice)
+          );
+          if (!threshold) return 0;
+          refund = threshold.valueType === 'percent' 
+            ? (salePrice * threshold.value) / 100 
+            : threshold.value;
+          if (threshold.roundingRule) {
+            refund = applyRoundingRule(refund, threshold.roundingRule);
+          }
+          break;
+        default:
+          return 0;
+      }
+
+      // Apply max amount if specified
+      if (rule.maxAmount && refund > rule.maxAmount) {
+        return rule.maxAmount;
+      }
+
+      return refund;
+    }
+
+    // For multiple stages, use the current stage
+    if (!rule.calculationStages || rule.calculationStages.length === 0) return 0;
+    
+    let refund = calculateRefund(salePrice, rule.calculationStages[currentStage]);
+    
+    // Apply max amount if specified for the current stage
+    if (rule.calculationStages[currentStage].maxAmount && refund > rule.calculationStages[currentStage].maxAmount) {
+      return rule.calculationStages[currentStage].maxAmount;
+    }
+    
+    // Check if any previous stage had a lower max amount
+    for (let i = 0; i < currentStage; i++) {
+      const stage = rule.calculationStages[i];
+      if (stage.maxAmount && refund > stage.maxAmount) {
+        return stage.maxAmount;
       }
     }
     
+    // Check if the rule itself has a maximum amount
+    if (rule.maxAmount && refund > rule.maxAmount) {
+      return rule.maxAmount;
+    }
+    
+    return refund;
+  };
+
+  const applyRoundingRule = (amount: number, rule: string): number => {
+    switch (rule) {
+      case 'keine_rundung':
+        return amount;
+      case 'auf_5_euro':
+        return Math.ceil(amount / 5) * 5;
+      case 'auf_10_euro':
+        return Math.ceil(amount / 10) * 10;
+      case 'auf_10_cent':
+        return Math.ceil(amount * 10) / 10;
+      default:
+        return amount;
+    }
+  };
+
+  const handleCalculate = () => {
+    setCurrentStage(0);
+    setShowInitialMessage(true);
+    setShowRefund(false);
+    setShowFinalResult(false);
+    setIsFirstRejection(true);
     setRequestCount(prevCount => prevCount + 1);
   };
-  
-  const handleCalculate = () => {
-    // For immediate merchant contact, show that message right away
-    if (rule.returnStrategy === 'contact_merchant_immediately') {
-      setShowMerchantContactMessage(true);
-      setShowApologyMessage(false);
-      setShowDiscountAmount(false);
-      setRequestCount(prevCount => prevCount + 1);
-      return;
-    }
-    
-    // For other strategies, show apology message first
-    setShowApologyMessage(true);
-    setShowDiscountAmount(false);
-    setShowNegotiatingMessage(false);
-    setShowMerchantContactMessage(false);
-    
-    // Calculate the discount in the background
-    calculateAndPrepareDiscount();
-  };
-  
-  const handleForwardSkip = () => {
-    // If we're showing the negotiating message, show the calculated discount with the next level
-    if (showNegotiatingMessage) {
-      setShowNegotiatingMessage(false);
-      setShowDiscountAmount(true);
+
+  const handleFastForward = () => {
+    setShowInitialMessage(false);
+    if (rule.hasMultipleStages) {
+      setShowRefund(true);
     } else {
-      // Otherwise, just show the calculated discount
-      setShowApologyMessage(false);
-      setShowDiscountAmount(true);
-    }
-  };
-  
-  const handleReject = () => {
-    // Special handling for discount_then_contact_merchant strategy
-    if (rule.returnStrategy === 'discount_then_contact_merchant') {
-      setShowDiscountAmount(false);
-      setShowNegotiatingMessage(false);
-      setShowMerchantContactMessage(true);
-      
-      toast({
-        title: "Händlerkontakt erforderlich",
-        description: "Dieser Fall erfordert nun Rücksprache mit dem Händler.",
-      });
-      
-      return;
-    }
-    
-    // Check for angebotsstaffel rules with multiple discount levels
-    if (rule.calculationBase === 'angebotsstaffel' && rule.discountLevels) {
-      // Try to offer the next higher discount level
-      const nextLevel = currentDiscountLevel + 1;
-      
-      // If we have more discount levels available, show negotiating message first
-      if (nextLevel < rule.discountLevels.length) {
-        // Hide the discount amount and show negotiating message
-        setShowDiscountAmount(false);
-        setShowNegotiatingMessage(true);
-        
-        // Get the next level discount object
-        const nextLevelDiscount = rule.discountLevels[nextLevel];
-        
-        // Calculate the new amount using our helper function, which applies rounding
-        const newAmount = calculateDiscountForLevel(salePrice, nextLevelDiscount, rule);
-        
-        setDiscountAmount(newAmount);
-        setCurrentDiscountLevel(nextLevel);
-        
-        const valueLabel = nextLevelDiscount.valueType === 'percent' 
-          ? `${nextLevelDiscount.value}%` 
-          : `${formatCurrency(nextLevelDiscount.value)}`;
-        
-        toast({
-          title: "Angebot erhöht",
-          description: `Nachlass auf ${valueLabel} erhöht.`
-        });
-      } 
-      // If we've exhausted all discount levels or if the return strategy is "discount_then_return" or "discount_then_keep"
-      else if (rule.returnStrategy === 'discount_then_return' || 
-              rule.returnStrategy === 'discount_then_keep') {
-        // Show negotiating message
-        setShowDiscountAmount(false);
-        setShowNegotiatingMessage(true);
-        
-        // Offer full refund based on return strategy
-        if (rule.returnStrategy === 'discount_then_return') {
-          handleFullRefundAndReturn();
-        } else if (rule.returnStrategy === 'discount_then_keep') {
-          handleFullRefundNoReturn();
-        } else {
-          toast({
-            title: "Maximaler Nachlass erreicht",
-            description: "Es sind keine höheren Nachlass-Stufen verfügbar.",
-            variant: "destructive"
-          });
-        }
-      }
-    } 
-    // For non-ladder rules or rules without discount levels
-    else {
-      // Hide the discount amount and show negotiating message
-      setShowDiscountAmount(false);
-      setShowNegotiatingMessage(true);
-      
-      // Handle based on return strategy
-      if (rule.returnStrategy === 'discount_then_return' && !offeringReturn) {
-        handleFullRefundAndReturn();
-      } else if (rule.returnStrategy === 'discount_then_keep' && !offeringReturn) {
-        handleFullRefundNoReturn();
+      if (isFirstRejection) {
+        setShowRefund(true);
       } else {
-        toast({
-          title: "Keine weiteren Angebotsstufen",
-          description: "Bei dieser Regel sind keine gestaffelten Angebote verfügbar.",
-          variant: "destructive"
-        });
+        setShowFinalResult(true);
       }
     }
   };
-  
-  const handleFullRefundAndReturn = () => {
-    // Set full refund as the discount amount (100% of sale price)
-    setDiscountAmount(salePrice);
-    setOfferingReturn(true);
-    
-    toast({
-      title: "Vollerstattung angeboten",
-      description: "Der Kunde erhält eine volle Rückerstattung und muss den Artikel zurücksenden.",
-    });
+
+  const handleReject = () => {
+    if (rule.hasMultipleStages && rule.calculationStages && currentStage < rule.calculationStages.length - 1) {
+      setCurrentStage(prev => prev + 1);
+      setShowRefund(false);
+      setShowInitialMessage(true);
+    } else {
+      // If this is the last stage or not multiple stages, go directly to final result
+      setShowRefund(false);
+      setShowFinalResult(true);
+    }
   };
-  
-  const handleFullRefundNoReturn = () => {
-    // Set full refund as the discount amount (100% of sale price) but don't require return
-    setDiscountAmount(salePrice);
-    setOfferingReturn(false);
-    
-    toast({
-      title: "Vollerstattung angeboten",
-      description: "Der Kunde erhält eine volle Rückerstattung und muss den Artikel NICHT zurücksenden.",
-    });
+
+  const getFinalResult = () => {
+    switch (rule.returnStrategy) {
+      case 'discount_then_return':
+        return {
+          message: "Vielen Dank für Ihre Geduld!\nLeider kann unser Partner keinen weiteren Preisnachlass anbieten. Allerdings können wir Ihnen eine volle Rückerstattung anbieten, wenn Sie den Artikel zurücksenden.",
+          refund: salePrice,
+          note: "Retoure erforderlich\nDer Artikel muss zurückgesendet werden."
+        };
+      case 'discount_then_keep':
+        return {
+          message: "Vielen Dank für Ihre Geduld!\nWir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass von 100,00 € gewähren.",
+          refund: salePrice,
+          note: "Keine Retoure erforderlich\nDer Artikel muss NICHT zurückgesendet werden."
+        };
+      case 'discount_then_contact_merchant':
+        return {
+          message: "Händlerkontakt erforderlich\nWir müssen dies mit dem Händler besprechen.",
+          refund: 0,
+          note: ""
+        };
+      case 'auto_return_full_refund':
+        return {
+          message: "Erstattungen sind in ihrem Fall leider nicht möglich. Sie haben aber die Möglichkeit ihr Paket zurückzusenden und können so eine volle Rückerstattung erlangen.",
+          refund: 0,
+          note: ""
+        };
+      default:
+        return {
+          message: "",
+          refund: 0,
+          note: ""
+        };
+    }
   };
-  
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nachlass berechnen</CardTitle>
+        <CardTitle>Preisnachlass berechnen</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
-          <div className="flex items-center gap-2">
-            <Input 
-              id="sale-price" 
-              type="number" 
-              value={salePrice} 
-              onChange={(e) => setSalePrice(parseFloat(e.target.value))}
-              min={0}
-            />
-            <div className="text-lg font-medium">€</div>
-          </div>
-        </div>
-        
-        {!showApologyMessage && !showNegotiatingMessage && !showDiscountAmount && !showMerchantContactMessage && (
-          <Button onClick={handleCalculate} className="w-full">
-            <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
-          </Button>
-        )}
-        
-        {showApologyMessage && (
+        {rule.returnStrategy === 'auto_return_full_refund' ? (
           <div className="space-y-4">
-            <Alert className="bg-blue-50 border-blue-200">
-              <AlertTitle>{getApologyMessage()}</AlertTitle>
+            <Alert>
+              <AlertTitle>Preisnachlass berechnen</AlertTitle>
               <AlertDescription>
-                Wir senden eine Nachricht an unseren Partner, um nach einem angemessenen Preisnachlass zu fragen. 
-                Bitte haben Sie einen Moment Geduld.
-              </AlertDescription>
-            </Alert>
-            
-            <Button onClick={handleForwardSkip} className="w-full">
-              <FastForward className="h-4 w-4 mr-2" /> Vorspulen
-            </Button>
-          </div>
-        )}
-        
-        {showMerchantContactMessage && (
-          <div className="space-y-4">
-            <Alert className="bg-yellow-50 border-yellow-200">
-              <AlertTitle>Händlerkontakt erforderlich</AlertTitle>
-              <AlertDescription>
-                {rule.returnStrategy === 'contact_merchant_immediately' 
-                  ? "Wir müssen dies mit dem Händler besprechen. Wir werden uns in Kürze bei ihnen melden. Vielen Dank für ihre Geduld."
-                  : "Wir müssen dies mit dem Händler besprechen."}
+                Erstattungen sind in ihrem Fall leider nicht möglich. Sie haben aber die Möglichkeit ihr Paket zurückzusenden und können so eine volle Rückerstattung erlangen.
               </AlertDescription>
             </Alert>
           </div>
-        )}
-        
-        {showNegotiatingMessage && (
-          <div className="space-y-4">
-            <Alert className="bg-blue-50 border-blue-200">
-              <AlertTitle>Wir setzen uns erneut für Sie ein!</AlertTitle>
-              <AlertDescription>
-                Wir sprechen noch einmal mit unserem Partner und versuchen alles Mögliche, 
-                um einen höheren Preisnachlass für Sie zu erreichen.
-                Bitte haben Sie einen Moment Geduld.
-              </AlertDescription>
-            </Alert>
-            
-            <Button onClick={handleForwardSkip} className="w-full">
-              <FastForward className="h-4 w-4 mr-2" /> Vorspulen
-            </Button>
-          </div>
-        )}
-        
-        {showDiscountAmount && discountAmount !== null && (
-          <div className="mt-4">
-            <Alert className="bg-green-50 border-green-200 mb-4">
-              <AlertTitle>Vielen Dank für Ihre Geduld!</AlertTitle>
-              <AlertDescription>
-                {offeringReturn 
-                  ? "Leider kann unser Partner keinen weiteren Preisnachlass anbieten. Allerdings können wir Ihnen eine volle Rückerstattung anbieten, wenn Sie den Artikel zurücksenden."
-                  : `Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass von ${typeof discountAmount === 'number' ? formatCurrency(discountAmount) : "0,00 €"} gewähren.`
-                }
-              </AlertDescription>
-            </Alert>
-            
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-muted-foreground">Berechneter Nachlass</div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Activity className="h-4 w-4 mr-1" /> 
-                <span>Anfragen: {requestCount}</span>
+        ) : (
+          <>
+            <div>
+              <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
+              <div className="flex items-center gap-2">
+                <Input 
+                  id="sale-price" 
+                  type="number" 
+                  value={salePrice} 
+                  onChange={(e) => setSalePrice(parseFloat(e.target.value))}
+                  min={0}
+                />
+                <div className="text-lg font-medium">€</div>
               </div>
             </div>
-            <div className="text-2xl font-bold">{formatCurrency(discountAmount)}</div>
-            {typeof discountAmount === 'number' && (
-              <>
-                <div className="text-sm text-muted-foreground mt-2">Neuer Preis</div>
-                <div className="text-lg font-medium">
-                  {offeringReturn 
-                    ? "Artikel muss zurückgesendet werden" 
-                    : formatCurrency(salePrice - discountAmount)}
-                </div>
-                
-                {/* Show reject button in the following cases */}
-                {(
-                  (rule.calculationBase === 'angebotsstaffel' && 
-                   rule.discountLevels && 
-                   currentDiscountLevel < rule.discountLevels.length - 1) ||
-                  (rule.returnStrategy === 'discount_then_return' && !offeringReturn) ||
-                  (rule.returnStrategy === 'discount_then_keep' && discountAmount < salePrice) ||
-                  (rule.returnStrategy === 'discount_then_contact_merchant')
-                ) && (
-                  <Button 
-                    variant="destructive" 
-                    className="w-full mt-4"
-                    onClick={handleReject}
-                  >
-                    <XCircle className="h-4 w-4 mr-2" /> Ablehnen
-                  </Button>
-                )}
-                
-                {offeringReturn ? (
-                  <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-800">
-                    <div className="font-medium">Retoure erforderlich</div>
-                    <div className="text-sm">Der Artikel muss zurückgesendet werden.</div>
-                  </div>
-                ) : discountAmount === salePrice && rule.returnStrategy === 'discount_then_keep' && (
-                  <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded-md text-green-800">
-                    <div className="font-medium">Keine Retoure erforderlich</div>
-                    <div className="text-sm">Der Artikel muss NICHT zurückgesendet werden.</div>
-                  </div>
-                )}
-              </>
+            
+            {!showInitialMessage && !showRefund && !showFinalResult && (
+              <Button onClick={handleCalculate} className="w-full">
+                <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
+              </Button>
             )}
-            {typeof discountAmount === 'string' && (
-              <div className="mt-2 text-sm text-destructive">
-                Fehler: Der Nachlass konnte nicht berechnet werden.
+            
+            {showInitialMessage && (
+              <div className="space-y-4">
+                <Alert>
+                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
+                  <AlertDescription>
+                    {getInitialMessage()}
+                  </AlertDescription>
+                </Alert>
+                
+                <Button onClick={handleFastForward} className="w-full">
+                  <FastForward className="h-4 w-4 mr-2" /> Vorspulen
+                </Button>
               </div>
             )}
-          </div>
+            
+            {showRefund && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">
+                    {formatCurrency(getCurrentRefund())}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">Angebotener Preisnachlass</div>
+                </div>
+
+                <Alert className="bg-green-50 border-green-200">
+                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
+                  <AlertDescription>
+                    Vielen Dank für Ihre Geduld!
+                    Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass gewähren.
+                  </AlertDescription>
+                </Alert>
+
+                <Button onClick={handleReject} className="w-full bg-red-500 hover:bg-red-600 text-white">
+                  <XCircle className="h-4 w-4 mr-2" /> Ablehnen
+                </Button>
+              </div>
+            )}
+            
+            {showFinalResult && (
+              <div className="space-y-4">
+                {getFinalResult().refund > 0 && (
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600">
+                      {formatCurrency(getFinalResult().refund)}
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">Endgültiger Preisnachlass</div>
+                  </div>
+                )}
+
+                <Alert>
+                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
+                  <AlertDescription>
+                    {getFinalResult().message}
+                  </AlertDescription>
+                </Alert>
+                
+                {getFinalResult().note && (
+                  <Alert className={getFinalResult().note.includes("NICHT zurückgesendet") ? "bg-yellow-50 border-yellow-200" : "bg-blue-50 border-blue-200"}>
+                    <AlertTitle>Hinweis</AlertTitle>
+                    <AlertDescription>
+                      {getFinalResult().note}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>
