@@ -240,7 +240,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   }, [formData.returnStrategy]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      // If calculation base is changed to preisstaffel, create first threshold
+      if (field === 'calculationBase' && value === 'preisstaffel' && (!prev.priceThresholds || prev.priceThresholds.length === 0)) {
+        newData.priceThresholds = [{
+          minPrice: 0,
+          value: 10,
+          valueType: 'percent',
+          roundingRule: 'keine_rundung'
+        }];
+      }
+      
+      return newData;
+    });
   };
   
   // Set the trigger directly when selected from radio group
@@ -295,13 +309,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   };
   
   const handleRemovePriceThreshold = (stageIndex: number, thresholdIndex: number) => {
-    setFormData(prev => {
-      const stages = [...(prev.calculationStages || [])];
-      const thresholds = [...(stages[stageIndex].priceThresholds || [])];
-      thresholds.splice(thresholdIndex, 1);
-      stages[stageIndex] = { ...stages[stageIndex], priceThresholds: thresholds };
-      return { ...prev, calculationStages: stages };
-    });
+    if (formData.hasMultipleStages) {
+      setFormData(prev => {
+        const stages = [...(prev.calculationStages || [])];
+        const thresholds = [...(stages[stageIndex].priceThresholds || [])];
+        thresholds.splice(thresholdIndex, 1);
+        stages[stageIndex] = { ...stages[stageIndex], priceThresholds: thresholds };
+        return { ...prev, calculationStages: stages };
+      });
+    } else {
+      setFormData(prev => {
+        const thresholds = [...(prev.priceThresholds || [])];
+        thresholds.splice(thresholdIndex, 1);
+        return { ...prev, priceThresholds: thresholds };
+      });
+    }
   };
   
   const handlePriceThresholdChange = (stageIndex: number, thresholdIndex: number, field: keyof PriceThreshold, value: any) => {
@@ -309,14 +331,56 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       setFormData(prev => {
         const stages = [...(prev.calculationStages || [])];
         const thresholds = [...(stages[stageIndex].priceThresholds || [])];
+        
+        // Update the current threshold
         thresholds[thresholdIndex] = { ...thresholds[thresholdIndex], [field]: value };
+        
+        // If max price is set and this is the last threshold, add a new one
+        if (field === 'maxPrice' && value && thresholdIndex === thresholds.length - 1) {
+          thresholds.push({
+            minPrice: value,
+            value: 10,
+            valueType: 'percent',
+            roundingRule: 'keine_rundung'
+          });
+        }
+        
+        // Update min price of next threshold to match max price of current threshold
+        if (field === 'maxPrice' && thresholdIndex < thresholds.length - 1) {
+          thresholds[thresholdIndex + 1] = {
+            ...thresholds[thresholdIndex + 1],
+            minPrice: value
+          };
+        }
+        
         stages[stageIndex] = { ...stages[stageIndex], priceThresholds: thresholds };
         return { ...prev, calculationStages: stages };
       });
     } else {
       setFormData(prev => {
         const thresholds = [...(prev.priceThresholds || [])];
+        
+        // Update the current threshold
         thresholds[thresholdIndex] = { ...thresholds[thresholdIndex], [field]: value };
+        
+        // If max price is set and this is the last threshold, add a new one
+        if (field === 'maxPrice' && value && thresholdIndex === thresholds.length - 1) {
+          thresholds.push({
+            minPrice: value,
+            value: 10,
+            valueType: 'percent',
+            roundingRule: 'keine_rundung'
+          });
+        }
+        
+        // Update min price of next threshold to match max price of current threshold
+        if (field === 'maxPrice' && thresholdIndex < thresholds.length - 1) {
+          thresholds[thresholdIndex + 1] = {
+            ...thresholds[thresholdIndex + 1],
+            minPrice: value
+          };
+        }
+        
         return { ...prev, priceThresholds: thresholds };
       });
     }
@@ -456,32 +520,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     value?: number;
     priceThresholds?: PriceThreshold[];
     roundingRule?: RoundingRule;
-  }, index: number) => {
+  }, stageIndex: number) => {
     const isMultiStage = formData.hasMultipleStages;
     const priceThresholds = isMultiStage ? stage.priceThresholds : formData.priceThresholds;
-    const handlePriceThresholdChange = isMultiStage 
-      ? (thresholdIndex: number, field: keyof PriceThreshold, value: any) => 
-          handleCalculationStageChange(index, 'priceThresholds', 
-            priceThresholds?.map((t, i) => i === thresholdIndex ? { ...t, [field]: value } : t) || [])
-      : (thresholdIndex: number, field: keyof PriceThreshold, value: any) => {
-          const newThresholds = [...(formData.priceThresholds || [])];
-          newThresholds[thresholdIndex] = { ...newThresholds[thresholdIndex], [field]: value };
-          handleChange('priceThresholds', newThresholds);
-        };
-    const handleAddPriceThreshold = isMultiStage
-      ? () => handleCalculationStageChange(index, 'priceThresholds', [
-          ...(priceThresholds || []),
-          { minPrice: 0, value: 0, valueType: 'percent', roundingRule: 'keine_rundung' }
-        ])
-      : () => handleChange('priceThresholds', [
-          ...(formData.priceThresholds || []),
-          { minPrice: 0, value: 0, valueType: 'percent', roundingRule: 'keine_rundung' }
-        ]);
-    const handleRemovePriceThreshold = isMultiStage
-      ? (thresholdIndex: number) => handleCalculationStageChange(index, 'priceThresholds', 
-          priceThresholds?.filter((_, i) => i !== thresholdIndex) || [])
-      : (thresholdIndex: number) => handleChange('priceThresholds', 
-          formData.priceThresholds?.filter((_, i) => i !== thresholdIndex) || []);
 
     switch (stage.calculationBase) {
       case 'prozent_vom_vk':
@@ -493,7 +534,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Input
                   type="number"
                   value={stage.value}
-                  onChange={(e) => handleCalculationStageChange(index, 'value', parseFloat(e.target.value))}
+                  onChange={(e) => handleCalculationStageChange(stageIndex, 'value', parseFloat(e.target.value))}
                   min={0}
                   max={100}
                 />
@@ -504,7 +545,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               <Label>Rundungsregel</Label>
               <Select
                 value={stage.roundingRule}
-                onValueChange={(value) => handleCalculationStageChange(index, 'roundingRule', value)}
+                onValueChange={(value) => handleCalculationStageChange(stageIndex, 'roundingRule', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Rundungsregel auswählen" />
@@ -529,7 +570,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <Input
                   type="number"
                   value={stage.value}
-                  onChange={(e) => handleCalculationStageChange(index, 'value', parseFloat(e.target.value))}
+                  onChange={(e) => handleCalculationStageChange(stageIndex, 'value', parseFloat(e.target.value))}
                   min={0}
                 />
                 <div className="text-lg font-medium">€</div>
@@ -539,7 +580,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               <Label>Rundungsregel</Label>
               <Select
                 value={stage.roundingRule}
-                onValueChange={(value) => handleCalculationStageChange(index, 'roundingRule', value)}
+                onValueChange={(value) => handleCalculationStageChange(stageIndex, 'roundingRule', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Rundungsregel auswählen" />
@@ -560,65 +601,104 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <Label>Preisstaffelung</Label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm" 
-                onClick={handleAddPriceThreshold}
-              >
-                <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
-              </Button>
             </div>
             
-            {(priceThresholds || []).map((threshold, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
+            {(priceThresholds || []).map((threshold, thresholdIndex) => (
+              <div key={thresholdIndex} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor={`min-${index}`}>Min (€)</Label>
+                    <Label htmlFor={`min-${stageIndex}-${thresholdIndex}`}>Min (€)</Label>
                     <Input 
-                      id={`min-${index}`} 
+                      id={`min-${stageIndex}-${thresholdIndex}`} 
                       type="number" 
                       value={threshold.minPrice} 
-                      onChange={(e) => handlePriceThresholdChange(index, 'minPrice', parseFloat(e.target.value))}
-                      min={0}
+                      disabled
+                      className="bg-muted"
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`max-${index}`}>Max (€)</Label>
+                    <Label htmlFor={`max-${stageIndex}-${thresholdIndex}`}>Max (€)</Label>
                     <Input 
-                      id={`max-${index}`} 
+                      id={`max-${stageIndex}-${thresholdIndex}`} 
                       type="number" 
                       value={threshold.maxPrice} 
                       onChange={(e) => {
                         const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                        handlePriceThresholdChange(index, 'maxPrice', value);
+                        if (value && value <= threshold.minPrice) {
+                          return;
+                        }
+                        if (isMultiStage) {
+                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
+                            (priceThresholds || []).map((t, i) => {
+                              if (i === thresholdIndex) {
+                                return { ...t, maxPrice: value };
+                              }
+                              if (i === thresholdIndex + 1) {
+                                return { ...t, minPrice: value };
+                              }
+                              return t;
+                            })
+                          );
+                          // Add new threshold if this is the last one and max price is set
+                          if (thresholdIndex === (priceThresholds?.length || 0) - 1 && value) {
+                            handleCalculationStageChange(stageIndex, 'priceThresholds', [
+                              ...(priceThresholds || []),
+                              {
+                                minPrice: value,
+                                value: 10,
+                                valueType: 'percent',
+                                roundingRule: 'keine_rundung'
+                              }
+                            ]);
+                          }
+                        } else {
+                          handlePriceThresholdChange(0, thresholdIndex, 'maxPrice', value);
+                        }
                       }}
                       min={threshold.minPrice + 1}
-                      placeholder="Unbegrenzt"
+                      placeholder={thresholdIndex === (priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
                     />
                   </div>
                 </div>
                 
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <Label htmlFor={`value-${index}`}>Wert</Label>
+                    <Label htmlFor={`value-${stageIndex}-${thresholdIndex}`}>Wert</Label>
                     <Input 
-                      id={`value-${index}`} 
+                      id={`value-${stageIndex}-${thresholdIndex}`} 
                       type="number" 
                       value={threshold.value} 
-                      onChange={(e) => handlePriceThresholdChange(index, 'value', parseFloat(e.target.value))}
+                      onChange={(e) => {
+                        if (isMultiStage) {
+                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
+                            (priceThresholds || []).map((t, i) => 
+                              i === thresholdIndex ? { ...t, value: parseFloat(e.target.value) } : t
+                            )
+                          );
+                        } else {
+                          handlePriceThresholdChange(0, thresholdIndex, 'value', parseFloat(e.target.value));
+                        }
+                      }}
                       min={0}
                     />
                   </div>
                   <div className="w-20">
-                    <Label htmlFor={`valueType-${index}`}>Art</Label>
+                    <Label htmlFor={`valueType-${stageIndex}-${thresholdIndex}`}>Art</Label>
                     <Select
                       value={threshold.valueType || 'percent'}
-                      onValueChange={(value: ThresholdValueType) => 
-                        handlePriceThresholdChange(index, 'valueType', value)
-                      }
+                      onValueChange={(value: ThresholdValueType) => {
+                        if (isMultiStage) {
+                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
+                            (priceThresholds || []).map((t, i) => 
+                              i === thresholdIndex ? { ...t, valueType: value } : t
+                            )
+                          );
+                        } else {
+                          handlePriceThresholdChange(0, thresholdIndex, 'valueType', value);
+                        }
+                      }}
                     >
-                      <SelectTrigger id={`valueType-${index}`}>
+                      <SelectTrigger id={`valueType-${stageIndex}-${thresholdIndex}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -634,14 +714,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
+                    <Label htmlFor={`threshold-rounding-${stageIndex}-${thresholdIndex}`}>Rundungsregel</Label>
                     <Select
                       value={threshold.roundingRule}
-                      onValueChange={(value: RoundingRule) => 
-                        handlePriceThresholdChange(index, 'roundingRule', value)
-                      }
+                      onValueChange={(value: RoundingRule) => {
+                        if (isMultiStage) {
+                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
+                            (priceThresholds || []).map((t, i) => 
+                              i === thresholdIndex ? { ...t, roundingRule: value } : t
+                            )
+                          );
+                        } else {
+                          handlePriceThresholdChange(0, thresholdIndex, 'roundingRule', value);
+                        }
+                      }}
                     >
-                      <SelectTrigger id={`threshold-rounding-${index}`}>
+                      <SelectTrigger id={`threshold-rounding-${stageIndex}-${thresholdIndex}`}>
                         <SelectValue placeholder="Rundungsregel auswählen" />
                       </SelectTrigger>
                       <SelectContent>
@@ -659,19 +747,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     size="icon" 
                     className="h-10 w-10 self-end"
                     disabled={priceThresholds?.length === 1}
-                    onClick={() => handleRemovePriceThreshold(index)}
+                    onClick={() => {
+                      if (isMultiStage) {
+                        handleCalculationStageChange(stageIndex, 'priceThresholds', 
+                          (priceThresholds || []).filter((_, i) => i !== thresholdIndex)
+                        );
+                      } else {
+                        handleRemovePriceThreshold(0, thresholdIndex);
+                      }
+                    }}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             ))}
-            
-            {(!priceThresholds || priceThresholds.length === 0) && (
-              <Button type="button" variant="outline" onClick={handleAddPriceThreshold}>
-                <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
-              </Button>
-            )}
           </div>
         );
       default:
@@ -700,6 +790,17 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     setFormData(prev => {
       const stages = [...(prev.calculationStages || [])];
       stages[index] = { ...stages[index], [field]: value };
+      
+      // If calculation base is changed to preisstaffel, create first threshold
+      if (field === 'calculationBase' && value === 'preisstaffel') {
+        stages[index].priceThresholds = [{
+          minPrice: 0,
+          value: 10,
+          valueType: 'percent',
+          roundingRule: 'keine_rundung'
+        }];
+      }
+      
       return { ...prev, calculationStages: stages };
     });
   };
@@ -1019,14 +1120,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <Label>Preisstaffelung</Label>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleAddPriceThreshold(0)}
-                      >
-                        <Plus className="h-4 w-4 mr-1" /> Staffel hinzufügen
-                      </Button>
                     </div>
                     
                     {(formData.priceThresholds || []).map((threshold, index) => (
@@ -1038,8 +1131,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                               id={`min-${index}`} 
                               type="number" 
                               value={threshold.minPrice} 
-                              onChange={(e) => handlePriceThresholdChange(0, index, "minPrice", parseFloat(e.target.value))}
-                              min={0}
+                              disabled
+                              className="bg-muted"
                             />
                           </div>
                           <div>
@@ -1050,10 +1143,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                               value={threshold.maxPrice} 
                               onChange={(e) => {
                                 const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                                handlePriceThresholdChange(0, index, "maxPrice", value);
+                                if (value && value <= threshold.minPrice) {
+                                  // If the max value is less than or equal to min value, don't update
+                                  return;
+                                }
+                                handlePriceThresholdChange(0, index, 'maxPrice', value);
                               }}
                               min={threshold.minPrice + 1}
-                              placeholder="Unbegrenzt"
+                              placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
                             />
                           </div>
                         </div>
@@ -1065,7 +1162,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                               id={`value-${index}`} 
                               type="number" 
                               value={threshold.value} 
-                              onChange={(e) => handlePriceThresholdChange(0, index, "value", parseFloat(e.target.value))}
+                              onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
                               min={0}
                             />
                           </div>
@@ -1074,7 +1171,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                             <Select
                               value={threshold.valueType || 'percent'}
                               onValueChange={(value: ThresholdValueType) => 
-                                handlePriceThresholdChange(0, index, "valueType", value)
+                                handlePriceThresholdChange(0, index, 'valueType', value)
                               }
                             >
                               <SelectTrigger id={`valueType-${index}`}>
@@ -1097,7 +1194,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                             <Select
                               value={threshold.roundingRule}
                               onValueChange={(value: RoundingRule) => 
-                                handlePriceThresholdChange(0, index, "roundingRule", value)
+                                handlePriceThresholdChange(0, index, 'roundingRule', value)
                               }
                             >
                               <SelectTrigger id={`threshold-rounding-${index}`}>
@@ -1125,12 +1222,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                         </div>
                       </div>
                     ))}
-                    
-                    {(!formData.priceThresholds || formData.priceThresholds.length === 0) && (
-                      <Button type="button" variant="outline" onClick={() => handleAddPriceThreshold(0)}>
-                        <Plus className="h-4 w-4 mr-2" /> Erste Staffel hinzufügen
-                      </Button>
-                    )}
                   </div>
                 )}
 

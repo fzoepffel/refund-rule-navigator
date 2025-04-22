@@ -109,10 +109,8 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </div>
             <div>
               <div className="text-sm text-muted-foreground mb-2">Gründe</div>
-              <div className="flex flex-wrap gap-2">
-                {rule.triggers.map(trigger => (
-                  <Badge key={trigger} variant="outline">{getTriggerLabel(trigger)}</Badge>
-                ))}
+              <div className="font-medium">
+                {getTriggerLabel(rule.triggers[0])}
               </div>
             </div>
           </div>
@@ -269,38 +267,8 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               <div>
                 <div className="text-sm text-muted-foreground mb-2">Zusatzaktionen</div>
                 <div className="space-y-2">
-                  {rule.previousRefundsCheck && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="flex items-center gap-1">
-                        <History className="h-3 w-3" />
-                        Kundenhistorie prüfen (Anzahl vorheriger Rückzahlungen)
-                      </Badge>
-                    </div>
-                  )}
-                  {rule.customerLoyaltyCheck && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Kundenhistorie prüfen (Bestandskunde)</Badge>
-                    </div>
-                  )}
-                  {rule.offerDiscountBeforeReturn && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Erst Nachlass anbieten, dann Retoure</Badge>
-                    </div>
-                  )}
-                  {rule.requestPictures && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Bilder anfordern</Badge>
-                    </div>
-                  )}
                   {rule.consultPartnerBeforePayout && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Rücksprache mit Partner vor Auszahlung</Badge>
-                    </div>
-                  )}
-                  {rule.sendInfoToPartner && (
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">Info über Gründe an Partner senden</Badge>
-                    </div>
+                    <div className="font-medium">Rücksprache mit Partner vor Auszahlung</div>
                   )}
                 </div>
               </div>
