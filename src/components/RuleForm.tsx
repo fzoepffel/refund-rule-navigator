@@ -70,8 +70,7 @@ const defaultRule: DiscountRule = {
   returnStrategy: "discount_then_return",
   value: 10,
   isCompleteRule: false,         // Default to false
-  consultPartnerBeforePayout: true,  // Default to true
-  multipleOfferLevels: false  // Set default value
+  consultPartnerBeforePayout: true  // Default to true
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
@@ -541,49 +540,36 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           <CardDescription>Hier wird definiert, nach welcher Strategie der oben definierte Regelfall behandelt wird.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Select 
-                value={formData.returnStrategy || 'discount_then_return'} 
-                onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
-              >
-                <SelectTrigger id="returnStrategy">
-                  <SelectValue placeholder="Rückgabestrategie auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {returnStrategies.map(strategy => (
-                    <SelectItem key={strategy.value} value={strategy.value}>
-                      {strategy.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.returnStrategy === 'auto_return_full_refund' && (
-                <Alert className="mt-2">
-                  <AlertDescription>
-                    Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
-                  </AlertDescription>
-                </Alert>
-              )}
-              {formData.returnStrategy === 'contact_merchant_immediately' && (
-                <Alert className="mt-2">
-                  <AlertDescription>
-                    Bei direkter Merchant-Kontaktierung wird keine Berechnung durchgeführt und Rücksprache ist erforderlich.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="multipleOfferLevels"
-                checked={formData.multipleOfferLevels || false}
-                onCheckedChange={(checked) => handleChange("multipleOfferLevels", checked)}
-              />
-              <Label htmlFor="multipleOfferLevels">
-                Mehrere Angebotsstufen
-              </Label>
-            </div>
+          <div>
+            <Select 
+              value={formData.returnStrategy || 'discount_then_return'} 
+              onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
+            >
+              <SelectTrigger id="returnStrategy">
+                <SelectValue placeholder="Rückgabestrategie auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {returnStrategies.map(strategy => (
+                  <SelectItem key={strategy.value} value={strategy.value}>
+                    {strategy.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {formData.returnStrategy === 'auto_return_full_refund' && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei automatischer Retoure wird der Erstattungsbetrag auf vollen Verkaufspreis gesetzt.
+                </AlertDescription>
+              </Alert>
+            )}
+            {formData.returnStrategy === 'contact_merchant_immediately' && (
+              <Alert className="mt-2">
+                <AlertDescription>
+                  Bei direkter Merchant-Kontaktierung wird keine Berechnung durchgeführt und Rücksprache ist erforderlich.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -903,3 +889,52 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   checked={formData.isCompleteRule || false}
                   onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
                 />
+                <div>
+                  <Label htmlFor="isCompleteRule" className="text-base">
+                    Regel konnte komplett und eindeutig erfasst werden
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
+                    In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
+                  </p>
+                </div>
+              </div>
+            
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="consultPartnerBeforePayout" 
+                  checked={formData.consultPartnerBeforePayout || false}
+                  disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
+                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
+                />
+                <Label htmlFor="consultPartnerBeforePayout" className={
+                  formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false
+                    ? "text-muted-foreground" 
+                    : ""
+                }>
+                  Rücksprache mit Partner vor Auszahlung
+                  {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
+                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
+                  )}
+                </Label>
+              </div>
+            </div>
+          
+            <div>
+              <Label htmlFor="notes">Notizen</Label>
+              <Textarea 
+                id="notes" 
+                value={formData.notes || ''} 
+                onChange={(e) => handleChange("notes", e.target.value)}
+                placeholder="Zusätzliche Hinweise zur Regel"
+                rows={4}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </form>
+  );
+};
+
+export default RuleForm;
