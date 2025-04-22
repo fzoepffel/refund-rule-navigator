@@ -92,5 +92,6 @@ export interface DiscountRule {
   notes?: string,
   noReturnOnFullRefund?: boolean,
   offerDiscountBeforeReturn?: boolean,
-  sendInfoToPartner?: boolean
+  sendInfoToPartner?: boolean,
+  multipleOfferLevels?: boolean  // New field
 }
