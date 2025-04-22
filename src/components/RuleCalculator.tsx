@@ -319,7 +319,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
                 </Alert>
                 
                 {getFinalResult().note && (
-                  <Alert className={getFinalResult().note.includes("NICHT zurückgesendet") ? "bg-yellow-50 border-yellow-200" : "bg-blue-50 border-blue-200"}>
+                  <Alert className={getFinalResult().note.includes("NICHT zurückgesendet") ? "bg-yellow-50 border-yellow-200" : "bg-primary/10 border-primary/20"}>
                     <AlertTitle>Hinweis</AlertTitle>
                     <AlertDescription>
                       {getFinalResult().note}

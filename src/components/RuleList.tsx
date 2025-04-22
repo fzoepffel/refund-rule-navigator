@@ -57,15 +57,15 @@ const RuleList: React.FC<RuleListProps> = ({
   const renderDiscountInfo = (rule: DiscountRule) => {
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge variant="outline">{rule.value}% vom Verkaufspreis</Badge>;
+        return <Badge>{rule.value}% vom Verkaufspreis</Badge>;
       case 'fester_betrag':
-        return <Badge variant="outline">{rule.value}€ Festbetrag</Badge>;
+        return <Badge>{rule.value}€ Festbetrag</Badge>;
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
           <div className="flex flex-wrap gap-1 mt-1">
             {rule.priceThresholds.map((threshold, idx) => (
-              <Badge key={idx} variant="outline" className="text-xs">
+              <Badge key={idx} className="text-xs">
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
               </Badge>
@@ -78,7 +78,7 @@ const RuleList: React.FC<RuleListProps> = ({
           <div className="flex items-center flex-wrap gap-1 mt-1">
             {rule.discountLevels.map((level, idx, arr) => (
               <React.Fragment key={idx}>
-                <Badge variant="outline" className="text-xs">
+                <Badge className="text-xs">
                   {level.value}{getThresholdValueTypeLabel(level.valueType)}
                 </Badge>
                 {idx < arr.length - 1 && <span className="text-xs">→</span>}
@@ -190,10 +190,10 @@ const RuleList: React.FC<RuleListProps> = ({
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h3 className="font-medium">{rule.name}</h3>
+                    <h3 className="text-sm font-medium">{rule.name}</h3>
                     
                     {/* Context information line with dynamic separator dots */}
-                    <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
                       {getContextInfoParts(rule).map((part, index, array) => (
                         <React.Fragment key={`fragment-${index}`}>
                           {part}
@@ -204,14 +204,14 @@ const RuleList: React.FC<RuleListProps> = ({
 
                     {/* Return strategy display */}
                     {rule.returnStrategy && (
-                      <div className="text-muted-foreground mt-2 text-sm">
+                      <div className="text-muted-foreground mt-2 text-xs">
                         <strong>Rückgabestrategie:</strong>{' '}
                         {getReturnStrategyLabel(rule.returnStrategy)}
                       </div>
                     )}
 
                     {/* Calculation information */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                       <strong>Berechnung:</strong>{' '}
                       {rule.hasMultipleStages ? (
                         <span>Mehrere Angebotsstufen</span>
@@ -234,12 +234,12 @@ const RuleList: React.FC<RuleListProps> = ({
                     {/* Max amount if exists */}
                     {rule.maxAmount && (
                       <div className="mt-1">
-                        <Badge variant="secondary" className="text-xs">Max: {rule.maxAmount}€</Badge>
+                        <Badge className="text-xs">Max: {rule.maxAmount}€</Badge>
                       </div>
                     )}
                     
                     {/* Special rules and notes */}
-                    <div className="mt-2 text-sm">
+                    <div className="mt-2 text-xs">
                       {/* Special rules display */}
                       {(rule.requestPictures || 
                         rule.previousRefundsCheck || 
