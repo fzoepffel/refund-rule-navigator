@@ -118,15 +118,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   
   const requestCategories: RequestCategory[] = ['Egal', 'Widerruf', 'Reklamation'];
   
-  const requestTypes: RequestType[] = [
-    'Egal',
-    'Ersatzteil gewünscht',
-    'Preisnachlass gewünscht',
-    'Kontaktaufnahme gewünscht',
-    'Artikel zurücksenden',
-    'Rücksendung gewünscht'
-  ];
-  
   const triggers: Trigger[] = [
     'Egal',
     'Leistung oder Qualität ungenügend',
@@ -170,12 +161,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     // Part 2: Grund
     if (formData.triggers.length >0 && formData.triggers[0] !== "Egal") {
       parts.push(formData.triggers[0]);
-    }
-
-    // Part 3: Gewünschte Vorgehensweise (nur bei Egal oder Reklamation)
-    if ((formData.requestCategory === "Egal" || formData.requestCategory === "Reklamation") && 
-        formData.requestType !== "Egal") {
-      parts.push(formData.requestType);
     }
 
     // Part 4: Versandart
@@ -576,24 +561,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 <div className="text-lg font-medium">€</div>
               </div>
             </div>
-            <div>
-              <Label>Rundungsregel</Label>
-              <Select
-                value={stage.roundingRule}
-                onValueChange={(value) => handleCalculationStageChange(stageIndex, 'roundingRule', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Rundungsregel auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roundingRules.map((rule) => (
-                    <SelectItem key={rule} value={rule}>
-                      {getRoundingRuleLabel(rule)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         );
       case 'preisstaffel':
@@ -603,13 +570,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               <Label>Preisstaffelung</Label>
             </div>
             
-            {(priceThresholds || []).map((threshold, thresholdIndex) => (
-              <div key={thresholdIndex} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
+            {(formData.priceThresholds || []).map((threshold, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor={`min-${stageIndex}-${thresholdIndex}`}>Min (€)</Label>
+                    <Label htmlFor={`min-${index}`}>Min (€)</Label>
                     <Input 
-                      id={`min-${stageIndex}-${thresholdIndex}`} 
+                      id={`min-${index}`} 
                       type="number" 
                       value={threshold.minPrice} 
                       disabled
@@ -617,9 +584,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor={`max-${stageIndex}-${thresholdIndex}`}>Max (€)</Label>
+                    <Label htmlFor={`max-${index}`}>Max (€)</Label>
                     <Input 
-                      id={`max-${stageIndex}-${thresholdIndex}`} 
+                      id={`max-${index}`} 
                       type="number" 
                       value={threshold.maxPrice} 
                       onChange={(e) => {
@@ -627,78 +594,34 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                         if (value && value <= threshold.minPrice) {
                           return;
                         }
-                        if (isMultiStage) {
-                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
-                            (priceThresholds || []).map((t, i) => {
-                              if (i === thresholdIndex) {
-                                return { ...t, maxPrice: value };
-                              }
-                              if (i === thresholdIndex + 1) {
-                                return { ...t, minPrice: value };
-                              }
-                              return t;
-                            })
-                          );
-                          // Add new threshold if this is the last one and max price is set
-                          if (thresholdIndex === (priceThresholds?.length || 0) - 1 && value) {
-                            handleCalculationStageChange(stageIndex, 'priceThresholds', [
-                              ...(priceThresholds || []),
-                              {
-                                minPrice: value,
-                                value: 10,
-                                valueType: 'percent',
-                                roundingRule: 'keine_rundung'
-                              }
-                            ]);
-                          }
-                        } else {
-                          handlePriceThresholdChange(0, thresholdIndex, 'maxPrice', value);
-                        }
+                        handlePriceThresholdChange(0, index, 'maxPrice', value);
                       }}
                       min={threshold.minPrice + 1}
-                      placeholder={thresholdIndex === (priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                      placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
                     />
                   </div>
                 </div>
                 
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <Label htmlFor={`value-${stageIndex}-${thresholdIndex}`}>Wert</Label>
+                    <Label htmlFor={`value-${index}`}>Wert</Label>
                     <Input 
-                      id={`value-${stageIndex}-${thresholdIndex}`} 
+                      id={`value-${index}`} 
                       type="number" 
                       value={threshold.value} 
-                      onChange={(e) => {
-                        if (isMultiStage) {
-                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
-                            (priceThresholds || []).map((t, i) => 
-                              i === thresholdIndex ? { ...t, value: parseFloat(e.target.value) } : t
-                            )
-                          );
-                        } else {
-                          handlePriceThresholdChange(0, thresholdIndex, 'value', parseFloat(e.target.value));
-                        }
-                      }}
+                      onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
                       min={0}
                     />
                   </div>
                   <div className="w-20">
-                    <Label htmlFor={`valueType-${stageIndex}-${thresholdIndex}`}>Art</Label>
+                    <Label htmlFor={`valueType-${index}`}>Art</Label>
                     <Select
                       value={threshold.valueType || 'percent'}
-                      onValueChange={(value: ThresholdValueType) => {
-                        if (isMultiStage) {
-                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
-                            (priceThresholds || []).map((t, i) => 
-                              i === thresholdIndex ? { ...t, valueType: value } : t
-                            )
-                          );
-                        } else {
-                          handlePriceThresholdChange(0, thresholdIndex, 'valueType', value);
-                        }
-                      }}
+                      onValueChange={(value: ThresholdValueType) => 
+                        handlePriceThresholdChange(0, index, 'valueType', value)
+                      }
                     >
-                      <SelectTrigger id={`valueType-${stageIndex}-${thresholdIndex}`}>
+                      <SelectTrigger id={`valueType-${index}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -714,22 +637,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <Label htmlFor={`threshold-rounding-${stageIndex}-${thresholdIndex}`}>Rundungsregel</Label>
+                    <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
                     <Select
                       value={threshold.roundingRule}
-                      onValueChange={(value: RoundingRule) => {
-                        if (isMultiStage) {
-                          handleCalculationStageChange(stageIndex, 'priceThresholds', 
-                            (priceThresholds || []).map((t, i) => 
-                              i === thresholdIndex ? { ...t, roundingRule: value } : t
-                            )
-                          );
-                        } else {
-                          handlePriceThresholdChange(0, thresholdIndex, 'roundingRule', value);
-                        }
-                      }}
+                      onValueChange={(value: RoundingRule) => 
+                        handlePriceThresholdChange(0, index, 'roundingRule', value)
+                      }
                     >
-                      <SelectTrigger id={`threshold-rounding-${stageIndex}-${thresholdIndex}`}>
+                      <SelectTrigger id={`threshold-rounding-${index}`}>
                         <SelectValue placeholder="Rundungsregel auswählen" />
                       </SelectTrigger>
                       <SelectContent>
@@ -746,16 +661,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     variant="ghost" 
                     size="icon" 
                     className="h-10 w-10 self-end"
-                    disabled={priceThresholds?.length === 1}
-                    onClick={() => {
-                      if (isMultiStage) {
-                        handleCalculationStageChange(stageIndex, 'priceThresholds', 
-                          (priceThresholds || []).filter((_, i) => i !== thresholdIndex)
-                        );
-                      } else {
-                        handleRemovePriceThreshold(0, thresholdIndex);
-                      }
-                    }}
+                    disabled={formData.priceThresholds?.length === 1}
+                    onClick={() => handleRemovePriceThreshold(0, index)}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -858,62 +765,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
             
             {/* Grund */}
             <div>
               <Label htmlFor="triggers">Grund</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between"
-                    id="triggers"
-                  >
-                    <span>{getSelectedTriggerLabel()}</span>
-                    <ChevronDown className="h-4 w-4 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>Grund auswählen</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup 
-                    value={formData.triggers[0]} 
-                    onValueChange={(value: string) => setTrigger(value as Trigger)}
-                  >
-                    {triggers.map(trigger => (
-                      <DropdownMenuRadioItem
-                        key={trigger}
-                        value={trigger}
-                      >
-                        {trigger}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Select 
+                value={formData.triggers[0]} 
+                onValueChange={(value: Trigger) => setTrigger(value)}
+              >
+                <SelectTrigger id="triggers">
+                  <SelectValue placeholder="Grund auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {triggers.map(trigger => (
+                    <SelectItem key={trigger} value={trigger}>
+                      {getTriggerLabel(trigger)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            {/* Gewünschte Vorgehensweise - only show when requestCategory is Reklamation */}
-            {formData.requestCategory === 'Reklamation' && (
-              <div>
-                <Label htmlFor="requestType">Gewünschte Vorgehensweise</Label>
-                <Select 
-                  value={formData.requestType} 
-                  onValueChange={(value: RequestType) => handleChange("requestType", value)}
-                >
-                  <SelectTrigger id="requestType">
-                    <SelectValue placeholder="Vorgehensweise auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {requestTypes.map(type => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
             
           </div>
 
@@ -1225,7 +1097,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   </div>
                 )}
 
-                {formData.calculationBase !== 'preisstaffel' && (
+                {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
                   <div>
                     <Label htmlFor="roundingRule">Rundungsregel</Label>
                     <Select 
@@ -1247,21 +1119,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 )}
               </div>
             )}
-
-            <div>
-              <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
-              <Input 
-                id="maxAmount" 
-                type="number" 
-                value={formData.maxAmount || ''} 
-                onChange={(e) => {
-                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                  handleChange("maxAmount", value);
-                }}
-                min={0}
-                placeholder="Kein Maximum"
-              />
-            </div>
+            {formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+              <div>
+                <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
+                <Input 
+                  id="maxAmount" 
+                  type="number" 
+                  value={formData.maxAmount || ''} 
+                  onChange={(e) => {
+                    const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                    handleChange("maxAmount", value);
+                  }}
+                  min={0}
+                  placeholder="Kein Maximum"
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -1313,7 +1186,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 />
                 <div>
                   <Label htmlFor="isCompleteRule" className="text-base">
-                    Regel konnte komplett und eindeutig erfasst werden
+                    Regel konnte vollständig und eindeutig erfasst werden
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1">
                     Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.

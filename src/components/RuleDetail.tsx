@@ -73,9 +73,20 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Grundinformationen</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-sm text-muted-foreground">Art der Anfrage</div>
+              <div className="font-medium">{rule.requestType}</div>
+            </div>
+            <div>
+              <div className="text-sm text-muted-foreground mb-2">Gründe</div>
+              <div className="font-medium">
+                {getTriggerLabel(rule.triggers[0])}
+              </div>
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-sm text-muted-foreground">Paket geöffnet</div>
@@ -89,6 +100,8 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </div>
           </div>
 
+          <Separator />
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-sm text-muted-foreground">Rückgabestrategie</div>
@@ -100,20 +113,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </div>
           </div>
           
-          <Separator />
+
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div className="text-sm text-muted-foreground">Art der Anfrage</div>
-              <div className="font-medium">{rule.requestType}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground mb-2">Gründe</div>
-              <div className="font-medium">
-                {getTriggerLabel(rule.triggers[0])}
-              </div>
-            </div>
-          </div>
+
 
           <Separator />
 
@@ -207,7 +209,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                           <div className="text-sm text-muted-foreground">Berechnungsgrundlage</div>
                           <div className="font-medium">{getCalculationBaseLabel(stage.calculationBase)}</div>
                         </div>
-                        {stage.calculationBase !== 'preisstaffel' && (
+                        {stage.calculationBase !== 'preisstaffel' && stage.roundingRule !== "keine_rundung" && (
                           <div>
                             <div className="text-sm text-muted-foreground">Rundungsregel</div>
                             <div className="font-medium">{getRoundingRuleLabel(stage.roundingRule)}</div>

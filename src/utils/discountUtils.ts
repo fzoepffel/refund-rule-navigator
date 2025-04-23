@@ -25,7 +25,7 @@ export const getCalculationBaseLabel = (base: CalculationBase): string => {
     'fester_betrag': 'Fester Betrag',
     'preisstaffel': 'Preisabhängige Staffelung',
     'angebotsstaffel': 'Mehrere Angebotsstufen',
-    'keine_berechnung': 'Keine Berechnung'
+    'keine_berechnung': 'Keine Rechenregel (Keine Automatisierung möglich)'
   };
   return labels[base] || base;
 };

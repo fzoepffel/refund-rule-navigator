@@ -57,7 +57,7 @@ const RuleList: React.FC<RuleListProps> = ({
   const renderDiscountInfo = (rule: DiscountRule) => {
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge>{rule.value}% vom Verkaufspreis</Badge>;
+        return <Badge>{rule.value}%</Badge>;
       case 'fester_betrag':
         return <Badge>{rule.value}€ Festbetrag</Badge>;
       case 'preisstaffel':
@@ -118,15 +118,6 @@ const RuleList: React.FC<RuleListProps> = ({
         <span key="trigger">
           <strong>Grund:</strong>{' '}
           <span>{getTriggerLabel(rule.triggers[0])}</span>
-        </span>
-      );
-    }
-
-    if (rule.requestType !== 'Egal') {
-      parts.push(
-        <span key="procedure">
-          <strong>Gewünschte Vorgehensweise:</strong>{' '}
-          <span>{rule.requestType}</span>
         </span>
       );
     }
@@ -197,7 +188,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       {getContextInfoParts(rule).map((part, index, array) => (
                         <React.Fragment key={`fragment-${index}`}>
                           {part}
-                          {index < array.length - 1 && <span className="mx-1">•</span>}
+                          {index < array.length - 1 }
                         </React.Fragment>
                       ))}
                     </div>
@@ -205,7 +196,7 @@ const RuleList: React.FC<RuleListProps> = ({
                     {/* Return strategy display */}
                     {rule.returnStrategy && (
                       <div className="text-muted-foreground mt-2 text-xs">
-                        <strong>Rückgabestrategie:</strong>{' '}
+                        <strong>Strategie:</strong>{' '}
                         {getReturnStrategyLabel(rule.returnStrategy)}
                       </div>
                     )}
@@ -218,8 +209,9 @@ const RuleList: React.FC<RuleListProps> = ({
                       ) : (
                         <>
                           <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                          <span>•</span>
-                          <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                          {rule.roundingRule !== 'keine_rundung' && (
+                            <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                          )}
                         </>
                       )}
                     </div>
@@ -278,6 +270,7 @@ const RuleList: React.FC<RuleListProps> = ({
                         e.stopPropagation();
                         onEditRule(rule);
                       }}
+                      className="text-blue-500 hover:text-blue-700"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -288,6 +281,7 @@ const RuleList: React.FC<RuleListProps> = ({
                         e.stopPropagation();
                         onDeleteRule(rule.id);
                       }}
+                      className="text-blue-500 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
