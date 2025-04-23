@@ -31,7 +31,7 @@ export type RoundingRule =
   'keine_rundung' | 
   'auf_5_euro' | 
   'auf_10_euro' | 
-  'auf_10_cent';
+  'auf_1_euro';
 
 export type ReturnHandling = 
   'automatisches_label' | 

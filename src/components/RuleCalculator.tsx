@@ -1,11 +1,27 @@
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
-import { calculateDiscount, formatCurrency, calculateDiscountForLevel } from "../utils/discountUtils";
+import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import { Calculator, Activity, XCircle, FastForward } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -149,8 +165,8 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         return Math.ceil(amount / 5) * 5;
       case 'auf_10_euro':
         return Math.ceil(amount / 10) * 10;
-      case 'auf_10_cent':
-        return Math.ceil(amount * 10) / 10;
+      case 'auf_1_euro':
+        return Math.ceil(amount);
       default:
         return amount;
     }

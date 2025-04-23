@@ -31,13 +31,18 @@ export const getCalculationBaseLabel = (base: CalculationBase): string => {
 };
 
 export const getRoundingRuleLabel = (rule: RoundingRule): string => {
-  const labels: Record<RoundingRule, string> = {
-    'keine_rundung': 'Keine Rundung',
-    'auf_5_euro': 'Auf 5€ aufrunden',
-    'auf_10_euro': 'Auf 10€ aufrunden',
-    'auf_10_cent': 'Auf 10 Cent aufrunden'
-  };
-  return labels[rule] || rule;
+  switch (rule) {
+    case 'keine_rundung':
+      return 'Keine Rundung';
+    case 'auf_5_euro':
+      return 'Auf 5€ aufrunden';
+    case 'auf_10_euro':
+      return 'Auf 10€ aufrunden';
+    case 'auf_1_euro':
+      return 'Auf 1€ aufrunden';
+    default:
+      return rule;
+  }
 };
 
 export const getReturnHandlingLabel = (handling: ReturnHandling): string => {
@@ -77,8 +82,8 @@ export const applyRoundingRule = (value: number, rule: RoundingRule): number => 
       return Math.ceil(value / 5) * 5;
     case 'auf_10_euro':
       return Math.ceil(value / 10) * 10;
-    case 'auf_10_cent':
-      return Math.ceil(value * 10) / 10;
+    case 'auf_1_euro':
+      return Math.ceil(value);
     default:
       return value;
   }

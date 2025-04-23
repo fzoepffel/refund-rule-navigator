@@ -14,7 +14,6 @@ import {
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
-  getRequestTypeLabel,
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
   getReturnHandlingLabel,
@@ -24,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Minus, Save, ChevronDown, History, Car } from "lucide-react";
+import { ArrowLeft, Plus, Minus, Save, ChevronDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Select, 
@@ -36,18 +35,12 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuRadioItem,
-  DropdownMenuRadioGroup
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Check, X } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -132,7 +125,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   ];
   
   const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel'];
-  const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_10_cent'];
+  const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_1_euro'];
   const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['Egal', 'Paket', 'Spedition'];
@@ -570,7 +563,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               <Label>Preisstaffelung</Label>
             </div>
             
-            {(formData.priceThresholds || []).map((threshold, index) => (
+            {(priceThresholds || []).map((threshold, index) => (
               <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -594,10 +587,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                         if (value && value <= threshold.minPrice) {
                           return;
                         }
-                        handlePriceThresholdChange(0, index, 'maxPrice', value);
+                        handlePriceThresholdChange(stageIndex, index, 'maxPrice', value);
                       }}
                       min={threshold.minPrice + 1}
-                      placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                      placeholder={index === (priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
                     />
                   </div>
                 </div>
@@ -609,7 +602,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                       id={`value-${index}`} 
                       type="number" 
                       value={threshold.value} 
-                      onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
+                      onChange={(e) => handlePriceThresholdChange(stageIndex, index, 'value', parseFloat(e.target.value))}
                       min={0}
                     />
                   </div>
@@ -618,7 +611,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     <Select
                       value={threshold.valueType || 'percent'}
                       onValueChange={(value: ThresholdValueType) => 
-                        handlePriceThresholdChange(0, index, 'valueType', value)
+                        handlePriceThresholdChange(stageIndex, index, 'valueType', value)
                       }
                     >
                       <SelectTrigger id={`valueType-${index}`}>
@@ -641,7 +634,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     <Select
                       value={threshold.roundingRule}
                       onValueChange={(value: RoundingRule) => 
-                        handlePriceThresholdChange(0, index, 'roundingRule', value)
+                        handlePriceThresholdChange(stageIndex, index, 'roundingRule', value)
                       }
                     >
                       <SelectTrigger id={`threshold-rounding-${index}`}>
@@ -661,8 +654,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     variant="ghost" 
                     size="icon" 
                     className="h-10 w-10 self-end"
-                    disabled={formData.priceThresholds?.length === 1}
-                    onClick={() => handleRemovePriceThreshold(0, index)}
+                    disabled={priceThresholds?.length === 1}
+                    onClick={() => handleRemovePriceThreshold(stageIndex, index)}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -700,12 +693,15 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       
       // If calculation base is changed to preisstaffel, create first threshold
       if (field === 'calculationBase' && value === 'preisstaffel') {
-        stages[index].priceThresholds = [{
-          minPrice: 0,
-          value: 10,
-          valueType: 'percent',
-          roundingRule: 'keine_rundung'
-        }];
+        stages[index] = {
+          ...stages[index],
+          priceThresholds: [{
+            minPrice: 0,
+            value: 10,
+            valueType: 'percent',
+            roundingRule: 'keine_rundung'
+          }]
+        };
       }
       
       return { ...prev, calculationStages: stages };
