@@ -152,8 +152,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     }
 
     // Part 2: Grund
-    if (formData.triggers.length >0 && formData.triggers[0] !== "Egal") {
-      parts.push(formData.triggers[0]);
+    if (formData.triggers.length > 0) {
+      if (formData.triggers.length === 1 && formData.triggers[0] !== "Egal") {
+        parts.push(formData.triggers[0]);
+      } else if (formData.triggers.length > 1) {
+        parts.push("Mehrere Gründe");
+      }
     }
 
     // Part 4: Versandart
@@ -237,17 +241,32 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   
   // Set the trigger directly when selected from radio group
   const setTrigger = (trigger: Trigger) => {
-    setFormData(prev => ({
-      ...prev,
-      triggers: [trigger] // Now we only store a single trigger
-    }));
+    setFormData(prev => {
+      const currentTriggers = prev.triggers || [];
+      if (currentTriggers.includes(trigger)) {
+        // Remove trigger if already selected
+        return {
+          ...prev,
+          triggers: currentTriggers.filter(t => t !== trigger)
+        };
+      } else {
+        // Add trigger if not already selected
+        return {
+          ...prev,
+          triggers: [...currentTriggers, trigger]
+        };
+      }
+    });
   };
 
   const getSelectedTriggerLabel = () => {
     if (formData.triggers.length === 0) {
       return "Egal";
     }
-    return getTriggerLabel(formData.triggers[0]);
+    if (formData.triggers.length === 1) {
+      return getTriggerLabel(formData.triggers[0]);
+    }
+    return "Mehrere Gründe";
   };
   
   const handleAddPriceThreshold = (stageIndex: number) => {
@@ -765,22 +784,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             
             {/* Grund */}
             <div>
-              <Label htmlFor="triggers">Grund</Label>
-              <Select 
-                value={formData.triggers[0]} 
-                onValueChange={(value: Trigger) => setTrigger(value)}
-              >
-                <SelectTrigger id="triggers">
-                  <SelectValue placeholder="Grund auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {triggers.map(trigger => (
-                    <SelectItem key={trigger} value={trigger}>
+              <Label htmlFor="triggers">Gründe</Label>
+              <div className="space-y-2">
+                {triggers.map(trigger => (
+                  <div key={trigger} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`trigger-${trigger}`}
+                      checked={formData.triggers.includes(trigger)}
+                      onCheckedChange={() => setTrigger(trigger)}
+                    />
+                    <Label htmlFor={`trigger-${trigger}`} className="text-sm font-normal">
                       {getTriggerLabel(trigger)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
             
           </div>

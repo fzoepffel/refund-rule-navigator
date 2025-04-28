@@ -83,7 +83,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <div>
               <div className="text-sm text-muted-foreground mb-2">Gründe</div>
               <div className="font-medium">
-                {getTriggerLabel(rule.triggers[0])}
+                {rule.triggers.map(trigger => getTriggerLabel(trigger)).join(", ")}
               </div>
             </div>
           </div>

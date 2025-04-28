@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DiscountRule } from "../models/ruleTypes";
+import { DiscountRule, Trigger } from "../models/ruleTypes";
 import { 
   getCalculationBaseLabel, 
   getRoundingRuleLabel,
@@ -113,11 +113,11 @@ const RuleList: React.FC<RuleListProps> = ({
       );
     }
 
-    if (rule.triggers[0] !== 'Egal') {
+    if (rule.triggers.length > 0) {
       parts.push(
         <span key="trigger">
-          <strong>Grund:</strong>{' '}
-          <span>{getTriggerLabel(rule.triggers[0])}</span>
+          <strong>Gründe:</strong>{' '}
+          <span>{getTriggerLabels(rule.triggers)}</span>
         </span>
       );
     }
@@ -142,6 +142,12 @@ const RuleList: React.FC<RuleListProps> = ({
     }
 
     return parts;
+  };
+
+  const getTriggerLabels = (triggers: Trigger[]) => {
+    if (triggers.length === 0) return "Egal";
+    if (triggers.length === 1) return getTriggerLabel(triggers[0]);
+    return "Mehrere Gründe";
   };
 
   return (
