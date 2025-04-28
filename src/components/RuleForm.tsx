@@ -310,14 +310,48 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       setFormData(prev => {
         const stages = [...(prev.calculationStages || [])];
         const thresholds = [...(stages[stageIndex].priceThresholds || [])];
+        
+        // Only allow removing the last threshold
+        if (thresholdIndex !== thresholds.length - 1) return prev;
+        
+        // If this is the last threshold, don't remove it
+        if (thresholds.length <= 1) return prev;
+        
+        // Remove the threshold
         thresholds.splice(thresholdIndex, 1);
+        
+        // Set the previous threshold's max to undefined
+        if (thresholdIndex > 0) {
+          thresholds[thresholdIndex - 1] = {
+            ...thresholds[thresholdIndex - 1],
+            maxPrice: undefined
+          };
+        }
+        
         stages[stageIndex] = { ...stages[stageIndex], priceThresholds: thresholds };
         return { ...prev, calculationStages: stages };
       });
     } else {
       setFormData(prev => {
         const thresholds = [...(prev.priceThresholds || [])];
+        
+        // Only allow removing the last threshold
+        if (thresholdIndex !== thresholds.length - 1) return prev;
+        
+        // If this is the last threshold, don't remove it
+        if (thresholds.length <= 1) return prev;
+        
+        // Remove the threshold
         thresholds.splice(thresholdIndex, 1);
+        
+        // Set the previous threshold's max to undefined
+        if (thresholdIndex > 0) {
+          thresholds[thresholdIndex - 1] = {
+            ...thresholds[thresholdIndex - 1],
+            maxPrice: undefined
+          };
+        }
+        
         return { ...prev, priceThresholds: thresholds };
       });
     }
@@ -600,12 +634,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     <Input 
                       id={`max-${index}`} 
                       type="number" 
-                      value={threshold.maxPrice} 
+                      value={threshold.maxPrice || ''} 
                       onChange={(e) => {
                         const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                        if (value && value <= threshold.minPrice) {
-                          return;
-                        }
                         handlePriceThresholdChange(stageIndex, index, 'maxPrice', value);
                       }}
                       min={threshold.minPrice + 1}
@@ -744,7 +775,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       <Card>
         <CardHeader>
           <CardTitle>Grundinformationen zum Regelfall</CardTitle>
-          <CardDescription>Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren.</CardDescription>
+          <CardDescription>Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -780,27 +811,33 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
 
+          {/* Grund */}
           <div>
-            
-            {/* Grund */}
-            <div>
-              <Label htmlFor="triggers">Gründe</Label>
-              <div className="space-y-2">
+            <Label htmlFor="triggers">Gründe</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {formData.triggers.length === 0 ? "Egal" : 
+                   formData.triggers.length === 1 ? getTriggerLabel(formData.triggers[0]) :
+                   `${formData.triggers.length} Gründe ausgewählt`}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full">
                 {triggers.map(trigger => (
-                  <div key={trigger} className="flex items-center space-x-2">
+                  <div key={trigger} className="flex items-center space-x-2 p-2 hover:bg-accent">
                     <Checkbox
                       id={`trigger-${trigger}`}
                       checked={formData.triggers.includes(trigger)}
                       onCheckedChange={() => setTrigger(trigger)}
                     />
-                    <Label htmlFor={`trigger-${trigger}`} className="text-sm font-normal">
+                    <Label htmlFor={`trigger-${trigger}`} className="text-sm font-normal cursor-pointer">
                       {getTriggerLabel(trigger)}
                     </Label>
                   </div>
                 ))}
-              </div>
-            </div>
-            
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Versandart */}
@@ -1026,13 +1063,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                             <Input 
                               id={`max-${index}`} 
                               type="number" 
-                              value={threshold.maxPrice} 
+                              value={threshold.maxPrice || ''} 
                               onChange={(e) => {
                                 const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                                if (value && value <= threshold.minPrice) {
-                                  // If the max value is less than or equal to min value, don't update
-                                  return;
-                                }
                                 handlePriceThresholdChange(0, index, 'maxPrice', value);
                               }}
                               min={threshold.minPrice + 1}

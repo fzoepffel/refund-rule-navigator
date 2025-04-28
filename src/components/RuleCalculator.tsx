@@ -53,7 +53,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
     if (!stage) return 0;
 
     let refund = 0;
-
+      
     switch (stage.calculationBase) {
       case 'prozent_vom_vk':
         refund = (price * (stage.value || 0)) / 100;
@@ -126,8 +126,8 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       // Apply max amount if specified
       if (rule.maxAmount && refund > rule.maxAmount) {
         return rule.maxAmount;
-      }
-
+    }
+    
       return refund;
     }
 
@@ -171,14 +171,14 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         return amount;
     }
   };
-
+  
   const handleCalculate = () => {
     setCurrentStage(0);
     setShowInitialMessage(true);
     setShowRefund(false);
     setShowFinalResult(false);
     setIsFirstRejection(true);
-    setRequestCount(prevCount => prevCount + 1);
+      setRequestCount(prevCount => prevCount + 1);
   };
 
   const handleFastForward = () => {
@@ -193,13 +193,13 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       }
     }
   };
-
+  
   const handleReject = () => {
     if (rule.hasMultipleStages && rule.calculationStages && currentStage < rule.calculationStages.length - 1) {
       setCurrentStage(prev => prev + 1);
       setShowRefund(false);
       setShowInitialMessage(true);
-    } else {
+        } else {
       // If this is the last stage or not multiple stages, go directly to final result
       setShowRefund(false);
       setShowFinalResult(true);
@@ -240,7 +240,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         };
     }
   };
-
+  
   return (
     <Card>
       <CardHeader>
@@ -258,73 +258,73 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           </div>
         ) : (
           <>
-            <div>
-              <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
-              <div className="flex items-center gap-2">
-                <Input 
-                  id="sale-price" 
-                  type="number" 
-                  value={salePrice} 
-                  onChange={(e) => setSalePrice(parseFloat(e.target.value))}
-                  min={0}
-                />
-                <div className="text-lg font-medium">€</div>
-              </div>
-            </div>
-            
+        <div>
+          <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
+          <div className="flex items-center gap-2">
+            <Input 
+              id="sale-price" 
+              type="number" 
+              value={salePrice} 
+              onChange={(e) => setSalePrice(parseFloat(e.target.value))}
+              min={0}
+            />
+            <div className="text-lg font-medium">€</div>
+          </div>
+        </div>
+        
             {!showInitialMessage && !showRefund && !showFinalResult && (
-              <Button onClick={handleCalculate} className="w-full">
-                <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
-              </Button>
-            )}
-            
+          <Button onClick={handleCalculate} className="w-full">
+            <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
+          </Button>
+        )}
+        
             {showInitialMessage && (
-              <div className="space-y-4">
+          <div className="space-y-4">
                 <Alert>
                   <AlertTitle>Preisnachlass berechnen</AlertTitle>
-                  <AlertDescription>
+              <AlertDescription>
                     {getInitialMessage()}
-                  </AlertDescription>
-                </Alert>
-                
-                <Button onClick={handleFastForward} className="w-full">
-                  <FastForward className="h-4 w-4 mr-2" /> Vorspulen
-                </Button>
-              </div>
-            )}
+              </AlertDescription>
+            </Alert>
             
+                <Button onClick={handleFastForward} className="w-full">
+              <FastForward className="h-4 w-4 mr-2" /> Vorspulen
+            </Button>
+          </div>
+        )}
+        
             {showRefund && (
-              <div className="space-y-4">
+          <div className="space-y-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
                     {formatCurrency(getCurrentRefund())}
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">Angebotener Preisnachlass</div>
-                </div>
+          </div>
 
                 <Alert className="bg-green-50 border-green-200">
                   <AlertTitle>Preisnachlass berechnen</AlertTitle>
-                  <AlertDescription>
+              <AlertDescription>
                     Vielen Dank für Ihre Geduld!
                     Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass gewähren.
-                  </AlertDescription>
-                </Alert>
-
+              </AlertDescription>
+            </Alert>
+            
                 <Button onClick={handleReject} className="w-full bg-red-500 hover:bg-red-600 text-white">
                   <XCircle className="h-4 w-4 mr-2" /> Ablehnen
-                </Button>
-              </div>
-            )}
-            
+            </Button>
+          </div>
+        )}
+        
             {showFinalResult && (
               <div className="space-y-4">
                 {getFinalResult().refund > 0 && (
                   <div className="text-center">
                     <div className="text-3xl font-bold text-green-600">
                       {formatCurrency(getFinalResult().refund)}
-                    </div>
+              </div>
                     <div className="text-sm text-muted-foreground mt-1">Endgültiger Preisnachlass</div>
-                  </div>
+                </div>
                 )}
 
                 <Alert>
