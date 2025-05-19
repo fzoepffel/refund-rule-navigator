@@ -68,6 +68,9 @@ const RuleList: React.FC<RuleListProps> = ({
               <Badge key={idx} className="text-xs">
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
+                {threshold.consultPartnerBeforePayout && (
+                  <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
+                )}
               </Badge>
             ))}
           </div>

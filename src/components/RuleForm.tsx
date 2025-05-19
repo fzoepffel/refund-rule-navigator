@@ -134,7 +134,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     { value: 'auto_return_full_refund', label: 'Automatische Retoure mit voller Kostenerstattung' },
     { value: 'discount_then_return', label: 'Preisnachlass anbieten, bei Ablehnung Retoure' },
     { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' },
-    { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, dann Merchant kontaktieren' },
+    { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren' },
     { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
   ];
   
@@ -710,6 +710,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     <Minus className="h-4 w-4" />
                   </Button>
                 </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <Checkbox
+                    id={`threshold-consult-${index}`}
+                    checked={threshold.consultPartnerBeforePayout || false}
+                    onCheckedChange={(checked) => 
+                      handlePriceThresholdChange(stageIndex, index, 'consultPartnerBeforePayout', checked)
+                    }
+                  />
+                  <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
+                    Vor Auszahlung Merchant kontaktieren
+                  </Label>
+                </div>
               </div>
             ))}
           </div>
@@ -1138,6 +1150,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Checkbox
+                            id={`threshold-consult-${index}`}
+                            checked={threshold.consultPartnerBeforePayout || false}
+                            onCheckedChange={(checked) => 
+                              handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', checked)
+                            }
+                          />
+                          <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
+                            Vor Auszahlung Merchant kontaktieren
+                          </Label>
                         </div>
                       </div>
                     ))}

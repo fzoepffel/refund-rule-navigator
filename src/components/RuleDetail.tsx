@@ -155,6 +155,11 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                           <div className="text-sm text-muted-foreground">
                             (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
                           </div>
+                          {threshold.consultPartnerBeforePayout && (
+                            <div className="text-sm text-amber-600">
+                              (Merchant kontaktieren)
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -242,6 +247,11 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                                 <div className="text-sm text-muted-foreground">
                                   (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
                                 </div>
+                                {threshold.consultPartnerBeforePayout && (
+                                  <div className="text-sm text-amber-600">
+                                    (Merchant kontaktieren)
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>

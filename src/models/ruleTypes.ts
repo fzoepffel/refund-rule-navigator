@@ -55,7 +55,8 @@ export interface PriceThreshold {
   maxPrice?: number,
   value: number,
   valueType: ThresholdValueType,
-  roundingRule: RoundingRule  // Add individual rounding rule
+  roundingRule: RoundingRule,  // Add individual rounding rule
+  consultPartnerBeforePayout?: boolean
 }
 
 export interface DiscountLevel {

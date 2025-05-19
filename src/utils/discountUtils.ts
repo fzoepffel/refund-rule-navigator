@@ -66,9 +66,9 @@ export const getThresholdValueTypeLabel = (type: ThresholdValueType): string => 
 export const getReturnStrategyLabel = (strategy: ReturnStrategy): string => {
   const labels: Record<ReturnStrategy, string> = {
     'auto_return_full_refund': 'Automatische Rückerstattung bei Retoure',
-    'discount_then_return': 'Rabatt anbieten, dann Retoure',
-    'discount_then_keep': 'Rabatt anbieten, Artikel behalten',
-    'discount_then_contact_merchant': 'Rabatt anbieten, dann Merchant kontaktieren',
+    'discount_then_return': 'Preisnachlass anbieten, bei Ablehnung Retoure',
+    'discount_then_keep': 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung',
+    'discount_then_contact_merchant': 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren',
     'contact_merchant_immediately': 'Sofort Merchant kontaktieren'
   };
   return labels[strategy] || strategy;
