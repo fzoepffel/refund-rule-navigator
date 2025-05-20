@@ -59,9 +59,9 @@ const RuleList: React.FC<RuleListProps> = ({
 
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge>{rule.value}%</Badge>;
+        return <Badge>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'fester_betrag':
-        return <Badge>{rule.value}€ Festbetrag</Badge>;
+        return <Badge>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
@@ -70,6 +70,7 @@ const RuleList: React.FC<RuleListProps> = ({
               <Badge key={idx} className="text-xs">
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
+                {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
                 {threshold.consultPartnerBeforePayout && (
                   <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
                 )}
@@ -85,6 +86,7 @@ const RuleList: React.FC<RuleListProps> = ({
               <React.Fragment key={idx}>
                 <Badge className="text-xs">
                   {level.value}{getThresholdValueTypeLabel(level.valueType)}
+                  {level.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(level.roundingRule)}`}
                 </Badge>
                 {idx < arr.length - 1 && <span className="text-xs">→</span>}
               </React.Fragment>
@@ -100,24 +102,6 @@ const RuleList: React.FC<RuleListProps> = ({
   const getContextInfoParts = (rule: DiscountRule) => {
     const parts = [];
     
-    if (rule.requestCategory === 'Egal') {
-      parts.push(
-        <span key="requestCategory">
-          <strong>Art der Anfrage:</strong>{' '}
-          <span>Widerruf und Reklamation</span>
-        </span>
-      );
-    }
-
-    if (rule.requestCategory !== 'Egal') {
-      parts.push(
-        <span key="requestCategory">
-          <strong>Art der Anfrage:</strong>{' '}
-          <span>{rule.requestCategory}</span>
-        </span>
-      );
-    }
-
     if (rule.triggers.length > 0) {
       parts.push(
         <span key="trigger">
@@ -137,11 +121,12 @@ const RuleList: React.FC<RuleListProps> = ({
       );
     }
     
-    if (rule.shippingType !== 'Egal') {
+    const shippingTypeLabel = getShippingTypeLabel(rule.shippingType);
+    if (shippingTypeLabel) {
       parts.push(
         <span key="shippingType">
           <strong>Versandart:</strong>{' '}
-          <span>{getShippingTypeLabel(rule.shippingType)}</span>
+          <span>{shippingTypeLabel}</span>
         </span>
       );
     }
@@ -150,9 +135,30 @@ const RuleList: React.FC<RuleListProps> = ({
   };
 
   const getTriggerLabels = (triggers: Trigger[]) => {
-    if (triggers.length === 0) return "Egal";
-    if (triggers.length === 1) return getTriggerLabel(triggers[0]);
-    return "Mehrere Gründe";
+    const mangelTriggers: Trigger[] = [
+      'Artikel beschädigt/funktioniert nicht mehr',
+      'Versandverpackung und Artikel beschädigt',
+      'Teile oder Zubehör fehlen',
+      'Falscher Artikel'
+    ];
+
+    // Check if all Mangel triggers are selected
+    const allMangelTriggersSelected = mangelTriggers.every(trigger => triggers.includes(trigger));
+    
+    // If all Mangel triggers are selected, only show "Mangel"
+    if (allMangelTriggersSelected) {
+      return triggers
+        .filter(trigger => !mangelTriggers.includes(trigger) && trigger !== 'Mangel') // Remove both Mangel and its triggers
+        .concat(['Mangel']) // Add Mangel once
+        .map(trigger => getTriggerLabel(trigger))
+        .join(", ");
+    }
+    
+    // Otherwise, show only the specific triggers that are selected
+    return triggers
+      .filter(trigger => trigger !== 'Mangel') // Remove "Mangel" if it exists
+      .map(trigger => getTriggerLabel(trigger))
+      .join(", ");
   };
 
   return (
@@ -199,72 +205,58 @@ const RuleList: React.FC<RuleListProps> = ({
                       {getContextInfoParts(rule).map((part, index, array) => (
                         <React.Fragment key={`fragment-${index}`}>
                           {part}
-                          {index < array.length - 1 }
+                          {index < array.length - 1 && <span className="mx-1">•</span>}
                         </React.Fragment>
                       ))}
                     </div>
 
-                    {/* Customer options display */}
-                    {rule.customerOptions && rule.customerOptions.length > 0 && (
-                      <div className="text-muted-foreground mt-2 text-xs">
-                        <strong>Kundenoptionen:</strong>{' '}
-                        {rule.customerOptions.join(", ")}
-                      </div>
-                    )}
-
                     {/* Calculation information */}
                     <div className="flex flex-col gap-2 text-xs text-muted-foreground mt-1">
-                      {rule.customerOptions?.includes('Preisnachlass') && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <strong>Berechnung:</strong>{' '}
-                            {rule.hasMultipleStages ? (
-                              <span>Mehrere Angebotsstufen</span>
-                            ) : (
-                              <>
-                                <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                                {rule.roundingRule !== 'keine_rundung' && (
-                                  <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                      <div className="flex items-center gap-2">
+                        <strong>Berechnung:</strong>{' '}
+                        {rule.hasMultipleStages ? (
+                          <span>Mehrere Angebotsstufen</span>
+                        ) : (
+                          <>
+                            <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
+                          </>
+                        )}
+                      </div>
+                      {rule.hasMultipleStages && (
+                        <div className="flex flex-wrap gap-4">
+                          {rule.calculationStages?.map((stage, idx) => (
+                            <div key={idx} className="flex items-center gap-2">
+                              <strong>Stufe {idx + 1}:</strong>
+                              <div>
+                                {stage.calculationBase === 'prozent_vom_vk' && (
+                                  <Badge>{stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}</Badge>
                                 )}
-                              </>
-                            )}
-                          </div>
-                          {rule.hasMultipleStages && (
-                            <div className="flex flex-wrap gap-4">
-                              {rule.calculationStages?.map((stage, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                  <strong>Stufe {idx + 1}:</strong>
-                                  <div>
-                                    {stage.calculationBase === 'prozent_vom_vk' && (
-                                      <Badge>{stage.value}%</Badge>
-                                    )}
-                                    {stage.calculationBase === 'fester_betrag' && (
-                                      <Badge>{stage.value}€ Festbetrag</Badge>
-                                    )}
-                                    {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
-                                      <div className="flex flex-wrap gap-1">
-                                        {stage.priceThresholds.map((threshold, tIdx) => (
-                                          <Badge key={tIdx} className="text-xs">
-                                            {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
-                                            {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
-                                            {threshold.consultPartnerBeforePayout && (
-                                              <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
-                                            )}
-                                          </Badge>
-                                        ))}
-                                      </div>
-                                    )}
+                                {stage.calculationBase === 'fester_betrag' && (
+                                  <Badge>{stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}</Badge>
+                                )}
+                                {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
+                                  <div className="flex flex-wrap gap-1">
+                                    {stage.priceThresholds.map((threshold, tIdx) => (
+                                      <Badge key={tIdx} className="text-xs">
+                                        {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
+                                        {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
+                                        {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
+                                        {threshold.consultPartnerBeforePayout && (
+                                          <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
+                                        )}
+                                      </Badge>
+                                    ))}
                                   </div>
-                                </div>
-                              ))}
+                                )}
+                              </div>
                             </div>
-                          )}
-                        </>
+                          ))}
+                        </div>
                       )}
                     </div>
 
                     {/* Discount details */}
-                    {!rule.hasMultipleStages && rule.customerOptions?.includes('Preisnachlass') && (
+                    {!rule.hasMultipleStages && (
                       <div className="mt-2">
                         {renderDiscountInfo(rule)}
                       </div>

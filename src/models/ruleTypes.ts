@@ -1,4 +1,4 @@
-export type RequestCategory = 'Egal' | 'Widerruf' | 'Reklamation';
+export type RequestCategory = 'Geschmacksretoure' | 'Mangel';
 
 export type RequestType = 
   'Egal' | 
@@ -9,16 +9,12 @@ export type RequestType =
   'Rücksendung gewünscht';
 
 export type Trigger = 
-  'Egal' | 
-  'Leistung oder Qualität ungenügend' | 
-  'Inkompatibel oder für den vorgesehenen Einsatz ungeeignet' | 
-  'Gefällt mir nicht mehr' | 
-  'Irrtümlich bestellt' | 
-  'Günstigeren Preis entdeckt' | 
-  'Artikel beschädigt/funktioniert nicht mehr' | 
-  'Versandverpackung und Artikel beschädigt' | 
-  'Teile oder Zubehör fehlen' | 
-  'Falscher Artikel';
+  | 'Geschmacksretoure'
+  | 'Mangel'
+  | 'Artikel beschädigt/funktioniert nicht mehr'
+  | 'Versandverpackung und Artikel beschädigt'
+  | 'Teile oder Zubehör fehlen'
+  | 'Falscher Artikel';
 
 export type CalculationBase = 
   'keine_berechnung' | 
@@ -78,8 +74,8 @@ export interface CalculationStage {
 export interface DiscountRule {
   id: string,
   name: string,
-  requestCategory: RequestCategory,
   requestType: RequestType,
+  requestCategory?: RequestCategory[],  // Make it optional and an array
   packageOpened?: 'yes' | 'no' | 'Egal',
   triggers: Trigger[],
   calculationBase: CalculationBase,

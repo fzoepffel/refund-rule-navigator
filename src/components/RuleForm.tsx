@@ -53,7 +53,7 @@ interface DiscountRule {
   id: string;
   name: string;
   requestType: RequestType;
-  requestCategory: RequestCategory;
+  requestCategory: RequestCategory[];
   triggers: Trigger[];
   calculationBase: CalculationBase;
   roundingRule: RoundingRule;
@@ -86,8 +86,15 @@ const defaultRule: DiscountRule = {
   id: "",
   name: "",
   requestType: "Egal",
-  requestCategory: "Egal", // Ensure default is "Egal"
-  triggers: ["Egal"],
+  requestCategory: [] as RequestCategory[],
+  triggers: [
+    'Geschmacksretoure',
+    'Mangel',
+    'Artikel beschädigt/funktioniert nicht mehr',
+    'Versandverpackung und Artikel beschädigt',
+    'Teile oder Zubehör fehlen',
+    'Falscher Artikel'
+  ],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
   returnHandling: "keine_retoure",
@@ -95,14 +102,15 @@ const defaultRule: DiscountRule = {
   packageOpened: "Egal",
   returnStrategy: "discount_then_return",
   value: 10,
-  isCompleteRule: false,         // Default to false
-  consultPartnerBeforePayout: true,  // Default to true
+  isCompleteRule: false,
+  consultPartnerBeforePayout: true,
   hasMultipleStages: false,
   calculationStages: [{
     calculationBase: "prozent_vom_vk",
     value: 10,
     roundingRule: "keine_rundung"
-  }]
+  }],
+  customerOptions: ['Preisnachlass']
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
@@ -111,19 +119,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     id: Date.now().toString(),
   });
   
-  const requestCategories: RequestCategory[] = ['Egal', 'Widerruf', 'Reklamation'];
-  
-  const triggers: Trigger[] = [
-    'Egal',
-    'Leistung oder Qualität ungenügend',
-    'Inkompatibel oder für den vorgesehenen Einsatz ungeeignet',
-    'Gefällt mir nicht mehr',
-    'Irrtümlich bestellt',
-    'Günstigeren Preis entdeckt',
+  const mainTriggers: Trigger[] = ['Geschmacksretoure', 'Mangel'];
+  const mangelTriggers: Trigger[] = [
     'Artikel beschädigt/funktioniert nicht mehr',
     'Versandverpackung und Artikel beschädigt',
     'Teile oder Zubehör fehlen',
-    'Falscher Artikel',
+    'Falscher Artikel'
   ];
   
   const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel'];
@@ -140,34 +141,57 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
   ];
   
+  // Effect to handle Mangel trigger selection/deselection
+  useEffect(() => {
+    if (formData.triggers.includes('Mangel')) {
+      // Add all Mangel triggers if they're not already selected
+      const newTriggers = [...formData.triggers];
+      mangelTriggers.forEach(trigger => {
+        if (!newTriggers.includes(trigger)) {
+          newTriggers.push(trigger);
+        }
+      });
+      setFormData(prev => ({ ...prev, triggers: newTriggers }));
+    } else {
+      // Remove all Mangel triggers if Mangel is deselected
+      const newTriggers = formData.triggers.filter(trigger => !mangelTriggers.includes(trigger));
+      setFormData(prev => ({ ...prev, triggers: newTriggers }));
+    }
+  }, [formData.triggers.includes('Mangel')]);
+  
   // Generate rule name according to new schema
   const generateRuleName = () => {
     if (formData.name) return formData.name;
     
     const parts: string[] = [];
 
-    // Part 1: Art der Anfrage
-    if (formData.requestCategory !== "Egal") {
-      parts.push(formData.requestCategory);
+    // Part 1: Main triggers (Geschmacksretoure/Mangel)
+    const mainSelectedTriggers = formData.triggers.filter(t => mainTriggers.includes(t));
+    
+    // Check if all Mangel triggers are selected
+    const allMangelTriggersSelected = mangelTriggers.every(trigger => formData.triggers.includes(trigger));
+    
+    // If all Mangel triggers are selected, show "Mangel" instead of individual triggers
+    if (allMangelTriggersSelected) {
+      const triggersWithoutMangel = mainSelectedTriggers.filter(t => t !== 'Mangel');
+      if (triggersWithoutMangel.length > 0) {
+        parts.push(triggersWithoutMangel.join(", "));
+      }
+      parts.push("Mangel");
     } else {
-      parts.push("Widerruf und Reklamation");
-    }
-
-    // Part 2: Grund
-    if (formData.triggers.length > 0) {
-      if (formData.triggers.length === 1 && formData.triggers[0] !== "Egal") {
-        parts.push(formData.triggers[0]);
-      } else if (formData.triggers.length > 1) {
-        parts.push("Mehrere Gründe");
+      // Otherwise, show only the specific triggers that are selected
+      const specificTriggers = formData.triggers.filter(t => t !== 'Mangel');
+      if (specificTriggers.length > 0) {
+        parts.push(specificTriggers.join(", "));
       }
     }
 
-    // Part 4: Versandart
+    // Part 2: Versandart
     if (formData.shippingType !== "Egal") {
-      parts.push(formData.shippingType === "Paket" ? "Paket" : "Spedition");
-    } 
+      parts.push(formData.shippingType);
+    }
 
-    // Part 5: Produkt geöffnet
+    // Part 3: Produkt geöffnet
     if (formData.packageOpened === "yes") {
       parts.push("Produkt geöffnet");
     } else if (formData.packageOpened === "no") {
@@ -805,40 +829,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </p>
           </div>
           
-          {/* Art der Anfrage */}
-          <div>
-            <Label htmlFor="requestCategory">Art der Anfrage</Label>
-            <Select 
-              value={formData.requestCategory || 'Egal'} 
-              onValueChange={(value: RequestCategory) => handleChange("requestCategory", value)}
-            >
-              <SelectTrigger id="requestCategory">
-                <SelectValue placeholder="Art der Anfrage auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {requestCategories.map(category => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Grund */}
+          {/* Gründe */}
           <div>
             <Label htmlFor="triggers">Gründe</Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
-                  {formData.triggers.length === 0 ? "Egal" : 
+                  {formData.triggers.length === 0 ? "Bitte auswählen" : 
                    formData.triggers.length === 1 ? getTriggerLabel(formData.triggers[0]) :
                    `${formData.triggers.length} Gründe ausgewählt`}
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-full">
-                {triggers.map(trigger => (
+                {/* Main triggers */}
+                {mainTriggers.map(trigger => (
                   <div key={trigger} className="flex items-center space-x-2 p-2 hover:bg-accent">
                     <Checkbox
                       id={`trigger-${trigger}`}
@@ -850,6 +855,25 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     </Label>
                   </div>
                 ))}
+                
+                {/* Mangel specific triggers - only show if Mangel is selected */}
+                {formData.triggers.includes('Mangel') && (
+                  <>
+                    <Separator className="my-2" />
+                    {mangelTriggers.map(trigger => (
+                      <div key={trigger} className="flex items-center space-x-2 p-2 hover:bg-accent pl-6">
+                        <Checkbox
+                          id={`trigger-${trigger}`}
+                          checked={formData.triggers.includes(trigger)}
+                          onCheckedChange={() => setTrigger(trigger)}
+                        />
+                        <Label htmlFor={`trigger-${trigger}`} className="text-sm font-normal cursor-pointer">
+                          {getTriggerLabel(trigger)}
+                        </Label>
+                      </div>
+                    ))}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -896,342 +920,286 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Kundenoptionen zum Vorgehen</CardTitle>
-          <CardDescription>Hier wird definiert, welche Optionen dem Kunden angeboten werden sollen.</CardDescription>
+          <CardTitle>Berechnungsgrundlage</CardTitle>
+          <CardDescription>Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {formData.customerOptions?.length === 0 ? "Keine Optionen ausgewählt" : 
-                     formData.customerOptions?.length === 1 ? formData.customerOptions[0] :
-                     `${formData.customerOptions?.length} Optionen ausgewählt`}
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full">
-                  {['Preisnachlass', 'Umtausch', 'Ersatzteil', 'Rücksendung'].map(option => (
-                    <div key={option} className="flex items-center space-x-2 p-2 hover:bg-accent">
-                      <Checkbox
-                        id={`option-${option}`}
-                        checked={formData.customerOptions?.includes(option as CustomerOption)}
-                        onCheckedChange={() => {
-                          setFormData(prev => {
-                            const currentOptions = prev.customerOptions || [];
-                            if (currentOptions.includes(option as CustomerOption)) {
-                              return {
-                                ...prev,
-                                customerOptions: currentOptions.filter(o => o !== option)
-                              };
-                            } else {
-                              return {
-                                ...prev,
-                                customerOptions: [...currentOptions, option as CustomerOption]
-                              };
-                            }
-                          });
-                        }}
-                      />
-                      <Label htmlFor={`option-${option}`} className="text-sm font-normal cursor-pointer">
-                        {option}
-                      </Label>
-                    </div>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="hasMultipleStages"
+                checked={formData.hasMultipleStages}
+                onCheckedChange={(checked) => handleChange("hasMultipleStages", checked)}
+              />
+              <Label htmlFor="hasMultipleStages">Mehrere Angebotsstufen</Label>
             </div>
-
-            {formData.customerOptions?.includes('Preisnachlass') && (
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="hasMultipleStages"
-                    checked={formData.hasMultipleStages}
-                    onCheckedChange={(checked) => handleChange("hasMultipleStages", checked)}
-                  />
-                  <Label htmlFor="hasMultipleStages">Mehrere Angebotsstufen</Label>
-                </div>
-                <p className="text-sm text-muted-foreground pl-6">
-                  Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
-                  Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
-                </p>
-              </div>
-            )}
+            <p className="text-sm text-muted-foreground pl-6">
+              Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
+              Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
+            </p>
           </div>
-        </CardContent>
-      </Card>
 
-      {formData.customerOptions?.includes('Preisnachlass') && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Berechnungsgrundlage</CardTitle>
-            <CardDescription>Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {formData.hasMultipleStages ? (
-              <div className="space-y-6">
-                {(formData.calculationStages || []).map((stage, index) => (
-                  <div key={index} className="border rounded-lg p-4 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-medium">Stufe {index + 1}</h3>
-                      {index > 0 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveCalculationStage(index)}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`calculationBase-${index}`}>Art der Berechnung</Label>
-                      <Select 
-                        value={stage.calculationBase} 
-                        onValueChange={(value: CalculationBase) => handleCalculationStageChange(index, "calculationBase", value)}
+          {formData.hasMultipleStages ? (
+            <div className="space-y-6">
+              {(formData.calculationStages || []).map((stage, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium">Stufe {index + 1}</h3>
+                    {index > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveCalculationStage(index)}
                       >
-                        <SelectTrigger id={`calculationBase-${index}`}>
-                          <SelectValue placeholder="Berechnungsgrundlage auswählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {calculationBases.map(base => (
-                            <SelectItem key={base} value={base}>
-                              {getCalculationBaseLabel(base)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Stage-specific calculation fields */}
-                    {renderCalculationFields(stage, index)}
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
-                ))}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddCalculationStage}
-                >
-                  <Plus className="h-4 w-4 mr-2" /> Weitere Stufe hinzufügen
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="calculationBase">Art der Berechnung</Label>
-                  <Select 
-                    value={formData.calculationBase} 
-                    onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
-                  >
-                    <SelectTrigger id="calculationBase">
-                      <SelectValue placeholder="Berechnungsgrundlage auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {calculationBases.map(base => (
-                        <SelectItem key={base} value={base}>
-                          {getCalculationBaseLabel(base)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Single calculation fields */}
-                {formData.calculationBase === 'prozent_vom_vk' && (
+                  
                   <div>
-                    <Label htmlFor="value">Prozentsatz</Label>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        id="value" 
-                        type="number" 
-                        value={formData.value || ''} 
-                        onChange={(e) => handleChange("value", parseFloat(e.target.value))}
-                        min={0}
-                      />
-                      <div className="text-lg font-medium">%</div>
-                    </div>
-                  </div>
-                )}
-
-                {formData.calculationBase === 'fester_betrag' && (
-                  <div>
-                    <Label htmlFor="value">Betrag (€)</Label>
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        id="value" 
-                        type="number" 
-                        value={formData.value || ''} 
-                        onChange={(e) => handleChange("value", parseFloat(e.target.value))}
-                        min={0}
-                      />
-                      <div className="text-lg font-medium">€</div>
-                    </div>
-                  </div>
-                )}
-
-                {formData.calculationBase === 'preisstaffel' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <Label>Preisstaffelung</Label>
-                    </div>
-                    
-                    {(formData.priceThresholds || []).map((threshold, index) => (
-                      <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <Label htmlFor={`min-${index}`}>Min (€)</Label>
-                            <Input 
-                              id={`min-${index}`} 
-                              type="number" 
-                              value={threshold.minPrice} 
-                              disabled
-                              className="bg-muted"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor={`max-${index}`}>Max (€)</Label>
-                            <Input 
-                              id={`max-${index}`} 
-                              type="number" 
-                              value={threshold.maxPrice || ''} 
-                              onChange={(e) => {
-                                const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                                handlePriceThresholdChange(0, index, 'maxPrice', value);
-                              }}
-                              min={threshold.minPrice + 1}
-                              placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-end gap-2">
-                          <div className="flex-1">
-                            <Label htmlFor={`value-${index}`}>Wert</Label>
-                            <Input 
-                              id={`value-${index}`} 
-                              type="number" 
-                              value={threshold.value} 
-                              onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
-                              min={0}
-                            />
-                          </div>
-                          <div className="w-20">
-                            <Label htmlFor={`valueType-${index}`}>Art</Label>
-                            <Select
-                              value={threshold.valueType || 'percent'}
-                              onValueChange={(value: ThresholdValueType) => 
-                                handlePriceThresholdChange(0, index, 'valueType', value)
-                              }
-                            >
-                              <SelectTrigger id={`valueType-${index}`}>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {thresholdValueTypes.map(type => (
-                                  <SelectItem key={type} value={type}>
-                                    {getThresholdValueTypeLabel(type)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-end gap-2">
-                          <div className="flex-1">
-                            <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
-                            <Select
-                              value={threshold.roundingRule}
-                              onValueChange={(value: RoundingRule) => 
-                                handlePriceThresholdChange(0, index, 'roundingRule', value)
-                              }
-                            >
-                              <SelectTrigger id={`threshold-rounding-${index}`}>
-                                <SelectValue placeholder="Rundungsregel auswählen" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {roundingRules.map(rule => (
-                                  <SelectItem key={rule} value={rule}>
-                                    {getRoundingRuleLabel(rule)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <Button 
-                            type="button" 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-10 w-10 self-end"
-                            disabled={formData.priceThresholds?.length === 1}
-                            onClick={() => handleRemovePriceThreshold(0, index)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Checkbox
-                            id={`threshold-consult-${index}`}
-                            checked={threshold.consultPartnerBeforePayout || false}
-                            onCheckedChange={(checked) => 
-                              handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', checked)
-                            }
-                          />
-                          <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
-                            Vor Auszahlung Merchant kontaktieren
-                          </Label>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
-                  <div>
-                    <Label htmlFor="roundingRule">Rundungsregel</Label>
+                    <Label htmlFor={`calculationBase-${index}`}>Art der Berechnung</Label>
                     <Select 
-                      value={formData.roundingRule} 
-                      onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+                      value={stage.calculationBase} 
+                      onValueChange={(value: CalculationBase) => handleCalculationStageChange(index, "calculationBase", value)}
                     >
-                      <SelectTrigger id="roundingRule">
-                        <SelectValue placeholder="Rundungsregel auswählen" />
+                      <SelectTrigger id={`calculationBase-${index}`}>
+                        <SelectValue placeholder="Berechnungsgrundlage auswählen" />
                       </SelectTrigger>
                       <SelectContent>
-                        {roundingRules.map(rule => (
-                          <SelectItem key={rule} value={rule}>
-                            {getRoundingRuleLabel(rule)}
+                        {calculationBases.map(base => (
+                          <SelectItem key={base} value={base}>
+                            {getCalculationBaseLabel(base)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                )}
-              </div>
-            )}
-            {formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+
+                  {/* Stage-specific calculation fields */}
+                  {renderCalculationFields(stage, index)}
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddCalculationStage}
+              >
+                <Plus className="h-4 w-4 mr-2" /> Weitere Stufe hinzufügen
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
-                <Input 
-                  id="maxAmount" 
-                  type="number" 
-                  value={formData.maxAmount || ''} 
-                  onChange={(e) => {
-                    const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                    handleChange("maxAmount", value);
-                  }}
-                  min={0}
-                  placeholder="Kein Maximum"
-                />
+                <Label htmlFor="calculationBase">Art der Berechnung</Label>
+                <Select 
+                  value={formData.calculationBase} 
+                  onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
+                >
+                  <SelectTrigger id="calculationBase">
+                    <SelectValue placeholder="Berechnungsgrundlage auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {calculationBases.map(base => (
+                      <SelectItem key={base} value={base}>
+                        {getCalculationBaseLabel(base)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+
+              {/* Single calculation fields */}
+              {formData.calculationBase === 'prozent_vom_vk' && (
+                <div>
+                  <Label htmlFor="value">Prozentsatz</Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="value" 
+                      type="number" 
+                      value={formData.value || ''} 
+                      onChange={(e) => handleChange("value", parseFloat(e.target.value))}
+                      min={0}
+                    />
+                    <div className="text-lg font-medium">%</div>
+                  </div>
+                </div>
+              )}
+
+              {formData.calculationBase === 'fester_betrag' && (
+                <div>
+                  <Label htmlFor="value">Betrag (€)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="value" 
+                      type="number" 
+                      value={formData.value || ''} 
+                      onChange={(e) => handleChange("value", parseFloat(e.target.value))}
+                      min={0}
+                    />
+                    <div className="text-lg font-medium">€</div>
+                  </div>
+                </div>
+              )}
+
+              {formData.calculationBase === 'preisstaffel' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <Label>Preisstaffelung</Label>
+                  </div>
+                  
+                  {(formData.priceThresholds || []).map((threshold, index) => (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label htmlFor={`min-${index}`}>Min (€)</Label>
+                          <Input 
+                            id={`min-${index}`} 
+                            type="number" 
+                            value={threshold.minPrice} 
+                            disabled
+                            className="bg-muted"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`max-${index}`}>Max (€)</Label>
+                          <Input 
+                            id={`max-${index}`} 
+                            type="number" 
+                            value={threshold.maxPrice || ''} 
+                            onChange={(e) => {
+                              const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                              handlePriceThresholdChange(0, index, 'maxPrice', value);
+                            }}
+                            min={threshold.minPrice + 1}
+                            placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Label htmlFor={`value-${index}`}>Wert</Label>
+                          <Input 
+                            id={`value-${index}`} 
+                            type="number" 
+                            value={threshold.value} 
+                            onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
+                            min={0}
+                          />
+                        </div>
+                        <div className="w-20">
+                          <Label htmlFor={`valueType-${index}`}>Art</Label>
+                          <Select
+                            value={threshold.valueType || 'percent'}
+                            onValueChange={(value: ThresholdValueType) => 
+                              handlePriceThresholdChange(0, index, 'valueType', value)
+                            }
+                          >
+                            <SelectTrigger id={`valueType-${index}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {thresholdValueTypes.map(type => (
+                                <SelectItem key={type} value={type}>
+                                  {getThresholdValueTypeLabel(type)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
+                          <Select
+                            value={threshold.roundingRule}
+                            onValueChange={(value: RoundingRule) => 
+                              handlePriceThresholdChange(0, index, 'roundingRule', value)
+                            }
+                          >
+                            <SelectTrigger id={`threshold-rounding-${index}`}>
+                              <SelectValue placeholder="Rundungsregel auswählen" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roundingRules.map(rule => (
+                                <SelectItem key={rule} value={rule}>
+                                  {getRoundingRuleLabel(rule)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-10 w-10 self-end"
+                          disabled={formData.priceThresholds?.length === 1}
+                          onClick={() => handleRemovePriceThreshold(0, index)}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Checkbox
+                          id={`threshold-consult-${index}`}
+                          checked={threshold.consultPartnerBeforePayout || false}
+                          onCheckedChange={(checked) => 
+                            handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', checked)
+                          }
+                        />
+                        <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
+                          Vor Auszahlung Merchant kontaktieren
+                        </Label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+                <div>
+                  <Label htmlFor="roundingRule">Rundungsregel</Label>
+                  <Select 
+                    value={formData.roundingRule} 
+                    onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+                  >
+                    <SelectTrigger id="roundingRule">
+                      <SelectValue placeholder="Rundungsregel auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roundingRules.map(rule => (
+                        <SelectItem key={rule} value={rule}>
+                          {getRoundingRuleLabel(rule)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
+          {formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+            <div>
+              <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
+              <Input 
+                id="maxAmount" 
+                type="number" 
+                value={formData.maxAmount || ''} 
+                onChange={(e) => {
+                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                  handleChange("maxAmount", value);
+                }}
+                min={0}
+                placeholder="Kein Maximum"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
       
       {formData.requestType === 'Artikel zurücksenden' && (
         <Card>

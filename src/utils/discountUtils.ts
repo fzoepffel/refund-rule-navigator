@@ -33,13 +33,13 @@ export const getCalculationBaseLabel = (base: CalculationBase): string => {
 export const getRoundingRuleLabel = (rule: RoundingRule): string => {
   switch (rule) {
     case 'keine_rundung':
-      return 'Keine Rundung';
+      return 'keine Rundung';
     case 'auf_5_euro':
-      return 'Auf 5€ aufrunden';
+      return 'auf 5€ aufrunden';
     case 'auf_10_euro':
-      return 'Auf 10€ aufrunden';
+      return 'auf 10€ aufrunden';
     case 'auf_1_euro':
-      return 'Auf 1€ aufrunden';
+      return 'auf 1€ aufrunden';
     default:
       return rule;
   }
@@ -194,4 +194,31 @@ export const formatCurrency = (value: number | string): string => {
     style: 'currency',
     currency: 'EUR',
   }).format(value);
+};
+
+export const getTriggerLabels = (triggers: Trigger[]): string => {
+  const mangelTriggers: Trigger[] = [
+    'Artikel beschädigt/funktioniert nicht mehr',
+    'Versandverpackung und Artikel beschädigt',
+    'Teile oder Zubehör fehlen',
+    'Falscher Artikel'
+  ];
+
+  // Check if all Mangel triggers are selected
+  const allMangelTriggersSelected = mangelTriggers.every(trigger => triggers.includes(trigger));
+  
+  // If all Mangel triggers are selected, only show "Mangel"
+  if (allMangelTriggersSelected) {
+    return triggers
+      .filter(trigger => !mangelTriggers.includes(trigger))
+      .concat(['Mangel'])
+      .map(getTriggerLabel)
+      .join(", ");
+  }
+  
+  // Otherwise, show only the specific triggers that are selected
+  return triggers
+    .filter(trigger => trigger !== 'Mangel') // Remove "Mangel" if it exists
+    .map(getTriggerLabel)
+    .join(", ");
 };
