@@ -104,60 +104,153 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-sm text-muted-foreground">Rückgabestrategie</div>
+              <div className="text-sm text-muted-foreground">Kundenoptionen zum Vorgehen</div>
               <div className="font-medium">
-                {rule.returnStrategy 
-                  ? getReturnStrategyLabel(rule.returnStrategy) 
-                  : 'Keine Strategie definiert'}
+                {rule.customerOptions?.length ? rule.customerOptions.join(", ") : "Keine Optionen ausgewählt"}
               </div>
             </div>
           </div>
-          
-
-          
-
 
           <Separator />
 
-          {!rule.hasMultipleStages && (
+          {rule.customerOptions?.includes('Preisnachlass') && (
             <>
-              <div>
-                <div className="text-sm text-muted-foreground">Berechnungsgrundlage</div>
-                <div className="font-medium">{getCalculationBaseLabel(rule.calculationBase)}</div>
-              </div>
-
-              {shouldShowValue && (
+              {!rule.hasMultipleStages && (
                 <>
                   <div>
-                    <div className="text-sm text-muted-foreground">Wert</div>
-                    <div className="font-medium">
-                      {rule.calculationBase === 'prozent_vom_vk' ? `${rule.value}%` : `${rule.value}€`}
-                    </div>
+                    <div className="text-sm text-muted-foreground">Berechnungsgrundlage</div>
+                    <div className="font-medium">{getCalculationBaseLabel(rule.calculationBase)}</div>
                   </div>
+
+                  {shouldShowValue && (
+                    <>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Wert</div>
+                        <div className="font-medium">
+                          {rule.calculationBase === 'prozent_vom_vk' ? `${rule.value}%` : `${rule.value}€`}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {showPriceThresholds && (
+                    <>
+                      <Separator />
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-2">Preisstaffelung</div>
+                        <div className="space-y-2">
+                          {rule.priceThresholds.map((threshold, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <div>
+                                {threshold.minPrice}€ 
+                                {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
+                              </div>
+                              <div className="font-medium">
+                                {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
+                              </div>
+                              {threshold.consultPartnerBeforePayout && (
+                                <div className="text-sm text-amber-600">
+                                  (Merchant kontaktieren)
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {showDiscountLevels && (
+                    <>
+                      <Separator />
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-2">Nachlassstaffelung</div>
+                        <div className="flex items-center gap-2">
+                          {rule.discountLevels.map((level, index, array) => (
+                            <React.Fragment key={index}>
+                              <Badge>
+                                {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
+                                <span className="ml-1 text-xs opacity-70">
+                                  ({getRoundingRuleLabel(level.roundingRule)})
+                                </span>
+                              </Badge>
+                              {index < array.length - 1 && <span>→</span>}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {shouldShowGeneralRounding && (
+                    <>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Rundungsregel</div>
+                        <div className="font-medium">{getRoundingRuleLabel(rule.roundingRule)}</div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
-              {showPriceThresholds && (
+              {rule.hasMultipleStages && rule.calculationStages && rule.calculationStages.length > 0 && (
                 <>
                   <Separator />
                   <div>
-                    <div className="text-sm text-muted-foreground mb-2">Preisstaffelung</div>
-                    <div className="space-y-2">
-                      {rule.priceThresholds.map((threshold, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <div>
-                            {threshold.minPrice}€ 
-                            {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
+                    <div className="text-sm text-muted-foreground mb-2">Angebotsstufen</div>
+                    <div className="space-y-4">
+                      {rule.calculationStages.map((stage, index) => (
+                        <div key={index} className="border rounded-lg p-4 space-y-2">
+                          <div className="font-medium">Stufe {index + 1}</div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-sm text-muted-foreground">Berechnungsgrundlage</div>
+                              <div className="font-medium">{getCalculationBaseLabel(stage.calculationBase)}</div>
+                            </div>
+                            {stage.calculationBase !== 'preisstaffel' && stage.roundingRule !== "keine_rundung" && (
+                              <div>
+                                <div className="text-sm text-muted-foreground">Rundungsregel</div>
+                                <div className="font-medium">{getRoundingRuleLabel(stage.roundingRule)}</div>
+                              </div>
+                            )}
                           </div>
-                          <div className="font-medium">
-                            {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
-                          </div>
-                          {threshold.consultPartnerBeforePayout && (
-                            <div className="text-sm text-amber-600">
-                              (Merchant kontaktieren)
+
+                          {stage.calculationBase === 'prozent_vom_vk' || stage.calculationBase === 'fester_betrag' ? (
+                            <div>
+                              <div className="text-sm text-muted-foreground">Wert</div>
+                              <div className="font-medium">
+                                {stage.calculationBase === 'prozent_vom_vk' ? `${stage.value}%` : `${stage.value}€`}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && stage.priceThresholds.length > 0 && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-2">Preisstaffelung</div>
+                              <div className="space-y-2">
+                                {stage.priceThresholds.map((threshold, thresholdIndex) => (
+                                  <div key={thresholdIndex} className="flex items-center gap-2">
+                                    <div>
+                                      {threshold.minPrice}€ 
+                                      {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
+                                    </div>
+                                    <div className="font-medium">
+                                      {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                      (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
+                                    </div>
+                                    {threshold.consultPartnerBeforePayout && (
+                                      <div className="text-sm text-amber-600">
+                                        (Merchant kontaktieren)
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -167,109 +260,14 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                 </>
               )}
 
-              {showDiscountLevels && (
+              {rule.maxAmount && (
                 <>
-                  <Separator />
                   <div>
-                    <div className="text-sm text-muted-foreground mb-2">Nachlassstaffelung</div>
-                    <div className="flex items-center gap-2">
-                      {rule.discountLevels.map((level, index, array) => (
-                        <React.Fragment key={index}>
-                          <Badge>
-                            {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
-                            <span className="ml-1 text-xs opacity-70">
-                              ({getRoundingRuleLabel(level.roundingRule)})
-                            </span>
-                          </Badge>
-                          {index < array.length - 1 && <span>→</span>}
-                        </React.Fragment>
-                      ))}
-                    </div>
+                    <div className="text-sm text-muted-foreground">Maximalbetrag</div>
+                    <div className="font-medium">{rule.maxAmount}€</div>
                   </div>
                 </>
               )}
-
-              {shouldShowGeneralRounding && (
-                <>
-                  <div>
-                    <div className="text-sm text-muted-foreground">Rundungsregel</div>
-                    <div className="font-medium">{getRoundingRuleLabel(rule.roundingRule)}</div>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-
-          {rule.hasMultipleStages && rule.calculationStages && rule.calculationStages.length > 0 && (
-            <>
-              <Separator />
-              <div>
-                <div className="text-sm text-muted-foreground mb-2">Angebotsstufen</div>
-                <div className="space-y-4">
-                  {rule.calculationStages.map((stage, index) => (
-                    <div key={index} className="border rounded-lg p-4 space-y-2">
-                      <div className="font-medium">Stufe {index + 1}</div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="text-sm text-muted-foreground">Berechnungsgrundlage</div>
-                          <div className="font-medium">{getCalculationBaseLabel(stage.calculationBase)}</div>
-                        </div>
-                        {stage.calculationBase !== 'preisstaffel' && stage.roundingRule !== "keine_rundung" && (
-                          <div>
-                            <div className="text-sm text-muted-foreground">Rundungsregel</div>
-                            <div className="font-medium">{getRoundingRuleLabel(stage.roundingRule)}</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {stage.calculationBase === 'prozent_vom_vk' || stage.calculationBase === 'fester_betrag' ? (
-                        <div>
-                          <div className="text-sm text-muted-foreground">Wert</div>
-                          <div className="font-medium">
-                            {stage.calculationBase === 'prozent_vom_vk' ? `${stage.value}%` : `${stage.value}€`}
-                          </div>
-                        </div>
-                      ) : null}
-
-                      {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && stage.priceThresholds.length > 0 && (
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-2">Preisstaffelung</div>
-                          <div className="space-y-2">
-                            {stage.priceThresholds.map((threshold, thresholdIndex) => (
-                              <div key={thresholdIndex} className="flex items-center gap-2">
-                                <div>
-                                  {threshold.minPrice}€ 
-                                  {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
-                                </div>
-                                <div className="font-medium">
-                                  {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
-                                </div>
-                                {threshold.consultPartnerBeforePayout && (
-                                  <div className="text-sm text-amber-600">
-                                    (Merchant kontaktieren)
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {rule.maxAmount && (
-            <>
-              <div>
-                <div className="text-sm text-muted-foreground">Maximalbetrag</div>
-                <div className="font-medium">{rule.maxAmount}€</div>
-              </div>
             </>
           )}
 

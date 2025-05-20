@@ -10,7 +10,8 @@ import {
   PriceThreshold,
   ShippingType,
   ReturnStrategy,
-  DiscountLevel
+  DiscountLevel,
+  CustomerOption
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
@@ -78,6 +79,7 @@ interface DiscountRule {
   minOrderAgeToDays?: number;
   notes?: string;
   requestPictures?: boolean;
+  customerOptions?: CustomerOption[];
 }
 
 const defaultRule: DiscountRule = {
@@ -892,35 +894,56 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardContent>
       </Card>
       
-      {/* Return Strategy Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Preisnachlassstrategie</CardTitle>
-          <CardDescription>Hier wird definiert, nach welcher Strategie der oben definierte Regelfall behandelt wird.</CardDescription>
+          <CardTitle>Kundenoptionen zum Vorgehen</CardTitle>
+          <CardDescription>Hier wird definiert, welche Optionen dem Kunden angeboten werden sollen.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Select 
-                value={formData.returnStrategy || 'discount_then_return'} 
-                onValueChange={(value: ReturnStrategy) => handleChange("returnStrategy", value)}
-              >
-                <SelectTrigger id="returnStrategy">
-                  <SelectValue placeholder="Rückgabestrategie auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {returnStrategies.map(strategy => (
-                    <SelectItem key={strategy.value} value={strategy.value}>
-                      {strategy.label}
-                    </SelectItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    {formData.customerOptions?.length === 0 ? "Keine Optionen ausgewählt" : 
+                     formData.customerOptions?.length === 1 ? formData.customerOptions[0] :
+                     `${formData.customerOptions?.length} Optionen ausgewählt`}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-full">
+                  {['Preisnachlass', 'Umtausch', 'Ersatzteil', 'Rücksendung'].map(option => (
+                    <div key={option} className="flex items-center space-x-2 p-2 hover:bg-accent">
+                      <Checkbox
+                        id={`option-${option}`}
+                        checked={formData.customerOptions?.includes(option as CustomerOption)}
+                        onCheckedChange={() => {
+                          setFormData(prev => {
+                            const currentOptions = prev.customerOptions || [];
+                            if (currentOptions.includes(option as CustomerOption)) {
+                              return {
+                                ...prev,
+                                customerOptions: currentOptions.filter(o => o !== option)
+                              };
+                            } else {
+                              return {
+                                ...prev,
+                                customerOptions: [...currentOptions, option as CustomerOption]
+                              };
+                            }
+                          });
+                        }}
+                      />
+                      <Label htmlFor={`option-${option}`} className="text-sm font-normal cursor-pointer">
+                        {option}
+                      </Label>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
-            {(formData.returnStrategy === 'discount_then_return' || 
-              formData.returnStrategy === 'discount_then_keep' || 
-              formData.returnStrategy === 'discount_then_contact_merchant') && (
+            {formData.customerOptions?.includes('Preisnachlass') && (
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -940,7 +963,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardContent>
       </Card>
 
-      {formData.returnStrategy !== 'auto_return_full_refund' && formData.returnStrategy !== 'contact_merchant_immediately' && (
+      {formData.customerOptions?.includes('Preisnachlass') && (
         <Card>
           <CardHeader>
             <CardTitle>Berechnungsgrundlage</CardTitle>

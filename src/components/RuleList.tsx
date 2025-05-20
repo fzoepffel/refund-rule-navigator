@@ -55,6 +55,8 @@ const RuleList: React.FC<RuleListProps> = ({
 
   // Helper function to render discount information based on calculation base
   const renderDiscountInfo = (rule: DiscountRule) => {
+    if (!rule.customerOptions?.includes('Preisnachlass')) return null;
+
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
         return <Badge>{rule.value}%</Badge>;
@@ -202,31 +204,67 @@ const RuleList: React.FC<RuleListProps> = ({
                       ))}
                     </div>
 
-                    {/* Return strategy display */}
-                    {rule.returnStrategy && (
+                    {/* Customer options display */}
+                    {rule.customerOptions && rule.customerOptions.length > 0 && (
                       <div className="text-muted-foreground mt-2 text-xs">
-                        <strong>Strategie:</strong>{' '}
-                        {getReturnStrategyLabel(rule.returnStrategy)}
+                        <strong>Kundenoptionen:</strong>{' '}
+                        {rule.customerOptions.join(", ")}
                       </div>
                     )}
 
                     {/* Calculation information */}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                      <strong>Berechnung:</strong>{' '}
-                      {rule.hasMultipleStages ? (
-                        <span>Mehrere Angebotsstufen</span>
-                      ) : (
+                    <div className="flex flex-col gap-2 text-xs text-muted-foreground mt-1">
+                      {rule.customerOptions?.includes('Preisnachlass') && (
                         <>
-                          <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                          {rule.roundingRule !== 'keine_rundung' && (
-                            <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                          <div className="flex items-center gap-2">
+                            <strong>Berechnung:</strong>{' '}
+                            {rule.hasMultipleStages ? (
+                              <span>Mehrere Angebotsstufen</span>
+                            ) : (
+                              <>
+                                <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
+                                {rule.roundingRule !== 'keine_rundung' && (
+                                  <span>{getRoundingRuleLabel(rule.roundingRule)}</span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {rule.hasMultipleStages && (
+                            <div className="flex flex-wrap gap-4">
+                              {rule.calculationStages?.map((stage, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <strong>Stufe {idx + 1}:</strong>
+                                  <div>
+                                    {stage.calculationBase === 'prozent_vom_vk' && (
+                                      <Badge>{stage.value}%</Badge>
+                                    )}
+                                    {stage.calculationBase === 'fester_betrag' && (
+                                      <Badge>{stage.value}€ Festbetrag</Badge>
+                                    )}
+                                    {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
+                                      <div className="flex flex-wrap gap-1">
+                                        {stage.priceThresholds.map((threshold, tIdx) => (
+                                          <Badge key={tIdx} className="text-xs">
+                                            {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
+                                            {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
+                                            {threshold.consultPartnerBeforePayout && (
+                                              <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
+                                            )}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </>
                       )}
                     </div>
 
                     {/* Discount details */}
-                    {!rule.hasMultipleStages && (
+                    {!rule.hasMultipleStages && rule.customerOptions?.includes('Preisnachlass') && (
                       <div className="mt-2">
                         {renderDiscountInfo(rule)}
                       </div>

@@ -50,6 +50,8 @@ export type ReturnStrategy =
   'discount_then_contact_merchant' |
   'contact_merchant_immediately';
 
+export type CustomerOption = 'Preisnachlass' | 'Umtausch' | 'Ersatzteil' | 'Rücksendung';
+
 export interface PriceThreshold {
   minPrice: number,
   maxPrice?: number,
@@ -81,6 +83,7 @@ export interface DiscountRule {
   packageOpened?: 'yes' | 'no' | 'Egal',
   triggers: Trigger[],
   calculationBase: CalculationBase,
+  customerOptions: CustomerOption[],
   returnStrategy?: ReturnStrategy,
   value?: number,
   roundingRule: RoundingRule,
