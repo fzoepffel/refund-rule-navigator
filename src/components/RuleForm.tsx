@@ -65,6 +65,7 @@ import {
   Flex,
   Radio
 } from '@mantine/core';
+import { Plus } from 'lucide-react';
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -924,14 +925,33 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </Paper>
               ))}
 
-              <MantineButton
-                variant="outline"
-                leftSection={<IconPlus size={16} />}
+              <Button
+                type="button"
                 onClick={handleAddCalculationStage}
-                size="sm"
+                className="w-full"
+                variant="outline"
               >
-                Weitere Stufe hinzufügen
-              </MantineButton>
+                <Plus className="h-4 w-4 mr-2" /> Stufe hinzufügen
+              </Button>
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="max-amount">Maximalbetrag</Label>
+                  <div className="flex items-center gap-2">
+                    <NumberInput
+                      id="max-amount"
+                      value={formData.maxAmount || ''}
+                      onChange={(value) => handleChange("maxAmount", value)}
+                      min={0}
+                      className="flex-1"
+                    />
+                    <div className="text-lg font-medium">€</div>
+                  </div>
+                  <Text size="sm" c="dimmed" pl={40}>
+                    Maximaler Betrag für alle Stufen
+                  </Text>
+                </div>
+              </div>
             </Stack>
           ) : (
             <div className="space-y-4">
@@ -985,6 +1005,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     rightSection={<Text>€</Text>}
                     rightSectionWidth={30}
                   />
+                </div>
+              )}
+
+              {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
+                <div>
+                  <Text size="sm" fw={500} mb={5}>Maximalbetrag</Text>
+                  <NumberInput
+                    value={formData.maxAmount || ''}
+                    onChange={(value) => handleChange("maxAmount", value)}
+                    min={0}
+                    rightSection={<Text>€</Text>}
+                    rightSectionWidth={30}
+                  />
+                  <Text size="xs" c="dimmed" mt={5}>
+                    Maximaler Betrag für den Preisnachlass
+                  </Text>
                 </div>
               )}
 
@@ -1088,19 +1124,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   />
                 </div>
               )}
-            </div>
-          )}
-          {formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
-            <div>
-              <Text size="sm" fw={500} mb={5}>Maximalbetrag (€) (optional)</Text>
-              <NumberInput
-                value={formData.maxAmount || ''}
-                onChange={(value) => handleChange("maxAmount", value)}
-                min={0}
-                placeholder="Kein Maximum"
-                rightSection={<Text>€</Text>}
-                rightSectionWidth={30}
-              />
             </div>
           )}
         </Stack>
