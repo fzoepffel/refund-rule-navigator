@@ -77,7 +77,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
     if (packageOpenedLabel) {
       parts.push(
         <span key="packageOpened">
-          <strong>Produkt geöffnet?:</strong>{' '}
+          <strong>Originalverpackt?:</strong>{' '}
           <span>{packageOpenedLabel}</span>
         </span>
       );
@@ -149,7 +149,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-sm text-muted-foreground">Paket geöffnet</div>
+              <div className="text-sm text-muted-foreground">Originalverpackt?</div>
               <div className="font-medium">
                 {getPackageOpenedLabel(rule.packageOpened)}
               </div>

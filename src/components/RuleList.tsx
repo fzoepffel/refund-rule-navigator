@@ -40,7 +40,7 @@ const RuleList: React.FC<RuleListProps> = ({
   // Helper function to format package opened status
   const getPackageOpenedLabel = (packageOpened?: 'yes' | 'no' | 'Egal') => {
     if (!packageOpened || packageOpened === 'Egal') return '';
-    return packageOpened === 'yes' ? 'Produkt geöffnet' : 'Produkt ungeöffnet';
+    return packageOpened === 'yes' ? 'Ja' : 'Nein';
   };
 
   // Helper function to get shipping type in German
@@ -115,7 +115,7 @@ const RuleList: React.FC<RuleListProps> = ({
     if (packageOpenedLabel) {
       parts.push(
         <span key="packageOpened">
-          <strong>Produkt geöffnet?:</strong>{' '}
+          <strong>Originalverpackt?:</strong>{' '}
           <span>{packageOpenedLabel}</span>
         </span>
       );

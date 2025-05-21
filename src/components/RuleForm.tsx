@@ -191,11 +191,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       parts.push(formData.shippingType);
     }
 
-    // Part 3: Produkt geöffnet
+    // Part 3: Originalverpackt
     if (formData.packageOpened === "yes") {
-      parts.push("Produkt geöffnet");
+      parts.push("originalverpackt");
     } else if (formData.packageOpened === "no") {
-      parts.push("Produkt nicht geöffnet");
+      parts.push("nicht originalverpackt ");
     }
 
     return parts.filter(part => part).join(", ");
@@ -910,9 +910,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             </Select>
           </div>
           
-          {/* Produkt geöffnet? */}
+          {/* Originalverpackt? */}
           <div>
-            <Label htmlFor="packageOpened">Produkt geöffnet?</Label>
+            <Label htmlFor="packageOpened">Originalverpackt?</Label>
             <Select 
               value={formData.packageOpened || 'Egal'} 
               onValueChange={(value: 'yes' | 'no' | 'Egal') => handleChange("packageOpened", value)}
