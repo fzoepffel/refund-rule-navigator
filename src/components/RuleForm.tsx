@@ -173,13 +173,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         label: getTriggerLabel(trigger)
       }))
     },
-    {
+    ...(formData.triggers.includes('Mangel') ? [{
       group: 'Mangel-spezifische Gründe',
       items: mangelTriggers.map(trigger => ({
         value: trigger,
         label: getTriggerLabel(trigger)
       }))
-    }
+    }] : [])
   ];
   
   // Effect to handle Mangel trigger selection/deselection
