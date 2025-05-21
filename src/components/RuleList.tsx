@@ -222,7 +222,7 @@ const RuleList: React.FC<RuleListProps> = ({
 
                   {/* Calculation information */}
                   <Stack gap="xs" mt="xxxxs">
-                    <Group gap="xs" mb="xxxxs">
+                    <Group gap="xs" mt="xxxxs">
                       <Text size="sm" c="dimmed" fw={500}>Berechnung:</Text>
                       {rule.hasMultipleStages ? (
                         <Text size="sm" c="dimmed">Mehrere Angebotsstufen</Text>
@@ -231,9 +231,9 @@ const RuleList: React.FC<RuleListProps> = ({
                       )}
                     </Group>
                     {rule.hasMultipleStages && (
-                      <Stack gap="xs">
+                      <Stack gap="xs" mt="xxxxs">
                         {rule.calculationStages?.map((stage, idx) => (
-                          <Group key={idx} gap="xs">
+                          <Group key={idx} gap="xs" mt="xxxxs">
                             <Text size="sm" c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
                             <Box>
                               {stage.calculationBase === 'prozent_vom_vk' && (
@@ -247,7 +247,7 @@ const RuleList: React.FC<RuleListProps> = ({
                                 </Badge>
                               )}
                               {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
-                                <Group gap="xs" wrap="wrap">
+                                <Group gap="xs" wrap="wrap" mt="xxxxs">
                                   {stage.priceThresholds.map((threshold, tIdx) => (
                                     <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none' } }}>
                                       {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
