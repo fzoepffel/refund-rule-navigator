@@ -62,7 +62,7 @@ interface DiscountRule {
   packageOpened: 'yes' | 'no' | 'Egal';
   returnStrategy: ReturnStrategy;
   value: number;
-  isCompleteRule: boolean;
+  isCompleteRule?: boolean;
   consultPartnerBeforePayout: boolean;
   hasMultipleStages?: boolean;
   calculationStages?: {
@@ -80,6 +80,13 @@ interface DiscountRule {
   notes?: string;
   requestPictures?: boolean;
   customerOptions?: CustomerOption[];
+}
+
+interface FormData {
+  ruleName: string;
+  triggers: string[];
+  priceThreshold: number;
+  partnerConsultation: boolean;
 }
 
 const defaultRule: DiscountRule = {
@@ -102,7 +109,6 @@ const defaultRule: DiscountRule = {
   packageOpened: "Egal",
   returnStrategy: "discount_then_return",
   value: 10,
-  isCompleteRule: false,
   consultPartnerBeforePayout: true,
   hasMultipleStages: false,
   calculationStages: [{
@@ -114,9 +120,27 @@ const defaultRule: DiscountRule = {
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
-  const [formData, setFormData] = useState<DiscountRule>(rule || { 
-    ...defaultRule, 
+  const [formData, setFormData] = useState<DiscountRule>({
     id: Date.now().toString(),
+    name: '',
+    requestType: 'Egal',
+    requestCategory: [],
+    triggers: [],
+    calculationBase: 'prozent_vom_vk',
+    roundingRule: 'keine_rundung',
+    returnHandling: 'keine_retoure',
+    shippingType: 'Egal',
+    packageOpened: 'Egal',
+    returnStrategy: 'discount_then_return',
+    value: 0,
+    consultPartnerBeforePayout: false,
+    hasMultipleStages: false,
+    calculationStages: [{
+      calculationBase: 'prozent_vom_vk',
+      value: 0,
+      roundingRule: 'keine_rundung'
+    }],
+    customerOptions: ['Preisnachlass']
   });
   
   const mainTriggers: Trigger[] = ['Geschmacksretoure', 'Mangel'];
@@ -248,21 +272,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   }, [formData.returnStrategy]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
-    setFormData(prev => {
-      const newData = { ...prev, [field]: value };
-      
-      // If calculation base is changed to preisstaffel, create first threshold
-      if (field === 'calculationBase' && value === 'preisstaffel' && (!prev.priceThresholds || prev.priceThresholds.length === 0)) {
-        newData.priceThresholds = [{
-          minPrice: 0,
-          value: 10,
-          valueType: 'percent',
-          roundingRule: 'keine_rundung'
-        }];
-      }
-      
-      return newData;
-    });
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
   
   // Set the trigger directly when selected from radio group
@@ -1254,23 +1267,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Checkbox 
-                  id="isCompleteRule" 
-                  checked={formData.isCompleteRule || false}
-                  onCheckedChange={(checked) => handleChange("isCompleteRule", checked)}
-                />
-                <div>
-                  <Label htmlFor="isCompleteRule" className="text-base">
-                    Regel konnte vollständig und eindeutig erfasst werden
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Wenn die Regel nicht vollständig erfasst werden konnte, ist eine Rücksprache mit dem Partner notwendig.
-                    In diesem Fall muss auch der Haken "Rücksprache mit Partner vor Auszahlung" gesetzt sein.
-                  </p>
-                </div>
-              </div>
-            
-              <div className="flex items-center gap-2">
-                <Checkbox 
                   id="consultPartnerBeforePayout" 
                   checked={formData.consultPartnerBeforePayout || false}
                   disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
@@ -1287,6 +1283,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   )}
                 </Label>
               </div>
+              <p className="text-sm text-muted-foreground pl-6">
+              Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
+                </p>
             </div>
           
             <div>

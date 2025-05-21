@@ -281,12 +281,12 @@ const RuleList: React.FC<RuleListProps> = ({
                         rule.offerDiscountBeforeReturn ||
                         rule.sendInfoToPartner) && (
                         <div className="text-muted-foreground">
-                          <strong>Sonderregeln:</strong>{' '}
+                          <strong>Zusatzaktionen:</strong>{' '}
                           {rule.requestPictures && <span>Fotos anfordern</span>}
                           {rule.previousRefundsCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Vorherige Erstattungen prüfen</span>}
                           {rule.customerLoyaltyCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Kundentreue prüfen</span>}
                           {rule.minOrderAgeToDays && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck) ? ' • ' : ''}Min. Bestellalter: {rule.minOrderAgeToDays} Tage</span>}
-                          {rule.consultPartnerBeforePayout && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Partner vor Auszahlung konsultieren</span>}
+                          {rule.consultPartnerBeforePayout && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Rücksprache mit Partner vor Auszahlung</span>}
                           {rule.noReturnOnFullRefund && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout) ? ' • ' : ''}Keine Rücksendung bei voller Erstattung</span>}
                           {rule.offerDiscountBeforeReturn && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund) ? ' • ' : ''}Nachlass vor Rücksendung anbieten</span>}
                           {rule.sendInfoToPartner && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund || rule.offerDiscountBeforeReturn) ? ' • ' : ''}Partner informieren</span>}
