@@ -23,7 +23,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from '@mantine/core';
+import { Button, MultiSelect } from '@mantine/core';
 import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconChevronDown } from '@tabler/icons-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
@@ -163,6 +163,23 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' },
     { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren' },
     { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
+  ];
+  
+  const triggerOptions = [
+    {
+      group: 'Hauptgründe',
+      items: mainTriggers.map(trigger => ({
+        value: trigger,
+        label: getTriggerLabel(trigger)
+      }))
+    },
+    {
+      group: 'Mangel-spezifische Gründe',
+      items: mangelTriggers.map(trigger => ({
+        value: trigger,
+        label: getTriggerLabel(trigger)
+      }))
+    }
   ];
   
   // Effect to handle Mangel trigger selection/deselection
@@ -843,25 +860,36 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
 
           <div className="grid gap-2">
-            <Label>Auslöser</Label>
-            <div className="grid gap-2">
-              {mainTriggers.map((trigger) => (
-                <div key={trigger} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={trigger}
-                    checked={formData.triggers.includes(trigger)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setTrigger(trigger);
-                      } else {
-                        handleChange('triggers', formData.triggers.filter(t => t !== trigger));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={trigger}>{getTriggerLabel(trigger)}</Label>
-                </div>
-              ))}
-            </div>
+            <Label>Gründe</Label>
+            <MultiSelect
+              data={triggerOptions}
+              value={formData.triggers}
+              onChange={(value) => handleChange('triggers', value)}
+              placeholder="Gründe auswählen"
+              searchable
+              clearable
+              maxDropdownHeight={400}
+              styles={{
+                group: {
+                  fontWeight: 500,
+                  padding: '10px 12px',
+                  fontSize: '0.875rem',
+                  color: 'var(--mantine-color-gray-7)',
+                },
+                groupLabel: {
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                  color: 'var(--mantine-color-gray-7)',
+                },
+                option: {
+                  padding: '8px 12px',
+                  fontSize: '0.875rem',
+                },
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+            </p>
           </div>
 
           <div className="grid gap-2">
