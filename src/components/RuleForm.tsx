@@ -843,18 +843,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-full">
                 {/* Main triggers */}
-                {mainTriggers.map(trigger => (
-                  <div key={trigger} className="flex items-center space-x-2 p-2 hover:bg-accent">
-                    <Checkbox
-                      id={`trigger-${trigger}`}
-                      checked={formData.triggers.includes(trigger)}
-                      onCheckedChange={() => setTrigger(trigger)}
-                    />
-                    <Label htmlFor={`trigger-${trigger}`} className="text-sm font-normal cursor-pointer">
-                      {getTriggerLabel(trigger)}
-                    </Label>
-                  </div>
-                ))}
+                {mainTriggers.map(trigger => {
+                  // For Mangel, check if all secondary options are selected
+                  const isMangel = trigger === 'Mangel';
+                  const allMangelTriggersSelected = isMangel && mangelTriggers.every(t => formData.triggers.includes(t));
+                  const someMangelTriggersSelected = isMangel && mangelTriggers.some(t => formData.triggers.includes(t));
+                  const isMangelSelected = formData.triggers.includes('Mangel');
+                  
+                  return (
+                    <div key={trigger} className="flex items-center space-x-2 p-2 hover:bg-accent">
+                      <Checkbox
+                        id={`trigger-${trigger}`}
+                        checked={isMangel ? isMangelSelected : formData.triggers.includes(trigger)}
+                        indeterminate={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected}
+                        onCheckedChange={() => setTrigger(trigger)}
+                      />
+                      <Label htmlFor={`trigger-${trigger}`} className="text-sm font-normal cursor-pointer">
+                        {getTriggerLabel(trigger)}
+                      </Label>
+                    </div>
+                  );
+                })}
                 
                 {/* Mangel specific triggers - only show if Mangel is selected */}
                 {formData.triggers.includes('Mangel') && (
