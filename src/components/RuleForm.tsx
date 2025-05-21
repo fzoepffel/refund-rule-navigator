@@ -143,28 +143,14 @@ const defaultRule: DiscountRule = {
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
-  const [formData, setFormData] = useState<DiscountRule>({
-    id: Date.now().toString(),
-    name: '',
-    requestType: 'Egal',
-    requestCategory: [],
-    triggers: [],
-    calculationBase: 'prozent_vom_vk',
-    roundingRule: 'keine_rundung',
-    returnHandling: 'keine_retoure',
-    shippingType: 'Egal',
-    packageOpened: 'Egal',
-    returnStrategy: 'discount_then_return',
-    value: 0,
-    consultPartnerBeforePayout: false,
-    hasMultipleStages: false,
-    calculationStages: [{
-      calculationBase: 'prozent_vom_vk',
-      value: 0,
-      roundingRule: 'keine_rundung'
-    }],
-    customerOptions: ['Preisnachlass']
-  });
+  const [formData, setFormData] = useState<DiscountRule>(defaultRule);
+  
+  // Initialize form data with existing rule when editing
+  useEffect(() => {
+    if (rule) {
+      setFormData(rule);
+    }
+  }, [rule]);
   
   const mainTriggers: Trigger[] = ['Geschmacksretoure', 'Mangel'];
   const mangelTriggers: Trigger[] = [
