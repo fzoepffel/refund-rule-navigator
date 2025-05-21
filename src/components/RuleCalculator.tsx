@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { DiscountRule } from "../models/ruleTypes";
 import { formatCurrency } from "../utils/discountUtils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { 
+  Paper, 
+  TextInput, 
+  NumberInput, 
+  Button, 
+  Text, 
+  Stack, 
+  Group,
+  Title
+} from '@mantine/core';
 import { Calculator } from "lucide-react";
 
 interface RuleCalculatorProps {
@@ -147,45 +153,47 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   };
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Preisnachlass berechnen</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Paper p="md" withBorder>
+      <Stack gap="md">
+        <Title order={3}>Preisnachlass berechnen</Title>
+        
         <div>
-          <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
-          <div className="flex items-center gap-2">
-            <Input 
-              id="sale-price" 
-              type="number" 
-              value={salePrice} 
-              onChange={(e) => setSalePrice(parseFloat(e.target.value))}
+          <Text size="sm" fw={500} mb={5}>Verkaufspreis (VK)</Text>
+          <Group gap="xs">
+            <NumberInput
+              value={salePrice}
+              onChange={(value: number | '') => setSalePrice(value === '' ? 0 : value)}
               min={0}
+              style={{ flex: 1 }}
             />
-            <div className="text-lg font-medium">€</div>
-          </div>
+            <Text size="lg" fw={500}>€</Text>
+          </Group>
         </div>
         
-        <Button onClick={handleCalculate} className="w-full">
-          <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
+        <Button 
+          onClick={handleCalculate} 
+          fullWidth
+          leftSection={<Calculator size={16} />}
+        >
+          Nachlass berechnen
         </Button>
         
         {discountAmounts !== null && (
-          <div className="space-y-4">
+          <Stack gap="md">
             {discountAmounts.map((amount, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-green-600">
+                <Text size="xl" fw={700} c="green.6">
                   {formatCurrency(amount)}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
+                </Text>
+                <Text size="sm" c="dimmed" mt={5}>
                   {rule.hasMultipleStages ? `Angebotener Preisnachlass (Stufe ${index + 1})` : 'Angebotener Preisnachlass'}
-                </div>
+                </Text>
               </div>
             ))}
-          </div>
+          </Stack>
         )}
-      </CardContent>
-    </Card>
+      </Stack>
+    </Paper>
   );
 };
 
