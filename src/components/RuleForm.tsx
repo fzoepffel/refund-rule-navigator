@@ -42,7 +42,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert } from "@/components/ui/alert";
-import { Chip, Group, Stack, Text } from '@mantine/core';
+import { Chip, Group, Stack, Text, MultiSelect } from '@mantine/core';
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -847,7 +847,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           <div>
             <Label htmlFor="triggers">Gründe</Label>
             <Stack gap="xs">
-              <Text size="sm" fw={500}>Primäre Gründe</Text>
               <Group gap="xs">
                 {mainTriggers.map(trigger => {
                   const isMangel = trigger === 'Mangel';
@@ -870,19 +869,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
 
               {formData.triggers.includes('Mangel') && (
                 <div className="mt-2 border-l-2 border-blue-200 pl-4">
-                  <Group gap="xs">
-                    {mangelTriggers.map(trigger => (
-                      <Chip
-                        key={trigger}
-                        checked={formData.triggers.includes(trigger)}
-                        onChange={() => setTrigger(trigger)}
-                        variant="filled"
-                        color="blue"
-                      >
-                        {getTriggerLabel(trigger)}
-                      </Chip>
-                    ))}
-                  </Group>
+                  <MultiSelect
+                    label="Spezifische Mangel"
+                    placeholder="Spezifische Mängel auswählen"
+                    data={mangelTriggers.map(trigger => ({
+                      value: trigger,
+                      label: getTriggerLabel(trigger)
+                    }))}
+                    value={formData.triggers.filter(t => mangelTriggers.includes(t))}
+                    onChange={(values) => {
+                      // Remove all existing mangel triggers
+                      const newTriggers = formData.triggers.filter(t => !mangelTriggers.includes(t));
+                      // Add the selected ones back
+                      setFormData(prev => ({
+                        ...prev,
+                        triggers: [...newTriggers, ...(values as Trigger[])]
+                      }));
+                    }}
+                    searchable
+                    clearable
+                    color="blue"
+                  />
                 </div>
               )}
             </Stack>
