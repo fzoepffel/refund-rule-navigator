@@ -23,8 +23,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button, MultiSelect } from '@mantine/core';
-import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconChevronDown } from '@tabler/icons-react';
+import { Button } from "@/components/ui/button";
+import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy } from '@tabler/icons-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Select, 
@@ -42,6 +42,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert } from "@/components/ui/alert";
+import { Chip, Group, Stack, Text } from '@mantine/core';
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -163,23 +164,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' },
     { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren' },
     { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
-  ];
-  
-  const triggerOptions = [
-    {
-      group: 'Hauptgründe',
-      items: mainTriggers.map(trigger => ({
-        value: trigger,
-        label: getTriggerLabel(trigger)
-      }))
-    },
-    ...(formData.triggers.includes('Mangel') ? [{
-      group: 'Mangel-spezifische Gründe',
-      items: mangelTriggers.map(trigger => ({
-        value: trigger,
-        label: getTriggerLabel(trigger)
-      }))
-    }] : [])
   ];
   
   // Effect to handle Mangel trigger selection/deselection
@@ -827,82 +811,98 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex items-center gap-2">
-        <Button 
-          variant="subtle" 
-          leftSection={<IconArrowLeft size={16} />} 
-          onClick={onCancel}
-        >
-          Zurück
+        <Button type="button" variant="outline" size="icon" onClick={onCancel}>
+          <IconArrowLeft className="h-4 w-4" />
         </Button>
         <h2 className="text-xl font-bold flex-1">
-          {rule ? 'Regel bearbeiten' : 'Neue Regel erstellen'}
+          {rule ? "Regel bearbeiten" : "Neue Regel erstellen"}
         </h2>
+        <Button type="submit" className="flex items-center gap-2">
+          <IconDeviceFloppy className="h-4 w-4" /> Speichern
+        </Button>
       </div>
-
+      
       <Card>
         <CardHeader>
-          <CardTitle>Grundlegende Informationen</CardTitle>
-          <CardDescription>
-            Definieren Sie die grundlegenden Parameter für diese Regel.
-          </CardDescription>
+          <CardTitle>Grundinformationen zum Regelfall</CardTitle>
+          <CardDescription>Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="ruleName">Regelname</Label>
-            <Input
-              id="ruleName"
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="Name der Regel"
+          <div>
+            <Label htmlFor="name">Regelname (optional)</Label>
+            <Input 
+              id="name" 
+              value={formData.name} 
+              onChange={(e) => handleChange("name", e.target.value)} 
+              placeholder={generateRuleName()}
             />
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Gründe</Label>
-            <MultiSelect
-              data={triggerOptions}
-              value={formData.triggers}
-              onChange={(value) => handleChange('triggers', value)}
-              placeholder="Gründe auswählen"
-              searchable
-              clearable
-              maxDropdownHeight={400}
-              styles={{
-                group: {
-                  fontWeight: 500,
-                  padding: '10px 12px',
-                  fontSize: '0.875rem',
-                  color: 'var(--mantine-color-gray-7)',
-                },
-                groupLabel: {
-                  fontWeight: 500,
-                  fontSize: '0.875rem',
-                  color: 'var(--mantine-color-gray-7)',
-                },
-                option: {
-                  padding: '8px 12px',
-                  fontSize: '0.875rem',
-                },
-              }}
-            />
-            <p className="text-xs text-muted-foreground">
-              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+            <p className="text-xs text-muted-foreground mt-1">
+              Leer lassen für automatisch generierten Namen: {generateRuleName()}
             </p>
           </div>
+          
+          {/* Gründe */}
+          <div>
+            <Label htmlFor="triggers">Gründe</Label>
+            <Stack gap="xs">
+              <Text size="sm" fw={500}>Primäre Gründe</Text>
+              <Group gap="xs">
+                {mainTriggers.map(trigger => {
+                  const isMangel = trigger === 'Mangel';
+                  const allMangelTriggersSelected = isMangel && mangelTriggers.every(t => formData.triggers.includes(t));
+                  const someMangelTriggersSelected = isMangel && mangelTriggers.some(t => formData.triggers.includes(t));
+                  
+                  return (
+                    <Chip
+                      key={trigger}
+                      checked={formData.triggers.includes(trigger)}
+                      onChange={() => setTrigger(trigger)}
+                      variant={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "light" : "filled"}
+                      color={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "blue" : undefined}
+                    >
+                      {getTriggerLabel(trigger)}
+                    </Chip>
+                  );
+                })}
+              </Group>
 
-          <div className="grid gap-2">
-            <Label>Versandart</Label>
-            <Select
-              value={formData.shippingType}
-              onValueChange={(value) => handleChange('shippingType', value)}
+              {formData.triggers.includes('Mangel') && (
+                <div className="mt-2 border-l-2 border-blue-200 pl-4">
+                  <Group gap="xs">
+                    {mangelTriggers.map(trigger => (
+                      <Chip
+                        key={trigger}
+                        checked={formData.triggers.includes(trigger)}
+                        onChange={() => setTrigger(trigger)}
+                        variant="filled"
+                        color="blue"
+                      >
+                        {getTriggerLabel(trigger)}
+                      </Chip>
+                    ))}
+                  </Group>
+                </div>
+              )}
+            </Stack>
+            <Text size="xs" c="dimmed" mt="xs">
+              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+            </Text>
+          </div>
+
+          {/* Versandart */}
+          <div>
+            <Label htmlFor="shippingType">Versandart</Label>
+            <Select 
+              value={formData.shippingType || 'Egal'} 
+              onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="shippingType">
                 <SelectValue placeholder="Versandart auswählen" />
               </SelectTrigger>
               <SelectContent>
-                {shippingTypes.map((type) => (
+                {shippingTypes.map(type => (
                   <SelectItem key={type} value={type}>
                     {type}
                   </SelectItem>
@@ -910,15 +910,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="grid gap-2">
-            <Label>Originalverpackt</Label>
-            <Select
-              value={formData.packageOpened}
-              onValueChange={(value) => handleChange('packageOpened', value)}
+          
+          {/* Originalverpackt? */}
+          <div>
+            <Label htmlFor="packageOpened">Originalverpackt?</Label>
+            <Select 
+              value={formData.packageOpened || 'Egal'} 
+              onValueChange={(value: 'yes' | 'no' | 'Egal') => handleChange("packageOpened", value)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Status auswählen" />
+              <SelectTrigger id="packageOpened">
+                <SelectValue placeholder="Bitte auswählen" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Egal">Egal</SelectItem>
@@ -929,153 +930,365 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           </div>
         </CardContent>
       </Card>
-
+      
       <Card>
         <CardHeader>
-          <CardTitle>Berechnung</CardTitle>
-          <CardDescription>
-            Definieren Sie, wie der Preisnachlass berechnet werden soll.
-          </CardDescription>
+          <CardTitle>Berechnungsgrundlage</CardTitle>
+          <CardDescription>Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-2">
-            <Label>Berechnungsbasis</Label>
-            <Select
-              value={formData.calculationBase}
-              onValueChange={(value) => handleChange('calculationBase', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Berechnungsbasis auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {calculationBases.map((base) => (
-                  <SelectItem key={base} value={base}>
-                    {getCalculationBaseLabel(base)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="hasMultipleStages"
+                checked={formData.hasMultipleStages}
+                onCheckedChange={(checked) => handleChange("hasMultipleStages", checked)}
+              />
+              <Label htmlFor="hasMultipleStages">Mehrere Angebotsstufen</Label>
+            </div>
+            <p className="text-sm text-muted-foreground pl-6">
+              Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
+              Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
+            </p>
           </div>
 
-          {formData.calculationBase !== 'keine_berechnung' && (
-            <>
-              <div className="grid gap-2">
-                <Label>Rundungsregel</Label>
-                <Select
-                  value={formData.roundingRule}
-                  onValueChange={(value) => handleChange('roundingRule', value)}
+          {formData.hasMultipleStages ? (
+            <div className="space-y-6">
+              {(formData.calculationStages || []).map((stage, index) => (
+                <div key={index} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium">Stufe {index + 1}</h3>
+                    {index > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveCalculationStage(index)}
+                      >
+                        <IconMinus className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`calculationBase-${index}`}>Art der Berechnung</Label>
+                    <Select 
+                      value={stage.calculationBase} 
+                      onValueChange={(value: CalculationBase) => handleCalculationStageChange(index, "calculationBase", value)}
+                    >
+                      <SelectTrigger id={`calculationBase-${index}`}>
+                        <SelectValue placeholder="Berechnungsgrundlage auswählen" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {calculationBases.map(base => (
+                          <SelectItem key={base} value={base}>
+                            {getCalculationBaseLabel(base)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Stage-specific calculation fields */}
+                  {renderCalculationFields(stage, index)}
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddCalculationStage}
+              >
+                <IconPlus className="h-4 w-4 mr-2" /> Weitere Stufe hinzufügen
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="calculationBase">Art der Berechnung</Label>
+                <Select 
+                  value={formData.calculationBase} 
+                  onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Rundungsregel auswählen" />
+                  <SelectTrigger id="calculationBase">
+                    <SelectValue placeholder="Berechnungsgrundlage auswählen" />
                   </SelectTrigger>
                   <SelectContent>
-                    {roundingRules.map((rule) => (
-                      <SelectItem key={rule} value={rule}>
-                        {getRoundingRuleLabel(rule)}
+                    {calculationBases.map(base => (
+                      <SelectItem key={base} value={base}>
+                        {getCalculationBaseLabel(base)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
+              {/* Single calculation fields */}
+              {formData.calculationBase === 'prozent_vom_vk' && (
+                <div>
+                  <Label htmlFor="value">Prozentsatz</Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="value" 
+                      type="number" 
+                      value={formData.value || ''} 
+                      onChange={(e) => handleChange("value", parseFloat(e.target.value))}
+                      min={0}
+                    />
+                    <div className="text-lg font-medium">%</div>
+                  </div>
+                </div>
+              )}
+
+              {formData.calculationBase === 'fester_betrag' && (
+                <div>
+                  <Label htmlFor="value">Betrag (€)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="value" 
+                      type="number" 
+                      value={formData.value || ''} 
+                      onChange={(e) => handleChange("value", parseFloat(e.target.value))}
+                      min={0}
+                    />
+                    <div className="text-lg font-medium">€</div>
+                  </div>
+                </div>
+              )}
+
               {formData.calculationBase === 'preisstaffel' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>Preisstaffeln</Label>
-                    <Button 
-                      variant="light" 
-                      leftSection={<IconPlus size={16} />}
-                      onClick={() => handleAddPriceThreshold(0)}
-                    >
-                      Staffel hinzufügen
-                    </Button>
+                  <div className="flex justify-between items-center">
+                    <Label>Preisstaffelung</Label>
                   </div>
-                  {formData.priceThresholds?.map((threshold, index) => (
-                    <div key={index} className="grid gap-4 p-4 border rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-medium">Staffel {index + 1}</h4>
+                  
+                  {(formData.priceThresholds || []).map((threshold, index) => (
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label htmlFor={`min-${index}`}>Min (€)</Label>
+                          <Input 
+                            id={`min-${index}`} 
+                            type="number" 
+                            value={threshold.minPrice} 
+                            disabled
+                            className="bg-muted"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`max-${index}`}>Max (€)</Label>
+                          <Input 
+                            id={`max-${index}`} 
+                            type="number" 
+                            value={threshold.maxPrice || ''} 
+                            onChange={(e) => {
+                              const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                              handlePriceThresholdChange(0, index, 'maxPrice', value);
+                            }}
+                            min={threshold.minPrice + 1}
+                            placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Label htmlFor={`value-${index}`}>Wert</Label>
+                          <Input 
+                            id={`value-${index}`} 
+                            type="number" 
+                            value={threshold.value} 
+                            onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
+                            min={0}
+                          />
+                        </div>
+                        <div className="w-20">
+                          <Label htmlFor={`valueType-${index}`}>Art</Label>
+                          <Select
+                            value={threshold.valueType || 'percent'}
+                            onValueChange={(value: ThresholdValueType) => 
+                              handlePriceThresholdChange(0, index, 'valueType', value)
+                            }
+                          >
+                            <SelectTrigger id={`valueType-${index}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {thresholdValueTypes.map(type => (
+                                <SelectItem key={type} value={type}>
+                                  {getThresholdValueTypeLabel(type)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
+                          <Select
+                            value={threshold.roundingRule}
+                            onValueChange={(value: RoundingRule) => 
+                              handlePriceThresholdChange(0, index, 'roundingRule', value)
+                            }
+                          >
+                            <SelectTrigger id={`threshold-rounding-${index}`}>
+                              <SelectValue placeholder="Rundungsregel auswählen" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roundingRules.map(rule => (
+                                <SelectItem key={rule} value={rule}>
+                                  {getRoundingRuleLabel(rule)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <Button 
-                          variant="subtle" 
-                          color="red"
-                          leftSection={<IconMinus size={16} />}
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-10 w-10 self-end"
+                          disabled={formData.priceThresholds?.length === 1}
                           onClick={() => handleRemovePriceThreshold(0, index)}
                         >
-                          Entfernen
+                          <IconMinus className="h-4 w-4" />
                         </Button>
                       </div>
-                      <div className="grid gap-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="grid gap-2">
-                            <Label>Min. Preis</Label>
-                            <Input
-                              type="number"
-                              value={threshold.minPrice}
-                              onChange={(e) => handlePriceThresholdChange(0, index, 'minPrice', Number(e.target.value))}
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label>Max. Preis</Label>
-                            <Input
-                              type="number"
-                              value={threshold.maxPrice || ''}
-                              onChange={(e) => handlePriceThresholdChange(0, index, 'maxPrice', e.target.value ? Number(e.target.value) : undefined)}
-                              placeholder="Optional"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="grid gap-2">
-                            <Label>Werttyp</Label>
-                            <Select
-                              value={threshold.valueType}
-                              onValueChange={(value) => handlePriceThresholdChange(0, index, 'valueType', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Werttyp auswählen" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {thresholdValueTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {getThresholdValueTypeLabel(type)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="grid gap-2">
-                            <Label>Wert</Label>
-                            <Input
-                              type="number"
-                              value={threshold.value}
-                              onChange={(e) => handlePriceThresholdChange(0, index, 'value', Number(e.target.value))}
-                            />
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Checkbox
+                          id={`threshold-consult-${index}`}
+                          checked={threshold.consultPartnerBeforePayout || false}
+                          onCheckedChange={(checked) => 
+                            handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', checked)
+                          }
+                        />
+                        <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
+                          Vor Auszahlung Merchant kontaktieren
+                        </Label>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-            </>
+
+              {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+                <div>
+                  <Label htmlFor="roundingRule">Rundungsregel</Label>
+                  <Select 
+                    value={formData.roundingRule} 
+                    onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
+                  >
+                    <SelectTrigger id="roundingRule">
+                      <SelectValue placeholder="Rundungsregel auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roundingRules.map(rule => (
+                        <SelectItem key={rule} value={rule}>
+                          {getRoundingRuleLabel(rule)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
+          {formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+            <div>
+              <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
+              <Input 
+                id="maxAmount" 
+                type="number" 
+                value={formData.maxAmount || ''} 
+                onChange={(e) => {
+                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                  handleChange("maxAmount", value);
+                }}
+                min={0}
+                placeholder="Kein Maximum"
+              />
+            </div>
           )}
         </CardContent>
       </Card>
-
-      <div className="flex justify-end gap-2">
-        <Button 
-          variant="light" 
-          onClick={onCancel}
-        >
-          Abbrechen
-        </Button>
-        <Button 
-          variant="filled" 
-          type="submit"
-          leftSection={<IconDeviceFloppy size={16} />}
-        >
-          Speichern
-        </Button>
-      </div>
+      
+      {formData.requestType === 'Artikel zurücksenden' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Retourenabwicklung</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <Label htmlFor="returnHandling">Art der Retourenabwicklung</Label>
+              <Select 
+                value={formData.returnHandling} 
+                onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
+                disabled={formData.returnStrategy === 'auto_return_full_refund'}
+              >
+                <SelectTrigger id="returnHandling">
+                  <SelectValue placeholder="Retourenabwicklung auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {returnHandlings.map(handling => (
+                    <SelectItem key={handling} value={handling}>
+                      {getReturnHandlingLabel(handling)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      <Card>
+        <CardHeader>
+          <CardTitle></CardTitle>
+          </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-4">
+            
+        
+          
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Checkbox 
+                  id="consultPartnerBeforePayout" 
+                  checked={formData.consultPartnerBeforePayout || false}
+                  disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
+                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
+                />
+                <Label htmlFor="consultPartnerBeforePayout" className={
+                  formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false
+                    ? "text-muted-foreground" 
+                    : ""
+                }>
+                  Rücksprache mit Partner vor Auszahlung
+                  {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
+                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
+                  )}
+                </Label>
+              </div>
+              <p className="text-sm text-muted-foreground pl-6">
+              Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
+                </p>
+            </div>
+          
+            <div>
+              <Label htmlFor="notes">Notizen</Label>
+              <Textarea 
+                id="notes" 
+                value={formData.notes || ''} 
+                onChange={(e) => handleChange("notes", e.target.value)}
+                placeholder="Zusätzliche Hinweise zur Regel"
+                rows={4}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </form>
   );
 };

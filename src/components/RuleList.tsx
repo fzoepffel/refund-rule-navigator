@@ -223,8 +223,8 @@ const RuleList: React.FC<RuleListProps> = ({
                         ) : (
                           <>
                             <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                          </>
-                        )}
+                        </>
+                      )}
                       </div>
                       {rule.hasMultipleStages && (
                         <div className="flex flex-wrap gap-4">
@@ -234,10 +234,10 @@ const RuleList: React.FC<RuleListProps> = ({
                               <div>
                                 {stage.calculationBase === 'prozent_vom_vk' && (
                                   <Badge>{stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}</Badge>
-                                )}
+                      )}
                                 {stage.calculationBase === 'fester_betrag' && (
                                   <Badge>{stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}</Badge>
-                                )}
+                      )}
                                 {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
                                   <div className="flex flex-wrap gap-1">
                                     {stage.priceThresholds.map((threshold, tIdx) => (
