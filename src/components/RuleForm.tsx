@@ -885,6 +885,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
+            <p className="text-xs text-muted-foreground mt-1">
+              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+            </p>
           </div>
 
           {/* Versandart */}
