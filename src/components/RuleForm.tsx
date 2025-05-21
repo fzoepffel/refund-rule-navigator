@@ -51,7 +51,8 @@ import {
   Divider, 
   ActionIcon, 
   Tooltip,
-  Select as MantineSelect
+  Select as MantineSelect,
+  Button as MantineButton
 } from '@mantine/core';
 
 interface RuleFormProps {
@@ -610,35 +611,26 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         return (
           <div className="space-y-4">
             <div>
-              <Label>Prozent</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={stage.value}
-                  onChange={(e) => handleCalculationStageChange(stageIndex, 'value', parseFloat(e.target.value))}
-                  min={0}
-                  max={100}
-                />
-                <div className="text-lg font-medium">%</div>
-              </div>
+              <Text size="sm" fw={500} mb={5}>Prozentsatz</Text>
+              <NumberInput
+                value={stage.value || 0}
+                onChange={(value) => handleCalculationStageChange(stageIndex, 'value', value)}
+                min={0}
+                max={100}
+                rightSection={<Text>%</Text>}
+                rightSectionWidth={30}
+              />
             </div>
             <div>
-              <Label>Rundungsregel</Label>
-              <Select
+              <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
+              <MantineSelect
                 value={stage.roundingRule}
-                onValueChange={(value) => handleCalculationStageChange(stageIndex, 'roundingRule', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Rundungsregel auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roundingRules.map((rule) => (
-                    <SelectItem key={rule} value={rule}>
-                      {getRoundingRuleLabel(rule)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(value) => handleCalculationStageChange(stageIndex, 'roundingRule', value as RoundingRule)}
+                data={roundingRules.map(rule => ({
+                  value: rule,
+                  label: getRoundingRuleLabel(rule)
+                }))}
+              />
             </div>
           </div>
         );
@@ -646,16 +638,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         return (
           <div className="space-y-4">
             <div>
-              <Label>Betrag</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={stage.value}
-                  onChange={(e) => handleCalculationStageChange(stageIndex, 'value', parseFloat(e.target.value))}
-                  min={0}
-                />
-                <div className="text-lg font-medium">€</div>
-              </div>
+              <Text size="sm" fw={500} mb={5}>Betrag</Text>
+              <NumberInput
+                value={stage.value || 0}
+                onChange={(value) => handleCalculationStageChange(stageIndex, 'value', value)}
+                min={0}
+                rightSection={<Text>€</Text>}
+                rightSectionWidth={30}
+              />
             </div>
           </div>
         );
@@ -663,98 +653,86 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         return (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <Label>Preisstaffelung</Label>
+              <Text size="sm" fw={500}>Preisstaffelung</Text>
             </div>
             
             {(priceThresholds || []).map((threshold, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label htmlFor={`min-${index}`}>Min (€)</Label>
-                    <Input 
-                      id={`min-${index}`} 
-                      type="number" 
-                      value={threshold.minPrice} 
-                      disabled
-                      className="bg-muted"
+              <Paper key={index} p="md" withBorder>
+                <Stack gap="md">
+                  <Group grow>
+                    <div>
+                      <Text size="sm" fw={500} mb={5}>Min (€)</Text>
+                      <NumberInput
+                        value={threshold.minPrice}
+                        disabled
+                        styles={{ input: { backgroundColor: 'var(--mantine-color-gray-1)' } }}
+                      />
+                    </div>
+                    <div>
+                      <Text size="sm" fw={500} mb={5}>Max (€)</Text>
+                      <NumberInput
+                        value={threshold.maxPrice || undefined}
+                        onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'maxPrice', value)}
+                        min={threshold.minPrice + 1}
+                        placeholder={index === (priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                      />
+                    </div>
+                    <div>
+                      <Text size="sm" fw={500} mb={5}>Wert</Text>
+                      <NumberInput
+                        value={threshold.value}
+                        onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'value', value)}
+                        min={0}
+                      />
+                    </div>
+                    <div>
+                      <Text size="sm" fw={500} mb={5}>Art</Text>
+                      <MantineSelect
+                        value={threshold.valueType || 'percent'}
+                        onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'valueType', value as ThresholdValueType)}
+                        data={[
+                          { value: 'percent', label: '%' },
+                          { value: 'fixed', label: '€' }
+                        ]}
+                      />
+                    </div>
+                    <div>
+                      <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
+                      <MantineSelect
+                        value={threshold.roundingRule}
+                        onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'roundingRule', value as RoundingRule)}
+                        data={roundingRules.map(rule => ({
+                          value: rule,
+                          label: getRoundingRuleLabel(rule)
+                        }))}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="lg"
+                        disabled={priceThresholds?.length === 1}
+                        onClick={() => handleRemovePriceThreshold(stageIndex, index)}
+                      >
+                        <IconMinus size={16} />
+                      </ActionIcon>
+                    </div>
+                  </Group>
+
+                  <Group>
+                    <Switch
+                      checked={threshold.consultPartnerBeforePayout || false}
+                      onChange={(event) => 
+                        handlePriceThresholdChange(stageIndex, index, 'consultPartnerBeforePayout', event.currentTarget.checked)
+                      }
                     />
-                  </div>
-                  <div>
-                    <Label htmlFor={`max-${index}`}>Max (€)</Label>
-                    <Input 
-                      id={`max-${index}`} 
-                      type="number" 
-                      value={threshold.maxPrice || ''} 
-                      onChange={(e) => {
-                        const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                        handlePriceThresholdChange(stageIndex, index, 'maxPrice', value);
-                      }}
-                      min={threshold.minPrice + 1}
-                      placeholder={index === (priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
-                    <Label htmlFor={`value-${index}`}>Wert</Label>
-                    <Input 
-                      id={`value-${index}`} 
-                      type="number" 
-                      value={threshold.value} 
-                      onChange={(e) => handlePriceThresholdChange(stageIndex, index, 'value', parseFloat(e.target.value))}
-                      min={0}
-                    />
-                  </div>
-                  <div className="w-20">
-                    <Label htmlFor={`valueType-${index}`}>Art</Label>
-                    <MantineSelect
-                      value={threshold.valueType || 'percent'}
-                      onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'valueType', value as ThresholdValueType)}
-                      data={[
-                        { value: 'percent', label: '%' },
-                        { value: 'fixed', label: '€' }
-                      ]}
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
-                    <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
-                    <MantineSelect
-                      value={threshold.roundingRule}
-                      onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'roundingRule', value as RoundingRule)}
-                      data={roundingRules.map(rule => ({
-                        value: rule,
-                        label: getRoundingRuleLabel(rule)
-                      }))}
-                    />
-                  </div>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-10 w-10 self-end"
-                    disabled={priceThresholds?.length === 1}
-                    onClick={() => handleRemovePriceThreshold(stageIndex, index)}
-                  >
-                    <IconMinus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <Checkbox
-                    id={`threshold-consult-${index}`}
-                    checked={threshold.consultPartnerBeforePayout || false}
-                    onCheckedChange={(checked) => 
-                      handlePriceThresholdChange(stageIndex, index, 'consultPartnerBeforePayout', checked)
-                    }
-                  />
-                  <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
-                    Vor Auszahlung Merchant kontaktieren
-                  </Label>
-                </div>
-              </div>
+                    <Text size="sm">
+                      Vor Auszahlung Merchant kontaktieren
+                    </Text>
+                  </Group>
+                </Stack>
+              </Paper>
             ))}
           </div>
         );
@@ -785,17 +763,19 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       const stages = [...(prev.calculationStages || [])];
       stages[index] = { ...stages[index], [field]: value };
       
-      // If calculation base is changed to preisstaffel, create first threshold
+      // If calculation base is changed to preisstaffel, create first threshold if none exists
       if (field === 'calculationBase' && value === 'preisstaffel') {
-        stages[index] = {
-          ...stages[index],
-          priceThresholds: [{
-            minPrice: 0,
-            value: 10,
-            valueType: 'percent',
-            roundingRule: 'keine_rundung'
-          }]
-        };
+        if (!stages[index].priceThresholds || stages[index].priceThresholds.length === 0) {
+          stages[index] = {
+            ...stages[index],
+            priceThresholds: [{
+              minPrice: 0,
+              value: 10,
+              valueType: 'percent',
+              roundingRule: 'keine_rundung'
+            }]
+          };
+        }
       }
       
       return { ...prev, calculationStages: stages };
@@ -930,63 +910,64 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="hasMultipleStages"
+            <Group>
+              <Switch
                 checked={formData.hasMultipleStages}
-                onCheckedChange={(checked) => handleChange("hasMultipleStages", checked)}
+                onChange={(event) => handleChange("hasMultipleStages", event.currentTarget.checked)}
               />
-              <Label htmlFor="hasMultipleStages">Mehrere Angebotsstufen</Label>
-            </div>
-            <p className="text-sm text-muted-foreground pl-6">
+              <Text size="sm" fw={500}>Mehrere Angebotsstufen</Text>
+            </Group>
+            <Text size="xs" c="dimmed" pl={40}>
               Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
               Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
-            </p>
+            </Text>
           </div>
 
           {formData.hasMultipleStages ? (
-            <div className="space-y-6">
+            <Stack gap="md">
               {(formData.calculationStages || []).map((stage, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium">Stufe {index + 1}</h3>
-                    {index > 0 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveCalculationStage(index)}
-                      >
-                        <IconMinus className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor={`calculationBase-${index}`}>Art der Berechnung</Label>
-                    <MantineSelect
-                      value={stage.calculationBase}
-                      onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
-                      data={calculationBases.map(base => ({
-                        value: base,
-                        label: getCalculationBaseLabel(base)
-                      }))}
-                    />
-                  </div>
+                <Paper key={index} p="md" withBorder>
+                  <Stack gap="md">
+                    <Group justify="space-between">
+                      <Text fw={500}>Stufe {index + 1}</Text>
+                      {index > 0 && (
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          onClick={() => handleRemoveCalculationStage(index)}
+                        >
+                          <IconMinus size={16} />
+                        </ActionIcon>
+                      )}
+                    </Group>
+                    
+                    <div>
+                      <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
+                      <MantineSelect
+                        value={stage.calculationBase}
+                        onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
+                        data={calculationBases.map(base => ({
+                          value: base,
+                          label: getCalculationBaseLabel(base)
+                        }))}
+                      />
+                    </div>
 
-                  {/* Stage-specific calculation fields */}
-                  {renderCalculationFields(stage, index)}
-                </div>
+                    {/* Stage-specific calculation fields */}
+                    {renderCalculationFields(stage, index)}
+                  </Stack>
+                </Paper>
               ))}
 
-              <Button
-                type="button"
+              <MantineButton
                 variant="outline"
+                leftSection={<IconPlus size={16} />}
                 onClick={handleAddCalculationStage}
+                size="sm"
               >
-                <IconPlus className="h-4 w-4 mr-2" /> Weitere Stufe hinzufügen
-              </Button>
-            </div>
+                Weitere Stufe hinzufügen
+              </MantineButton>
+            </Stack>
           ) : (
             <div className="space-y-4">
               <div>
@@ -1015,33 +996,30 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               {/* Single calculation fields */}
               {formData.calculationBase === 'prozent_vom_vk' && (
                 <div>
-                  <Label htmlFor="value">Prozentsatz</Label>
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      id="value" 
-                      type="number" 
-                      value={formData.value || ''} 
-                      onChange={(e) => handleChange("value", parseFloat(e.target.value))}
-                      min={0}
-                    />
-                    <div className="text-lg font-medium">%</div>
-                  </div>
+                  <Text size="sm" fw={500} mb={5}>Prozentsatz</Text>
+                  <NumberInput
+                    id="value"
+                    value={formData.value || 0}
+                    onChange={(value) => handleChange("value", value)}
+                    min={0}
+                    max={100}
+                    rightSection={<Text>%</Text>}
+                    rightSectionWidth={30}
+                  />
                 </div>
               )}
 
               {formData.calculationBase === 'fester_betrag' && (
                 <div>
-                  <Label htmlFor="value">Betrag (€)</Label>
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      id="value" 
-                      type="number" 
-                      value={formData.value || ''} 
-                      onChange={(e) => handleChange("value", parseFloat(e.target.value))}
-                      min={0}
-                    />
-                    <div className="text-lg font-medium">€</div>
-                  </div>
+                  <Text size="sm" fw={500} mb={5}>Betrag (€)</Text>
+                  <NumberInput
+                    id="value"
+                    value={formData.value || 0}
+                    onChange={(value) => handleChange("value", value)}
+                    min={0}
+                    rightSection={<Text>€</Text>}
+                    rightSectionWidth={30}
+                  />
                 </div>
               )}
 
