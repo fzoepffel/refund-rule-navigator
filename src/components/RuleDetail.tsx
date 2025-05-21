@@ -75,34 +75,34 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
     
     if (rule.triggers.length > 0) {
       parts.push(
-        <span key="trigger">
-          <strong>Gründe:</strong>{' '}
-          <span>{getTriggerLabels(rule.triggers)}</span>
-        </span>
+        <Box key="trigger">
+          <Text size="sm" c="dimmed">Gründe</Text>
+          <Text fw={500}>{getTriggerLabels(rule.triggers)}</Text>
+        </Box>
       );
     }
     
     const packageOpenedLabel = getPackageOpenedLabel(rule.packageOpened);
     if (packageOpenedLabel) {
       parts.push(
-        <span key="packageOpened">
-          <strong>Originalverpackt?:</strong>{' '}
-          <span>{packageOpenedLabel}</span>
-        </span>
+        <Box key="packageOpened">
+          <Text size="sm" c="dimmed">Originalverpackt?</Text>
+          <Text fw={500}>{packageOpenedLabel}</Text>
+        </Box>
       );
     }
     
     const shippingTypeLabel = getShippingTypeLabel(rule.shippingType);
     if (shippingTypeLabel) {
       parts.push(
-        <span key="shippingType">
-          <strong>Versandart:</strong>{' '}
-          <span>{shippingTypeLabel}</span>
-        </span>
+        <Box key="shippingType">
+          <Text size="sm" c="dimmed">Versandart</Text>
+          <Text fw={500}>{shippingTypeLabel}</Text>
+        </Box>
       );
     }
 
-    return parts;
+    return <Stack gap="xs">{parts}</Stack>;
   };
 
   const getTriggerLabels = (triggers: Trigger[]) => {
@@ -146,31 +146,15 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
       <Paper p="md" withBorder>
         <Stack gap="md">
-          <Group grow>
-            <Box>
-              <Text size="sm" c="dimmed">Gründe</Text>
-              <Text fw={500}>
-                {getTriggerLabels(rule.triggers)}
-              </Text>
-            </Box>
-          </Group>
-          <Group grow>
-            <Box>
-              <Text size="sm" c="dimmed">Originalverpackt?</Text>
-              <Text fw={500}>
-                {getPackageOpenedLabel(rule.packageOpened)}
-              </Text>
-            </Box>
-            <Box>
-              <Text size="sm" c="dimmed">Versandart</Text>
-              <Text fw={500}>{getShippingTypeLabel(rule.shippingType)}</Text>
-            </Box>
-          </Group>
+          <Box>
+            {getContextInfoParts(rule)}
+          </Box>
 
-          <Divider />
+          
 
           {!rule.hasMultipleStages && (
             <>
+            <Divider />
               <Box>
                 <Text size="sm" c="dimmed">Berechnungsgrundlage</Text>
                 <Text fw={500}>{getCalculationBaseLabel(rule.calculationBase)}</Text>
@@ -192,22 +176,22 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     <Text size="sm" c="dimmed" mb="xs">Preisstaffelung</Text>
                     <Stack gap="xs">
                       {rule.priceThresholds.map((threshold, index) => (
-                        <Group key={index} gap="xs">
+                        <Group key={index} gap="xs" wrap="nowrap">
                           <Text>
                             {threshold.minPrice}€ 
                             {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                           </Text>
-                          <Text fw={500}>
+                          <Badge styles={{ root: { textTransform: 'none' } }}>
                             {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
-                          </Text>
-                          <Text size="sm" c="dimmed">
-                            (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
-                          </Text>
-                          {threshold.consultPartnerBeforePayout && (
-                            <Text size="sm" c="yellow.6">
-                              (Merchant kontaktieren)
-                            </Text>
-                          )}
+                            
+                              ({getRoundingRuleLabel(threshold.roundingRule)})
+                            
+                            {threshold.consultPartnerBeforePayout && (
+                              <Text span size="xs" c="yellow.6" ml={5}>
+                                (Merchant kontaktieren)
+                              </Text>
+                            )}
+                          </Badge>
                         </Group>
                       ))}
                     </Stack>
@@ -223,11 +207,11 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     <Group gap="xs">
                       {rule.discountLevels.map((level, index, array) => (
                         <React.Fragment key={index}>
-                          <Badge>
+                          <Badge styles={{ root: { textTransform: 'none' } }}>
                             {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
-                            <Text span size="xs" c="dimmed" ml={5}>
+                            
                               ({getRoundingRuleLabel(level.roundingRule)})
-                            </Text>
+                            
                           </Badge>
                           {index < array.length - 1 && <Text>→</Text>}
                         </React.Fragment>
@@ -283,22 +267,22 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                             <Text size="sm" c="dimmed" mb="xs">Preisstaffelung</Text>
                             <Stack gap="xs">
                               {stage.priceThresholds.map((threshold, thresholdIndex) => (
-                                <Group key={thresholdIndex} gap="xs">
+                                <Group key={thresholdIndex} gap="xs" wrap="nowrap">
                                   <Text>
                                     {threshold.minPrice}€ 
                                     {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                                   </Text>
-                                  <Text fw={500}>
+                                  <Badge styles={{ root: { textTransform: 'none' } }}>
                                     {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
-                                  </Text>
-                                  <Text size="sm" c="dimmed">
-                                    (Rundung: {getRoundingRuleLabel(threshold.roundingRule)})
-                                  </Text>
-                                  {threshold.consultPartnerBeforePayout && (
-                                    <Text size="sm" c="yellow.6">
-                                      (Merchant kontaktieren)
-                                    </Text>
-                                  )}
+                                    
+                                      ({getRoundingRuleLabel(threshold.roundingRule)})
+                                   
+                                    {threshold.consultPartnerBeforePayout && (
+                                      <Text span size="xs" c="yellow.6" ml={5}>
+                                        (Merchant kontaktieren)
+                                      </Text>
+                                    )}
+                                  </Badge>
                                 </Group>
                               ))}
                             </Stack>
