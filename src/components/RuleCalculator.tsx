@@ -4,7 +4,7 @@ import { calculateDiscount, formatCurrency } from "../utils/discountUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Button } from '@mantine/core';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { 
   Select, 
@@ -22,7 +22,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Calculator, Activity, XCircle, FastForward } from "lucide-react";
+import { IconCalculator, IconActivity, IconX, IconPlayerSkipForward } from '@tabler/icons-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface RuleCalculatorProps {
@@ -248,101 +248,100 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         {rule.returnStrategy === 'auto_return_full_refund' ? (
-          <div className="space-y-4">
-            <Alert>
-              <AlertTitle>Preisnachlass berechnen</AlertTitle>
-              <AlertDescription>
-                Erstattungen sind in ihrem Fall leider nicht möglich. Sie haben aber die Möglichkeit ihr Paket zurückzusenden und können so eine volle Rückerstattung erlangen.
-              </AlertDescription>
-            </Alert>
-          </div>
+          <Alert>
+            <AlertTitle>Automatische Retoure</AlertTitle>
+            <AlertDescription>
+              Diese Regel erfordert eine automatische Retoure. Bitte verwenden Sie den Retourenprozess.
+            </AlertDescription>
+          </Alert>
         ) : (
           <>
-        <div>
-          <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
-          <div className="flex items-center gap-2">
-            <Input 
-              id="sale-price" 
-              type="number" 
-              value={salePrice} 
-              onChange={(e) => setSalePrice(parseFloat(e.target.value))}
-              min={0}
-            />
-            <div className="text-lg font-medium">€</div>
-          </div>
-        </div>
-        
-            {!showInitialMessage && !showRefund && !showFinalResult && (
-          <Button onClick={handleCalculate} className="w-full">
-            <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
-          </Button>
-        )}
-        
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="salePrice">Verkaufspreis</Label>
+                <Input
+                  id="salePrice"
+                  type="number"
+                  value={salePrice}
+                  onChange={(e) => setSalePrice(Number(e.target.value))}
+                />
+              </div>
+              <Button 
+                variant="filled" 
+                leftSection={<IconCalculator size={16} />}
+                onClick={handleCalculate}
+              >
+                Berechnen
+              </Button>
+            </div>
+
             {showInitialMessage && (
-          <div className="space-y-4">
-                <Alert>
-                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
-              <AlertDescription>
-                    {getInitialMessage()}
-              </AlertDescription>
-            </Alert>
-            
-                <Button onClick={handleFastForward} className="w-full">
-              <FastForward className="h-4 w-4 mr-2" /> Vorspulen
-            </Button>
-          </div>
-        )}
-        
+              <Alert>
+                <AlertTitle>Nachricht an den Partner</AlertTitle>
+                <AlertDescription className="whitespace-pre-line">
+                  {getInitialMessage()}
+                </AlertDescription>
+                <div className="mt-4">
+                  <Button 
+                    variant="light" 
+                    leftSection={<IconPlayerSkipForward size={16} />}
+                    onClick={handleFastForward}
+                  >
+                    Vorspulen
+                  </Button>
+                </div>
+              </Alert>
+            )}
+
             {showRefund && (
-          <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">
+              <Alert>
+                <AlertTitle>Angebotener Preisnachlass</AlertTitle>
+                <AlertDescription>
+                  <div className="text-2xl font-bold mb-2">
                     {formatCurrency(getCurrentRefund())}
                   </div>
-                  <div className="text-sm text-muted-foreground mt-1">Angebotener Preisnachlass</div>
-          </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="light" 
+                      color="red"
+                      leftSection={<IconX size={16} />}
+                      onClick={handleReject}
+                    >
+                      Ablehnen
+                    </Button>
+                    <Button 
+                      variant="filled" 
+                      color="green"
+                      leftSection={<IconActivity size={16} />}
+                      onClick={() => {
+                        setShowRefund(false);
+                        setShowFinalResult(true);
+                      }}
+                    >
+                      Akzeptieren
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
 
-                <Alert className="bg-green-50 border-green-200">
-                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
-              <AlertDescription>
-                    Vielen Dank für Ihre Geduld!
-                    Wir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass gewähren.
-              </AlertDescription>
-            </Alert>
-            
-                <Button onClick={handleReject} className="w-full bg-red-500 hover:bg-red-600 text-white">
-                  <XCircle className="h-4 w-4 mr-2" /> Ablehnen
-            </Button>
-          </div>
-        )}
-        
             {showFinalResult && (
-              <div className="space-y-4">
-                {getFinalResult().refund > 0 && (
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600">
+              <Alert>
+                <AlertTitle>Endergebnis</AlertTitle>
+                <AlertDescription className="whitespace-pre-line">
+                  {getFinalResult().message}
+                  {getFinalResult().refund > 0 && (
+                    <div className="mt-2 text-2xl font-bold">
                       {formatCurrency(getFinalResult().refund)}
-              </div>
-                    <div className="text-sm text-muted-foreground mt-1">Endgültiger Preisnachlass</div>
-                </div>
-                )}
-
-                <Alert>
-                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
-                  <AlertDescription>
-                    {getFinalResult().message}
-                  </AlertDescription>
-                </Alert>
-                
-                {getFinalResult().note && (
-                  <Alert className={getFinalResult().note.includes("NICHT zurückgesendet") ? "bg-yellow-50 border-yellow-200" : "bg-primary/10 border-primary/20"}>
-                    <AlertTitle>Hinweis</AlertTitle>
-                    <AlertDescription>
+                    </div>
+                  )}
+                  {getFinalResult().note && (
+                    <div className="mt-2 text-sm text-muted-foreground">
                       {getFinalResult().note}
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
+                    </div>
+                  )}
+                </AlertDescription>
+              </Alert>
             )}
           </>
         )}

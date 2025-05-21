@@ -9,9 +9,9 @@ import {
 } from "../utils/discountUtils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
+import { IconSearch, IconFilter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from '@mantine/core';
 import { Separator } from "@/components/ui/separator";
 
 interface RuleListProps {
@@ -165,7 +165,7 @@ const RuleList: React.FC<RuleListProps> = ({
     <div className="space-y-4">
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <IconSearch className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Nach Regeln suchen..."
             className="pl-8"
@@ -173,11 +173,15 @@ const RuleList: React.FC<RuleListProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Filter className="h-4 w-4" /> Filter
+        <Button variant="light" leftSection={<IconFilter size={16} />}>
+          Filter
         </Button>
-        <Button className="flex items-center gap-2" onClick={onCreateRule}>
-          <Plus className="h-4 w-4" /> Neue Regel
+        <Button 
+          variant="filled" 
+          leftSection={<IconPlus size={16} />} 
+          onClick={onCreateRule}
+        >
+          Neue Regel
         </Button>
       </div>
       
@@ -311,7 +315,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       }}
                       className="text-blue-500 hover:text-blue-700"
                     >
-                      <Edit className="h-4 w-4" />
+                      <IconEdit className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -322,7 +326,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       }}
                       className="text-blue-500 hover:text-red-700"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <IconTrash className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
