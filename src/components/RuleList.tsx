@@ -66,9 +66,9 @@ const RuleList: React.FC<RuleListProps> = ({
 
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'fester_betrag':
-        return <Badge>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
@@ -211,18 +211,18 @@ const RuleList: React.FC<RuleListProps> = ({
                   <Text fw={600} size="md" mb="xs">{rule.name}</Text>
                   
                   {/* Context information line with dynamic separator dots */}
-                  <Group gap="xs" wrap="wrap">
+                  <Group gap="xs" wrap="wrap" mt="xxxxs">
                     {getContextInfoParts(rule).map((part, index, array) => (
                       <React.Fragment key={`fragment-${index}`}>
                         {part}
-                        {index < array.length - 1 && <Text span c="dimmed" size="xs">•</Text>}
+                        {index < array.length - 1 && <Text span c="dimmed" size="xs"></Text>}
                       </React.Fragment>
                     ))}
                   </Group>
 
                   {/* Calculation information */}
-                  <Stack gap="xs" mt="md">
-                    <Group gap="xs">
+                  <Stack gap="xs" mt="xxxxs">
+                    <Group gap="xs" mb="xxxxs">
                       <Text size="sm" c="dimmed" fw={500}>Berechnung:</Text>
                       {rule.hasMultipleStages ? (
                         <Text size="sm" c="dimmed">Mehrere Angebotsstufen</Text>

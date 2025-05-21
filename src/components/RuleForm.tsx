@@ -1163,39 +1163,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       
       <Paper p="md" withBorder>
         <Stack gap="md">
-          <div>
-            <Text size="sm" fw={500} mb={5}>Strategie</Text>
-            <MantineSelect
-              value={formData.returnStrategy}
-              onChange={(value) => handleChange("returnStrategy", value as ReturnStrategy)}
-              data={returnStrategies}
-            />
-          </div>
-        </Stack>
-      </Paper>
-      
-      {formData.requestType === 'Artikel zurücksenden' && (
-        <Paper p="md" withBorder>
-          <Stack gap="md">
-            <Title order={3}>Retourenabwicklung</Title>
-            <div>
-              <Text size="sm" fw={500} mb={5}>Art der Retourenabwicklung</Text>
-              <MantineSelect 
-                value={formData.returnHandling} 
-                onChange={(value) => handleChange("returnHandling", value as ReturnHandling)}
-                disabled={formData.returnStrategy === 'auto_return_full_refund'}
-                data={returnHandlings.map(handling => ({
-                  value: handling,
-                  label: getReturnHandlingLabel(handling)
-                }))}
-              />
-            </div>
-          </Stack>
-        </Paper>
-      )}
-      
-      <Paper p="md" withBorder>
-        <Stack gap="md">
           <div className="space-y-4">
             <Group>
               <MantineCheckbox 
