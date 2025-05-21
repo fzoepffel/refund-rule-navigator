@@ -39,13 +39,6 @@ export type ThresholdValueType = 'percent' | 'fixed';
 
 export type ShippingType = 'Egal' | 'Paket' | 'Spedition';
 
-export type ReturnStrategy = 
-  'auto_return_full_refund' | 
-  'discount_then_return' | 
-  'discount_then_keep' |
-  'discount_then_contact_merchant' |
-  'contact_merchant_immediately';
-
 export type CustomerOption = 'Preisnachlass' | 'Umtausch' | 'Ersatzteil' | 'Rücksendung';
 
 export interface PriceThreshold {
@@ -80,7 +73,6 @@ export interface DiscountRule {
   triggers: Trigger[],
   calculationBase: CalculationBase,
   customerOptions: CustomerOption[],
-  returnStrategy?: ReturnStrategy,
   value?: number,
   roundingRule: RoundingRule,
   returnHandling: ReturnHandling,

@@ -7,8 +7,7 @@ import {
   ThresholdValueType,
   DiscountRule,
   PriceThreshold,
-  DiscountLevel,
-  ReturnStrategy
+  DiscountLevel
 } from "../models/ruleTypes";
 
 export const getTriggerLabel = (trigger: Trigger): string => {
@@ -61,17 +60,6 @@ export const getThresholdValueTypeLabel = (type: ThresholdValueType): string => 
     'fixed': '€'
   };
   return labels[type] || type;
-};
-
-export const getReturnStrategyLabel = (strategy: ReturnStrategy): string => {
-  const labels: Record<ReturnStrategy, string> = {
-    'auto_return_full_refund': 'Automatische Rückerstattung bei Retoure',
-    'discount_then_return': 'Preisnachlass anbieten, bei Ablehnung Retoure',
-    'discount_then_keep': 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung',
-    'discount_then_contact_merchant': 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren',
-    'contact_merchant_immediately': 'Sofort Merchant kontaktieren'
-  };
-  return labels[strategy] || strategy;
 };
 
 export const applyRoundingRule = (value: number, rule: RoundingRule): number => {

@@ -9,7 +9,6 @@ import {
   ThresholdValueType,
   PriceThreshold,
   ShippingType,
-  ReturnStrategy,
   DiscountLevel,
   CustomerOption
 } from "../models/ruleTypes";
@@ -84,7 +83,6 @@ interface DiscountRule {
   returnHandling: ReturnHandling;
   shippingType: ShippingType;
   packageOpened: 'yes' | 'no' | 'Egal';
-  returnStrategy: ReturnStrategy;
   value: number;
   isCompleteRule?: boolean;
   consultPartnerBeforePayout: boolean;
@@ -131,7 +129,6 @@ const defaultRule: DiscountRule = {
   returnHandling: "keine_retoure",
   shippingType: "Egal",
   packageOpened: "Egal",
-  returnStrategy: "discount_then_return",
   value: 10,
   consultPartnerBeforePayout: true,
   hasMultipleStages: false,
@@ -179,13 +176,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['Egal', 'Paket', 'Spedition'];
   
-  const returnStrategies: {value: ReturnStrategy; label: string}[] = [
-    { value: 'auto_return_full_refund', label: 'Automatische Retoure mit voller Kostenerstattung' },
-    { value: 'discount_then_return', label: 'Preisnachlass anbieten, bei Ablehnung Retoure' },
-    { value: 'discount_then_keep', label: 'Preisnachlass anbieten, bei Ablehnung volle Erstattung ohne Rücksendung' },
-    { value: 'discount_then_contact_merchant', label: 'Preisnachlass anbieten, bei Ablehnung Merchant kontaktieren' },
-    { value: 'contact_merchant_immediately', label: 'Sofort Merchant kontaktieren' }
-  ];
+
   
   // Effect to handle Mangel trigger selection/deselection
   useEffect(() => {
@@ -247,16 +238,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     return parts.filter(part => part).join(", ");
   };
   
-  // Effect to manage the automatic checking of "consultPartnerBeforePayout" when calculationBase is "keine_berechnung"
-  useEffect(() => {
-    if (formData.calculationBase === 'keine_berechnung') {
-      setFormData(prev => ({
-        ...prev,
-        consultPartnerBeforePayout: true
-      }));
-    }
-  }, [formData.calculationBase]);
-  
   // Effect for handling rule completeness and consultation checkbox relationship
   useEffect(() => {
     // If rule is not complete, partner consultation is required
@@ -274,24 +255,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
       }));
     }
   }, [formData.isCompleteRule]);
-  
-  // Effect to handle setting a full refund when auto_return_full_refund is selected
-  useEffect(() => {
-    if (formData.returnStrategy === 'auto_return_full_refund') {
-      setFormData(prev => ({
-        ...prev,
-        calculationBase: 'fester_betrag',
-        value: 100,
-        returnHandling: 'automatisches_label'
-      }));
-    } else if (formData.returnStrategy === 'contact_merchant_immediately') {
-      setFormData(prev => ({
-        ...prev,
-        consultPartnerBeforePayout: true,
-        calculationBase: 'keine_berechnung'
-      }));
-    }
-  }, [formData.returnStrategy]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
     setFormData(prev => ({

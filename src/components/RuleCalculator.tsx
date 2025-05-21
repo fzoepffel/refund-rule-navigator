@@ -34,7 +34,6 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   const [discountAmount, setDiscountAmount] = useState<number | string | null>(null);
   const [requestCount, setRequestCount] = useState<number>(0);
   const [currentStage, setCurrentStage] = useState<number>(0);
-  const [offeringReturn, setOfferingReturn] = useState<boolean>(false);
   const [showInitialMessage, setShowInitialMessage] = useState<boolean>(false);
   const [showRefund, setShowRefund] = useState<boolean>(false);
   const [showFinalResult, setShowFinalResult] = useState<boolean>(false);
@@ -207,38 +206,11 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   };
 
   const getFinalResult = () => {
-    switch (rule.returnStrategy) {
-      case 'discount_then_return':
-        return {
-          message: "Vielen Dank für Ihre Geduld!\nLeider kann unser Partner keinen weiteren Preisnachlass anbieten. Allerdings können wir Ihnen eine volle Rückerstattung anbieten, wenn Sie den Artikel zurücksenden.",
-          refund: salePrice,
-          note: "Retoure erforderlich\nDer Artikel muss zurückgesendet werden."
-        };
-      case 'discount_then_keep':
-        return {
-          message: "Vielen Dank für Ihre Geduld!\nWir haben bei dem Partner nachgefragt und können Ihnen einen Preisnachlass von 100,00 € gewähren.",
-          refund: salePrice,
-          note: "Keine Retoure erforderlich\nDer Artikel muss NICHT zurückgesendet werden."
-        };
-      case 'discount_then_contact_merchant':
-        return {
-          message: "Händlerkontakt erforderlich\nWir müssen dies mit dem Händler besprechen.",
-          refund: 0,
-          note: ""
-        };
-      case 'auto_return_full_refund':
-        return {
-          message: "Erstattungen sind in ihrem Fall leider nicht möglich. Sie haben aber die Möglichkeit ihr Paket zurückzusenden und können so eine volle Rückerstattung erlangen.",
-          refund: 0,
-          note: ""
-        };
-      default:
-        return {
-          message: "",
-          refund: 0,
-          note: ""
-        };
-    }
+    return {
+      message: "Vielen Dank für Ihre Geduld!\nLeider kann unser Partner keinen weiteren Preisnachlass anbieten.",
+      refund: 0,
+      note: ""
+    };
   };
   
   return (
@@ -247,17 +219,6 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         <CardTitle>Preisnachlass berechnen</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {rule.returnStrategy === 'auto_return_full_refund' ? (
-          <div className="space-y-4">
-            <Alert>
-              <AlertTitle>Preisnachlass berechnen</AlertTitle>
-              <AlertDescription>
-                Erstattungen sind in ihrem Fall leider nicht möglich. Sie haben aber die Möglichkeit ihr Paket zurückzusenden und können so eine volle Rückerstattung erlangen.
-              </AlertDescription>
-            </Alert>
-          </div>
-        ) : (
-          <>
         <div>
           <Label htmlFor="sale-price">Verkaufspreis (VK)</Label>
           <div className="flex items-center gap-2">
@@ -272,28 +233,28 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           </div>
         </div>
         
-            {!showInitialMessage && !showRefund && !showFinalResult && (
+        {!showInitialMessage && !showRefund && !showFinalResult && (
           <Button onClick={handleCalculate} className="w-full">
             <Calculator className="h-4 w-4 mr-2" /> Nachlass berechnen
           </Button>
         )}
         
-            {showInitialMessage && (
+        {showInitialMessage && (
           <div className="space-y-4">
-                <Alert>
-                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
+            <Alert>
+              <AlertTitle>Preisnachlass berechnen</AlertTitle>
               <AlertDescription>
-                    {getInitialMessage()}
+                {getInitialMessage()}
               </AlertDescription>
             </Alert>
             
-                <Button onClick={handleFastForward} className="w-full">
+            <Button onClick={handleFastForward} className="w-full">
               <FastForward className="h-4 w-4 mr-2" /> Vorspulen
             </Button>
           </div>
         )}
         
-            {showRefund && (
+        {showRefund && (
           <div className="space-y-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">
@@ -316,35 +277,33 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           </div>
         )}
         
-            {showFinalResult && (
-              <div className="space-y-4">
-                {getFinalResult().refund > 0 && (
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600">
-                      {formatCurrency(getFinalResult().refund)}
-              </div>
-                    <div className="text-sm text-muted-foreground mt-1">Endgültiger Preisnachlass</div>
+        {showFinalResult && (
+          <div className="space-y-4">
+            {getFinalResult().refund > 0 && (
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600">
+                  {formatCurrency(getFinalResult().refund)}
                 </div>
-                )}
-
-                <Alert>
-                  <AlertTitle>Preisnachlass berechnen</AlertTitle>
-                  <AlertDescription>
-                    {getFinalResult().message}
-                  </AlertDescription>
-                </Alert>
-                
-                {getFinalResult().note && (
-                  <Alert className={getFinalResult().note.includes("NICHT zurückgesendet") ? "bg-yellow-50 border-yellow-200" : "bg-primary/10 border-primary/20"}>
-                    <AlertTitle>Hinweis</AlertTitle>
-                    <AlertDescription>
-                      {getFinalResult().note}
-                    </AlertDescription>
-                  </Alert>
-                )}
+                <div className="text-sm text-muted-foreground mt-1">Endgültiger Preisnachlass</div>
               </div>
             )}
-          </>
+
+            <Alert>
+              <AlertTitle>Preisnachlass berechnen</AlertTitle>
+              <AlertDescription>
+                {getFinalResult().message}
+              </AlertDescription>
+            </Alert>
+            
+            {getFinalResult().note && (
+              <Alert className={getFinalResult().note.includes("NICHT zurückgesendet") ? "bg-yellow-50 border-yellow-200" : "bg-primary/10 border-primary/20"}>
+                <AlertTitle>Hinweis</AlertTitle>
+                <AlertDescription>
+                  {getFinalResult().note}
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
