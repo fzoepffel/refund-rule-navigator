@@ -898,7 +898,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
 
           <div className="space-y-2">
             <Group>
-              <Switch
+              <MantineCheckbox
                 checked={formData.hasMultipleStages}
                 onChange={(event) => handleChange("hasMultipleStages", event.currentTarget.checked)}
               />
