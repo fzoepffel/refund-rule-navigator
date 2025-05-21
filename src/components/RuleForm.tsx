@@ -43,6 +43,16 @@ import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert } from "@/components/ui/alert";
 import { Chip, Group, Stack, Text, MultiSelect } from '@mantine/core';
+import { 
+  Paper, 
+  TextInput, 
+  NumberInput, 
+  Switch, 
+  Divider, 
+  ActionIcon, 
+  Tooltip,
+  Select as MantineSelect
+} from '@mantine/core';
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -220,7 +230,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     if (formData.packageOpened === "yes") {
       parts.push("originalverpackt");
     } else if (formData.packageOpened === "no") {
-      parts.push("nicht originalverpackt ");
+      parts.push("nicht originalverpackt");
     }
 
     return parts.filter(part => part).join(", ");
@@ -893,50 +903,40 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     clearable
                     color="blue"
                   />
+                  <Text size="xs" c="dimmed" mt="xs">
+              Für generelle Mängel (Reklamationen) einfach alle Spezifischen Mängel ausgewählt lassen.
+            </Text>
                 </div>
+                
               )}
             </Stack>
-            <Text size="xs" c="dimmed" mt="xs">
-              Für alle Mängel (Reklamationen) einfach alle Spezifischen Mängel auswählen.
-            </Text>
+            
           </div>
 
           {/* Versandart */}
           <div>
             <Label htmlFor="shippingType">Versandart</Label>
-            <Select 
-              value={formData.shippingType || 'Egal'} 
-              onValueChange={(value: ShippingType) => handleChange("shippingType", value)}
-            >
-              <SelectTrigger id="shippingType">
-                <SelectValue placeholder="Versandart auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {shippingTypes.map(type => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MantineSelect
+              defaultValue={formData.shippingType || 'Egal'}
+              onChange={(value) => handleChange("shippingType", value as ShippingType)}
+              data={shippingTypes.map(type => ({ value: type, label: type }))}
+              placeholder="Versandart auswählen"
+            />
           </div>
           
           {/* Originalverpackt? */}
           <div>
             <Label htmlFor="packageOpened">Originalverpackt?</Label>
-            <Select 
-              value={formData.packageOpened || 'Egal'} 
-              onValueChange={(value: 'yes' | 'no' | 'Egal') => handleChange("packageOpened", value)}
-            >
-              <SelectTrigger id="packageOpened">
-                <SelectValue placeholder="Bitte auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Egal">Egal</SelectItem>
-                <SelectItem value="yes">Ja</SelectItem>
-                <SelectItem value="no">Nein</SelectItem>
-              </SelectContent>
-            </Select>
+            <MantineSelect
+              defaultValue={formData.packageOpened || 'Egal'}
+              onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
+              data={[
+                { value: 'Egal', label: 'Egal' },
+                { value: 'yes', label: 'Ja' },
+                { value: 'no', label: 'Nein' }
+              ]}
+              placeholder="Bitte auswählen"
+            />
           </div>
         </CardContent>
       </Card>
