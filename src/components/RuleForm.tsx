@@ -63,7 +63,8 @@ import {
   MultiSelect,
   Badge,
   Box,
-  Flex
+  Flex,
+  Radio
 } from '@mantine/core';
 
 interface RuleFormProps {
@@ -705,7 +706,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   </Group>
 
                   <Group>
-                    <Switch
+                    <MantineCheckbox
                       checked={threshold.consultPartnerBeforePayout || false}
                       onChange={(event) => 
                         handlePriceThresholdChange(stageIndex, index, 'consultPartnerBeforePayout', event.currentTarget.checked)
@@ -1013,120 +1014,101 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               {formData.calculationBase === 'preisstaffel' && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <Label>Preisstaffelung</Label>
+                    <Text size="sm" fw={500}>Preisstaffelung</Text>
                   </div>
                   
                   {(formData.priceThresholds || []).map((threshold, index) => (
-                    <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start border p-4 rounded-md mb-4">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label htmlFor={`min-${index}`}>Min (€)</Label>
-                          <Input 
-                            id={`min-${index}`} 
-                            type="number" 
-                            value={threshold.minPrice} 
-                            disabled
-                            className="bg-muted"
+                    <Paper key={index} p="md" withBorder>
+                      <Stack gap="md">
+                        <Group grow>
+                          <div>
+                            <Text size="sm" fw={500} mb={5}>Min (€)</Text>
+                            <NumberInput
+                              value={threshold.minPrice}
+                              disabled
+                              styles={{ input: { backgroundColor: 'var(--mantine-color-gray-1)' } }}
+                            />
+                          </div>
+                          <div>
+                            <Text size="sm" fw={500} mb={5}>Max (€)</Text>
+                            <NumberInput
+                              value={threshold.maxPrice || undefined}
+                              onChange={(value) => handlePriceThresholdChange(0, index, 'maxPrice', value)}
+                              min={threshold.minPrice + 1}
+                              placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                            />
+                          </div>
+                          <div>
+                            <Text size="sm" fw={500} mb={5}>Wert</Text>
+                            <NumberInput
+                              value={threshold.value}
+                              onChange={(value) => handlePriceThresholdChange(0, index, 'value', value)}
+                              min={0}
+                            />
+                          </div>
+                          <div>
+                            <Text size="sm" fw={500} mb={5}>Art</Text>
+                            <MantineSelect
+                              value={threshold.valueType || 'percent'}
+                              onChange={(value) => handlePriceThresholdChange(0, index, 'valueType', value as ThresholdValueType)}
+                              data={[
+                                { value: 'percent', label: '%' },
+                                { value: 'fixed', label: '€' }
+                              ]}
+                            />
+                          </div>
+                          <div>
+                            <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
+                            <MantineSelect
+                              value={threshold.roundingRule}
+                              onChange={(value) => handlePriceThresholdChange(0, index, 'roundingRule', value as RoundingRule)}
+                              data={roundingRules.map(rule => ({
+                                value: rule,
+                                label: getRoundingRuleLabel(rule)
+                              }))}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                            <ActionIcon
+                              variant="subtle"
+                              color="gray"
+                              size="lg"
+                              disabled={formData.priceThresholds?.length === 1}
+                              onClick={() => handleRemovePriceThreshold(0, index)}
+                            >
+                              <IconMinus size={16} />
+                            </ActionIcon>
+                          </div>
+                        </Group>
+
+                        <Group>
+                          <MantineCheckbox
+                            checked={threshold.consultPartnerBeforePayout || false}
+                            onChange={(event) => 
+                              handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', event.currentTarget.checked)
+                            }
                           />
-                        </div>
-                        <div>
-                          <Label htmlFor={`max-${index}`}>Max (€)</Label>
-                          <Input 
-                            id={`max-${index}`} 
-                            type="number" 
-                            value={threshold.maxPrice || ''} 
-                            onChange={(e) => {
-                              const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                              handlePriceThresholdChange(0, index, 'maxPrice', value);
-                            }}
-                            min={threshold.minPrice + 1}
-                            placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-end gap-2">
-                        <div className="flex-1">
-                          <Label htmlFor={`value-${index}`}>Wert</Label>
-                          <Input 
-                            id={`value-${index}`} 
-                            type="number" 
-                            value={threshold.value} 
-                            onChange={(e) => handlePriceThresholdChange(0, index, 'value', parseFloat(e.target.value))}
-                            min={0}
-                          />
-                        </div>
-                        <div className="w-20">
-                          <Label htmlFor={`valueType-${index}`}>Art</Label>
-                          <MantineSelect
-                            value={threshold.valueType || 'percent'}
-                            onChange={(value) => handlePriceThresholdChange(0, index, 'valueType', value as ThresholdValueType)}
-                            data={[
-                              { value: 'percent', label: '%' },
-                              { value: 'fixed', label: '€' }
-                            ]}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-end gap-2">
-                        <div className="flex-1">
-                          <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
-                          <MantineSelect
-                            value={threshold.roundingRule}
-                            onChange={(value) => handlePriceThresholdChange(0, index, 'roundingRule', value as RoundingRule)}
-                            data={roundingRules.map(rule => ({
-                              value: rule,
-                              label: getRoundingRuleLabel(rule)
-                            }))}
-                          />
-                        </div>
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-10 w-10 self-end"
-                          disabled={formData.priceThresholds?.length === 1}
-                          onClick={() => handleRemovePriceThreshold(0, index)}
-                        >
-                          <IconMinus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Checkbox
-                          id={`threshold-consult-${index}`}
-                          checked={threshold.consultPartnerBeforePayout || false}
-                          onCheckedChange={(checked) => 
-                            handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', checked)
-                          }
-                        />
-                        <Label htmlFor={`threshold-consult-${index}`} className="text-sm">
-                          Vor Auszahlung Merchant kontaktieren
-                        </Label>
-                      </div>
-                    </div>
+                          <Text size="sm">
+                            Vor Auszahlung Merchant kontaktieren
+                          </Text>
+                        </Group>
+                      </Stack>
+                    </Paper>
                   ))}
                 </div>
               )}
 
               {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
                 <div>
-                  <Label htmlFor="roundingRule">Rundungsregel</Label>
-                  <Select 
-                    value={formData.roundingRule} 
-                    onValueChange={(value: RoundingRule) => handleChange("roundingRule", value)}
-                  >
-                    <SelectTrigger id="roundingRule">
-                      <SelectValue placeholder="Rundungsregel auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roundingRules.map(rule => (
-                        <SelectItem key={rule} value={rule}>
-                          {getRoundingRuleLabel(rule)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
+                  <MantineSelect
+                    value={formData.roundingRule}
+                    onChange={(value) => handleChange("roundingRule", value as RoundingRule)}
+                    data={roundingRules.map(rule => ({
+                      value: rule,
+                      label: getRoundingRuleLabel(rule)
+                    }))}
+                  />
                 </div>
               )}
             </div>
