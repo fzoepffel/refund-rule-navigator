@@ -1008,22 +1008,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                 </div>
               )}
 
-              {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
-                <div>
-                  <Text size="sm" fw={500} mb={5}>Maximalbetrag</Text>
-                  <NumberInput
-                    value={formData.maxAmount || ''}
-                    onChange={(value) => handleChange("maxAmount", value)}
-                    min={0}
-                    rightSection={<Text>€</Text>}
-                    rightSectionWidth={30}
-                  />
-                  <Text size="xs" c="dimmed" mt={5}>
-                    Maximaler Betrag für den Preisnachlass
-                  </Text>
-                </div>
-              )}
-
               {formData.calculationBase === 'preisstaffel' && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -1122,6 +1106,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                       label: getRoundingRuleLabel(rule)
                     }))}
                   />
+                </div>
+              )}
+              {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
+                <div>
+                  <Text size="sm" fw={500} mb={5}>Maximalbetrag</Text>
+                  <NumberInput
+                    value={formData.maxAmount || ''}
+                    onChange={(value) => handleChange("maxAmount", value)}
+                    min={0}
+                    rightSection={<Text>€</Text>}
+                    rightSectionWidth={30}
+                  />
+                  <Text size="xs" c="dimmed" mt={5}>
+                    Maximaler Betrag für den Preisnachlass
+                  </Text>
                 </div>
               )}
             </div>

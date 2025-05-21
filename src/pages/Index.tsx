@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import RuleList from "../components/RuleList";
 import RuleDetail from "../components/RuleDetail";
@@ -7,6 +6,14 @@ import RuleCalculator from "../components/RuleCalculator";
 import { DiscountRule } from "../models/ruleTypes";
 import { sampleRules } from "../data/sampleRules";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Container, 
+  Title, 
+  Text, 
+  SimpleGrid, 
+  Paper,
+  Stack
+} from '@mantine/core';
 
 type ViewState = {
   type: "list" | "detail" | "form";
@@ -63,15 +70,17 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-6 md:py-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold">Nachlassregel-Navigator</h1>
-          <p className="text-muted-foreground mt-2">Systematische Verwaltung von Preisnachlassregeln für Partner-Händler</p>
+    <Container size="xl" py="xl">
+      <Stack gap="xl">
+        <header>
+          <Title order={1}>Nachlassregel-Navigator</Title>
+          <Text c="dimmed" mt="xs">
+            Systematische Verwaltung von Preisnachlassregeln für Partner-Händler
+          </Text>
         </header>
         
-        <div className="grid md:grid-cols-[2fr_1fr] gap-8">
-          <div className="space-y-8">
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+          <Stack gap="xl">
             {viewState.type === "list" && (
               <RuleList 
                 rules={rules} 
@@ -97,16 +106,16 @@ const Index = () => {
                 onCancel={handleBackToList}
               />
             )}
-          </div>
+          </Stack>
           
-          <div className="space-y-8">
+          <Stack gap="xl">
             {viewState.type === "detail" && viewState.selectedRule && (
               <RuleCalculator rule={viewState.selectedRule} />
             )}
-          </div>
-        </div>
-      </div>
-    </div>
+          </Stack>
+        </SimpleGrid>
+      </Stack>
+    </Container>
   );
 };
 
