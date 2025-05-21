@@ -708,46 +708,28 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   </div>
                   <div className="w-20">
                     <Label htmlFor={`valueType-${index}`}>Art</Label>
-                    <Select
+                    <MantineSelect
                       value={threshold.valueType || 'percent'}
-                      onValueChange={(value: ThresholdValueType) => 
-                        handlePriceThresholdChange(stageIndex, index, 'valueType', value)
-                      }
-                    >
-                      <SelectTrigger id={`valueType-${index}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {thresholdValueTypes.map(type => (
-                          <SelectItem key={type} value={type}>
-                            {getThresholdValueTypeLabel(type)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'valueType', value as ThresholdValueType)}
+                      data={[
+                        { value: 'percent', label: '%' },
+                        { value: 'fixed', label: '€' }
+                      ]}
+                    />
                   </div>
                 </div>
                 
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
                     <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
-                    <Select
+                    <MantineSelect
                       value={threshold.roundingRule}
-                      onValueChange={(value: RoundingRule) => 
-                        handlePriceThresholdChange(stageIndex, index, 'roundingRule', value)
-                      }
-                    >
-                      <SelectTrigger id={`threshold-rounding-${index}`}>
-                        <SelectValue placeholder="Rundungsregel auswählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roundingRules.map(rule => (
-                          <SelectItem key={rule} value={rule}>
-                            {getRoundingRuleLabel(rule)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(value) => handlePriceThresholdChange(stageIndex, index, 'roundingRule', value as RoundingRule)}
+                      data={roundingRules.map(rule => ({
+                        value: rule,
+                        label: getRoundingRuleLabel(rule)
+                      }))}
+                    />
                   </div>
                   <Button 
                     type="button" 
@@ -982,21 +964,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   
                   <div>
                     <Label htmlFor={`calculationBase-${index}`}>Art der Berechnung</Label>
-                    <Select 
-                      value={stage.calculationBase} 
-                      onValueChange={(value: CalculationBase) => handleCalculationStageChange(index, "calculationBase", value)}
-                    >
-                      <SelectTrigger id={`calculationBase-${index}`}>
-                        <SelectValue placeholder="Berechnungsgrundlage auswählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {calculationBases.map(base => (
-                          <SelectItem key={base} value={base}>
-                            {getCalculationBaseLabel(base)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <MantineSelect
+                      value={stage.calculationBase}
+                      onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
+                      data={calculationBases.map(base => ({
+                        value: base,
+                        label: getCalculationBaseLabel(base)
+                      }))}
+                    />
                   </div>
 
                   {/* Stage-specific calculation fields */}
@@ -1016,21 +991,25 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="calculationBase">Art der Berechnung</Label>
-                <Select 
+                <MantineSelect 
                   value={formData.calculationBase} 
-                  onValueChange={(value: CalculationBase) => handleChange("calculationBase", value)}
-                >
-                  <SelectTrigger id="calculationBase">
-                    <SelectValue placeholder="Berechnungsgrundlage auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {calculationBases.map(base => (
-                      <SelectItem key={base} value={base}>
-                        {getCalculationBaseLabel(base)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(value) => {
+                    const newValue = value as CalculationBase;
+                    if (newValue === 'preisstaffel' && (!formData.priceThresholds || formData.priceThresholds.length === 0)) {
+                      handleChange("priceThresholds", [{
+                        minPrice: 0,
+                        value: 10,
+                        valueType: 'percent',
+                        roundingRule: 'keine_rundung'
+                      }]);
+                    }
+                    handleChange("calculationBase", newValue);
+                  }}
+                  data={calculationBases.map(base => ({
+                    value: base,
+                    label: getCalculationBaseLabel(base)
+                  }))}
+                />
               </div>
 
               {/* Single calculation fields */}
@@ -1114,46 +1093,28 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                         </div>
                         <div className="w-20">
                           <Label htmlFor={`valueType-${index}`}>Art</Label>
-                          <Select
+                          <MantineSelect
                             value={threshold.valueType || 'percent'}
-                            onValueChange={(value: ThresholdValueType) => 
-                              handlePriceThresholdChange(0, index, 'valueType', value)
-                            }
-                          >
-                            <SelectTrigger id={`valueType-${index}`}>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {thresholdValueTypes.map(type => (
-                                <SelectItem key={type} value={type}>
-                                  {getThresholdValueTypeLabel(type)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handlePriceThresholdChange(0, index, 'valueType', value as ThresholdValueType)}
+                            data={[
+                              { value: 'percent', label: '%' },
+                              { value: 'fixed', label: '€' }
+                            ]}
+                          />
                         </div>
                       </div>
                       
                       <div className="flex items-end gap-2">
                         <div className="flex-1">
                           <Label htmlFor={`threshold-rounding-${index}`}>Rundungsregel</Label>
-                          <Select
+                          <MantineSelect
                             value={threshold.roundingRule}
-                            onValueChange={(value: RoundingRule) => 
-                              handlePriceThresholdChange(0, index, 'roundingRule', value)
-                            }
-                          >
-                            <SelectTrigger id={`threshold-rounding-${index}`}>
-                              <SelectValue placeholder="Rundungsregel auswählen" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roundingRules.map(rule => (
-                                <SelectItem key={rule} value={rule}>
-                                  {getRoundingRuleLabel(rule)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            onChange={(value) => handlePriceThresholdChange(0, index, 'roundingRule', value as RoundingRule)}
+                            data={roundingRules.map(rule => ({
+                              value: rule,
+                              label: getRoundingRuleLabel(rule)
+                            }))}
+                          />
                         </div>
                         <Button 
                           type="button" 
