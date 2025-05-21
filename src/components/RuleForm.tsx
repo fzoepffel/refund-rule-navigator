@@ -144,12 +144,24 @@ const defaultRule: DiscountRule = {
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
-  const [formData, setFormData] = useState<DiscountRule>(defaultRule);
+  // Create a fresh copy of the default rule for new rules
+  const getInitialFormData = () => {
+    if (rule) {
+      return rule;
+    }
+    // Create a deep copy of the default rule
+    return JSON.parse(JSON.stringify(defaultRule));
+  };
+
+  const [formData, setFormData] = useState<DiscountRule>(getInitialFormData());
   
   // Initialize form data with existing rule when editing
   useEffect(() => {
     if (rule) {
       setFormData(rule);
+    } else {
+      // Reset to a fresh copy of default rule when creating new rule
+      setFormData(getInitialFormData());
     }
   }, [rule]);
   
@@ -497,7 +509,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     // Generate name if empty before saving
     const finalData = {
       ...formData,
-      name: generateRuleName()
+      name: generateRuleName(),
+      // Generate a unique ID if this is a new rule
+      id: rule?.id || `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     };
     
     onSave(finalData);

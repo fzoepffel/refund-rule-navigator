@@ -72,33 +72,33 @@ const RuleList: React.FC<RuleListProps> = ({
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
-          <div className="flex flex-wrap gap-1 mt-1">
+          <Group gap="xs" wrap="wrap">
             {rule.priceThresholds.map((threshold, idx) => (
-              <Badge key={idx} className="text-xs">
+              <Badge key={idx} size="sm" styles={{ root: { textTransform: 'none' } }}>
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                 {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
                 {threshold.consultPartnerBeforePayout && (
-                  <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
+                  <Text span c="yellow.6" ml={5} size="sm">(Merchant kontaktieren)</Text>
                 )}
               </Badge>
             ))}
-          </div>
+          </Group>
         );
       case 'angebotsstaffel':
         if (!rule.discountLevels || rule.discountLevels.length === 0) return null;
         return (
-          <div className="flex items-center flex-wrap gap-1 mt-1">
+          <Group gap="xs" wrap="wrap">
             {rule.discountLevels.map((level, idx, arr) => (
               <React.Fragment key={idx}>
-                <Badge className="text-xs">
+                <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>
                   {level.value}{getThresholdValueTypeLabel(level.valueType)}
                   {level.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(level.roundingRule)}`}
                 </Badge>
-                {idx < arr.length - 1 && <span className="text-xs">→</span>}
+                {idx < arr.length - 1 && <Text span size="sm">→</Text>}
               </React.Fragment>
             ))}
-          </div>
+          </Group>
         );
       default:
         return null;
@@ -111,30 +111,30 @@ const RuleList: React.FC<RuleListProps> = ({
     
     if (rule.triggers.length > 0) {
       parts.push(
-        <span key="trigger">
-          <Text span size="sm" c="dimmed" fw={500}>Gründe:</Text>{' '}
+        <Group key="trigger" gap="xs" wrap="nowrap">
+          <Text span size="sm" c="dimmed" fw={500}>Gründe:</Text>
           <Text span size="sm" c="dimmed">{getTriggerLabels(rule.triggers)}</Text>
-        </span>
+        </Group>
       );
     }
     
     const packageOpenedLabel = getPackageOpenedLabel(rule.packageOpened);
     if (packageOpenedLabel) {
       parts.push(
-        <span key="packageOpened">
-          <Text span size="sm" c="dimmed" fw={500}>Originalverpackt?:</Text>{' '}
+        <Group key="packageOpened" gap="xs" wrap="nowrap">
+          <Text span size="sm" c="dimmed" fw={500}>Originalverpackt?:</Text>
           <Text span size="sm" c="dimmed">{packageOpenedLabel}</Text>
-        </span>
+        </Group>
       );
     }
     
     const shippingTypeLabel = getShippingTypeLabel(rule.shippingType);
     if (shippingTypeLabel) {
       parts.push(
-        <span key="shippingType">
-          <Text span size="sm" c="dimmed" fw={500}>Versandart:</Text>{' '}
+        <Group key="shippingType" gap="xs" wrap="nowrap">
+          <Text span size="sm" c="dimmed" fw={500}>Versandart:</Text>
           <Text span size="sm" c="dimmed">{shippingTypeLabel}</Text>
-        </span>
+        </Group>
       );
     }
 
@@ -292,17 +292,17 @@ const RuleList: React.FC<RuleListProps> = ({
                       rule.noReturnOnFullRefund ||
                       rule.offerDiscountBeforeReturn ||
                       rule.sendInfoToPartner) && (
-                      <Text size="sm" c="dimmed">
-                        <Text span fw={500}>Zusatzaktionen:</Text>{' '}
-                        {rule.requestPictures && <Text span>Fotos anfordern</Text>}
-                        {rule.previousRefundsCheck && <Text span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Vorherige Erstattungen prüfen</Text>}
-                        {rule.customerLoyaltyCheck && <Text span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Kundentreue prüfen</Text>}
-                        {rule.minOrderAgeToDays && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck) ? ' • ' : ''}Min. Bestellalter: {rule.minOrderAgeToDays} Tage</Text>}
-                        {rule.consultPartnerBeforePayout && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Rücksprache mit Partner vor Auszahlung</Text>}
-                        {rule.noReturnOnFullRefund && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout) ? ' • ' : ''}Keine Rücksendung bei voller Erstattung</Text>}
-                        {rule.offerDiscountBeforeReturn && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund) ? ' • ' : ''}Nachlass vor Rücksendung anbieten</Text>}
-                        {rule.sendInfoToPartner && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund || rule.offerDiscountBeforeReturn) ? ' • ' : ''}Partner informieren</Text>}
-                      </Text>
+                      <Group gap="xs" wrap="wrap">
+                        <Text span size="sm" c="dimmed" fw={500}>Zusatzaktionen:</Text>
+                        {rule.requestPictures && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Fotos anfordern</Badge>}
+                        {rule.previousRefundsCheck && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Vorherige Erstattungen prüfen</Badge>}
+                        {rule.customerLoyaltyCheck && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Kundentreue prüfen</Badge>}
+                        {rule.minOrderAgeToDays && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Min. Bestellalter: {rule.minOrderAgeToDays} Tage</Badge>}
+                        {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
+                        {rule.noReturnOnFullRefund && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Keine Rücksendung bei voller Erstattung</Badge>}
+                        {rule.offerDiscountBeforeReturn && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Nachlass vor Rücksendung anbieten</Badge>}
+                        {rule.sendInfoToPartner && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Partner informieren</Badge>}
+                      </Group>
                     )}
                     
                     {/* Notes display */}
