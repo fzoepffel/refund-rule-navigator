@@ -866,11 +866,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   );
                 })}
               </Group>
+               <Text size="xs" c="dimmed" mt="xs">
+              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+            </Text>
 
               {formData.triggers.includes('Mangel') && (
                 <div className="mt-2 border-l-2 border-blue-200 pl-4">
                   <MultiSelect
-                    label="Spezifische Mangel"
+                    label="Spezifische Mängel"
                     placeholder="Spezifische Mängel auswählen"
                     data={mangelTriggers.map(trigger => ({
                       value: trigger,
@@ -894,7 +897,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               )}
             </Stack>
             <Text size="xs" c="dimmed" mt="xs">
-              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+              Für alle Mängel (Reklamationen) einfach alle Spezifischen Mängel auswählen.
             </Text>
           </div>
 
