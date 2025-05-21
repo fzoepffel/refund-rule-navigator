@@ -7,12 +7,19 @@ import {
   getReturnStrategyLabel,
   getTriggerLabel
 } from "../utils/discountUtils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { 
+  Paper, 
+  Text, 
+  Group, 
+  Stack, 
+  Button, 
+  ActionIcon, 
+  Badge, 
+  TextInput,
+  Box,
+  Flex
+} from '@mantine/core';
 import { IconSearch, IconFilter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
-import { Input } from "@/components/ui/input";
-import { Button } from '@mantine/core';
-import { Separator } from "@/components/ui/separator";
 
 interface RuleListProps {
   rules: DiscountRule[];
@@ -105,8 +112,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (rule.triggers.length > 0) {
       parts.push(
         <span key="trigger">
-          <strong>Gründe:</strong>{' '}
-          <span>{getTriggerLabels(rule.triggers)}</span>
+          <Text span size="sm" c="dimmed" fw={500}>Gründe:</Text>{' '}
+          <Text span size="sm" c="dimmed">{getTriggerLabels(rule.triggers)}</Text>
         </span>
       );
     }
@@ -115,8 +122,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (packageOpenedLabel) {
       parts.push(
         <span key="packageOpened">
-          <strong>Originalverpackt?:</strong>{' '}
-          <span>{packageOpenedLabel}</span>
+          <Text span size="sm" c="dimmed" fw={500}>Originalverpackt?:</Text>{' '}
+          <Text span size="sm" c="dimmed">{packageOpenedLabel}</Text>
         </span>
       );
     }
@@ -125,8 +132,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (shippingTypeLabel) {
       parts.push(
         <span key="shippingType">
-          <strong>Versandart:</strong>{' '}
-          <span>{shippingTypeLabel}</span>
+          <Text span size="sm" c="dimmed" fw={500}>Versandart:</Text>{' '}
+          <Text span size="sm" c="dimmed">{shippingTypeLabel}</Text>
         </span>
       );
     }
@@ -162,17 +169,15 @@ const RuleList: React.FC<RuleListProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <IconSearch className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Nach Regeln suchen..."
-            className="pl-8"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+    <Stack gap="md">
+      <Group>
+        <TextInput
+          placeholder="Nach Regeln suchen..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          leftSection={<IconSearch size={16} />}
+          style={{ flex: 1 }}
+        />
         <Button variant="light" leftSection={<IconFilter size={16} />}>
           Filter
         </Button>
@@ -183,159 +188,159 @@ const RuleList: React.FC<RuleListProps> = ({
         >
           Neue Regel
         </Button>
-      </div>
+      </Group>
       
-      <div className="space-y-2">
+      <Stack gap="xs">
         {filteredRules.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6 text-center text-muted-foreground">
+          <Paper p="md" withBorder>
+            <Text c="dimmed" ta="center">
               Keine Regeln gefunden. Erstellen Sie eine neue Regel.
-            </CardContent>
-          </Card>
+            </Text>
+          </Paper>
         ) : (
           filteredRules.map(rule => (
-            <Card 
+            <Paper 
               key={rule.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              p="md"
+              withBorder
+              style={{ cursor: 'pointer' }}
               onClick={() => onSelectRule(rule)}
             >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium">{rule.name}</h3>
-                    
-                    {/* Context information line with dynamic separator dots */}
-                    <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                      {getContextInfoParts(rule).map((part, index, array) => (
-                        <React.Fragment key={`fragment-${index}`}>
-                          {part}
-                          {index < array.length - 1 && <span className="mx-1">•</span>}
-                        </React.Fragment>
-                      ))}
-                    </div>
+              <Group justify="space-between">
+                <Box style={{ flex: 1 }}>
+                  <Text fw={600} size="md" mb="xs">{rule.name}</Text>
+                  
+                  {/* Context information line with dynamic separator dots */}
+                  <Group gap="xs" wrap="wrap">
+                    {getContextInfoParts(rule).map((part, index, array) => (
+                      <React.Fragment key={`fragment-${index}`}>
+                        {part}
+                        {index < array.length - 1 && <Text span c="dimmed" size="xs">•</Text>}
+                      </React.Fragment>
+                    ))}
+                  </Group>
 
-                    {/* Calculation information */}
-                    <div className="flex flex-col gap-2 text-xs text-muted-foreground mt-1">
-                      <div className="flex items-center gap-2">
-                        <strong>Berechnung:</strong>{' '}
-                        {rule.hasMultipleStages ? (
-                          <span>Mehrere Angebotsstufen</span>
-                        ) : (
-                          <>
-                            <span>{getCalculationBaseLabel(rule.calculationBase)}</span>
-                        </>
+                  {/* Calculation information */}
+                  <Stack gap="xs" mt="md">
+                    <Group gap="xs">
+                      <Text size="sm" c="dimmed" fw={500}>Berechnung:</Text>
+                      {rule.hasMultipleStages ? (
+                        <Text size="sm" c="dimmed">Mehrere Angebotsstufen</Text>
+                      ) : (
+                        <Text size="sm" c="dimmed">{getCalculationBaseLabel(rule.calculationBase)}</Text>
                       )}
-                      </div>
-                      {rule.hasMultipleStages && (
-                        <div className="flex flex-wrap gap-4">
-                          {rule.calculationStages?.map((stage, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <strong>Stufe {idx + 1}:</strong>
-                              <div>
-                                {stage.calculationBase === 'prozent_vom_vk' && (
-                                  <Badge>{stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}</Badge>
-                      )}
-                                {stage.calculationBase === 'fester_betrag' && (
-                                  <Badge>{stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}</Badge>
-                      )}
-                                {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
-                                  <div className="flex flex-wrap gap-1">
-                                    {stage.priceThresholds.map((threshold, tIdx) => (
-                                      <Badge key={tIdx} className="text-xs">
-                                        {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
-                                        {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
-                                        {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
-                                        {threshold.consultPartnerBeforePayout && (
-                                          <span className="ml-1 text-amber-600">(Merchant kontaktieren)</span>
-                                        )}
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Discount details */}
-                    {!rule.hasMultipleStages && (
-                      <div className="mt-2">
-                        {renderDiscountInfo(rule)}
-                      </div>
+                    </Group>
+                    {rule.hasMultipleStages && (
+                      <Stack gap="xs">
+                        {rule.calculationStages?.map((stage, idx) => (
+                          <Group key={idx} gap="xs">
+                            <Text size="sm" c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
+                            <Box>
+                              {stage.calculationBase === 'prozent_vom_vk' && (
+                                <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>
+                                  {stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
+                                </Badge>
+                              )}
+                              {stage.calculationBase === 'fester_betrag' && (
+                                <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>
+                                  {stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
+                                </Badge>
+                              )}
+                              {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
+                                <Group gap="xs" wrap="wrap">
+                                  {stage.priceThresholds.map((threshold, tIdx) => (
+                                    <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none' } }}>
+                                      {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
+                                      {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
+                                      {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
+                                      {threshold.consultPartnerBeforePayout && (
+                                        <Text span c="yellow.6" ml={5} size="sm">(Merchant kontaktieren)</Text>
+                                      )}
+                                    </Badge>
+                                  ))}
+                                </Group>
+                              )}
+                            </Box>
+                          </Group>
+                        ))}
+                      </Stack>
                     )}
+                  </Stack>
 
-                    {/* Max amount if exists */}
-                    {rule.maxAmount && (
-                      <div className="mt-1">
-                        <Badge className="text-xs">Max: {rule.maxAmount}€</Badge>
-                      </div>
+                  {/* Discount details */}
+                  {!rule.hasMultipleStages && (
+                    <Box mt="xs">
+                      {renderDiscountInfo(rule)}
+                    </Box>
+                  )}
+
+                  {/* Max amount if exists */}
+                  {rule.maxAmount && (
+                    <Box mt="xs">
+                      <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Max: {rule.maxAmount}€</Badge>
+                    </Box>
+                  )}
+                  
+                  {/* Special rules and notes */}
+                  <Stack gap="xs" mt="md">
+                    {/* Special rules display */}
+                    {(rule.requestPictures || 
+                      rule.previousRefundsCheck || 
+                      rule.customerLoyaltyCheck || 
+                      rule.minOrderAgeToDays || 
+                      rule.consultPartnerBeforePayout ||
+                      rule.noReturnOnFullRefund ||
+                      rule.offerDiscountBeforeReturn ||
+                      rule.sendInfoToPartner) && (
+                      <Text size="sm" c="dimmed">
+                        <Text span fw={500}>Zusatzaktionen:</Text>{' '}
+                        {rule.requestPictures && <Text span>Fotos anfordern</Text>}
+                        {rule.previousRefundsCheck && <Text span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Vorherige Erstattungen prüfen</Text>}
+                        {rule.customerLoyaltyCheck && <Text span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Kundentreue prüfen</Text>}
+                        {rule.minOrderAgeToDays && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck) ? ' • ' : ''}Min. Bestellalter: {rule.minOrderAgeToDays} Tage</Text>}
+                        {rule.consultPartnerBeforePayout && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Rücksprache mit Partner vor Auszahlung</Text>}
+                        {rule.noReturnOnFullRefund && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout) ? ' • ' : ''}Keine Rücksendung bei voller Erstattung</Text>}
+                        {rule.offerDiscountBeforeReturn && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund) ? ' • ' : ''}Nachlass vor Rücksendung anbieten</Text>}
+                        {rule.sendInfoToPartner && <Text span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund || rule.offerDiscountBeforeReturn) ? ' • ' : ''}Partner informieren</Text>}
+                      </Text>
                     )}
                     
-                    {/* Special rules and notes */}
-                    <div className="mt-2 text-xs">
-                      {/* Special rules display */}
-                      {(rule.requestPictures || 
-                        rule.previousRefundsCheck || 
-                        rule.customerLoyaltyCheck || 
-                        rule.minOrderAgeToDays || 
-                        rule.consultPartnerBeforePayout ||
-                        rule.noReturnOnFullRefund ||
-                        rule.offerDiscountBeforeReturn ||
-                        rule.sendInfoToPartner) && (
-                        <div className="text-muted-foreground">
-                          <strong>Zusatzaktionen:</strong>{' '}
-                          {rule.requestPictures && <span>Fotos anfordern</span>}
-                          {rule.previousRefundsCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Vorherige Erstattungen prüfen</span>}
-                          {rule.customerLoyaltyCheck && <span>{(rule.requestPictures || rule.previousRefundsCheck) ? ' • ' : ''}Kundentreue prüfen</span>}
-                          {rule.minOrderAgeToDays && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck) ? ' • ' : ''}Min. Bestellalter: {rule.minOrderAgeToDays} Tage</span>}
-                          {rule.consultPartnerBeforePayout && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays) ? ' • ' : ''}Rücksprache mit Partner vor Auszahlung</span>}
-                          {rule.noReturnOnFullRefund && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout) ? ' • ' : ''}Keine Rücksendung bei voller Erstattung</span>}
-                          {rule.offerDiscountBeforeReturn && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund) ? ' • ' : ''}Nachlass vor Rücksendung anbieten</span>}
-                          {rule.sendInfoToPartner && <span>{(rule.requestPictures || rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.consultPartnerBeforePayout || rule.noReturnOnFullRefund || rule.offerDiscountBeforeReturn) ? ' • ' : ''}Partner informieren</span>}
-                        </div>
-                      )}
-                      
-                      {/* Notes display */}
-                      {rule.notes && (
-                        <div className="text-muted-foreground mt-1">
-                          <strong>Notizen:</strong> {rule.notes}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditRule(rule);
-                      }}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <IconEdit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteRule(rule.id);
-                      }}
-                      className="text-blue-500 hover:text-red-700"
-                    >
-                      <IconTrash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                    {/* Notes display */}
+                    {rule.notes && (
+                      <Text size="sm" c="dimmed">
+                        <Text span fw={500}>Notizen:</Text> {rule.notes}
+                      </Text>
+                    )}
+                  </Stack>
+                </Box>
+                <Group>
+                  <ActionIcon 
+                    variant="subtle" 
+                    color="blue"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditRule(rule);
+                    }}
+                  >
+                    <IconEdit size={16} />
+                  </ActionIcon>
+                  <ActionIcon 
+                    variant="subtle" 
+                    color="red"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteRule(rule.id);
+                    }}
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Group>
+              </Group>
+            </Paper>
           ))
         )}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 };
 

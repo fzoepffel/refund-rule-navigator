@@ -42,7 +42,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert } from "@/components/ui/alert";
-import { Chip, Group, Stack, Text, MultiSelect } from '@mantine/core';
+import { Chip } from '@mantine/core';
 import { 
   Paper, 
   TextInput, 
@@ -52,7 +52,18 @@ import {
   ActionIcon, 
   Tooltip,
   Select as MantineSelect,
-  Button as MantineButton
+  Button as MantineButton,
+  Text,
+  Group,
+  Stack,
+  Checkbox as MantineCheckbox,
+  Textarea as MantineTextarea,
+  Title,
+  Container,
+  MultiSelect,
+  Badge,
+  Box,
+  Flex
 } from '@mantine/core';
 
 interface RuleFormProps {
@@ -509,91 +520,78 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
     if (formData.calculationBase !== 'angebotsstaffel') return null;
     
     return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <Label>Angebotsabfolge</Label>
-          <Button 
-            type="button" 
+      <Stack gap="md">
+        <Group justify="space-between">
+          <Text size="sm" fw={500}>Angebotsabfolge</Text>
+          <MantineButton 
             variant="outline" 
             size="sm" 
             onClick={handleAddDiscountLevel}
+            leftSection={<IconPlus size={16} />}
           >
-            <IconPlus className="h-4 w-4 mr-1" /> Stufe hinzufügen
-          </Button>
-        </div>
+            Stufe hinzufügen
+          </MantineButton>
+        </Group>
         
         {(formData.discountLevels || []).map((level, index) => (
-          <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4 border p-4 rounded-md">
-            <div className="flex items-center gap-2">
-              <Input 
-                type="number" 
-                className="w-20"
-                value={level.value} 
-                onChange={(e) => handleDiscountLevelChange(index, "value", parseFloat(e.target.value))}
-                min={1}
-              />
-              <Select
-                value={level.valueType}
-                onValueChange={(value: ThresholdValueType) => 
-                  handleDiscountLevelChange(index, "valueType", value)
-                }
-              >
-                <SelectTrigger className="w-14">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="percent">%</SelectItem>
-                  <SelectItem value="fixed">€</SelectItem>
-                </SelectContent>
-              </Select>
+          <Paper key={index} p="md" withBorder>
+            <Group grow>
+              <Group>
+                <NumberInput
+                  value={level.value}
+                  onChange={(value) => handleDiscountLevelChange(index, "value", value)}
+                  min={1}
+                  w={100}
+                />
+                <MantineSelect
+                  value={level.valueType}
+                  onChange={(value) => handleDiscountLevelChange(index, "valueType", value as ThresholdValueType)}
+                  data={[
+                    { value: 'percent', label: '%' },
+                    { value: 'fixed', label: '€' }
+                  ]}
+                  w={80}
+                />
+                
+                {index < (formData.discountLevels?.length || 0) - 1 && (
+                  <Text>→</Text>
+                )}
+              </Group>
               
-              {index < (formData.discountLevels?.length || 0) - 1 && (
-                <span className="mx-1">→</span>
-              )}
-            </div>
-            
-            <div>
-              <Label htmlFor={`level-rounding-${index}`}>Rundungsregel</Label>
-              <Select
+              <MantineSelect
                 value={level.roundingRule}
-                onValueChange={(value: RoundingRule) => 
-                  handleDiscountLevelChange(index, "roundingRule", value)
-                }
-              >
-                <SelectTrigger id={`level-rounding-${index}`}>
-                  <SelectValue placeholder="Rundungsregel auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roundingRules.map(rule => (
-                    <SelectItem key={rule} value={rule}>
-                      {getRoundingRuleLabel(rule)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex justify-end">
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8"
-                disabled={formData.discountLevels?.length === 1}
-                onClick={() => handleRemoveDiscountLevel(index)}
-              >
-                <IconMinus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+                onChange={(value) => handleDiscountLevelChange(index, "roundingRule", value as RoundingRule)}
+                data={roundingRules.map(rule => ({
+                  value: rule,
+                  label: getRoundingRuleLabel(rule)
+                }))}
+              />
+              
+              <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="lg"
+                  disabled={formData.discountLevels?.length === 1}
+                  onClick={() => handleRemoveDiscountLevel(index)}
+                >
+                  <IconMinus size={16} />
+                </ActionIcon>
+              </Box>
+            </Group>
+          </Paper>
         ))}
         
         {(!formData.discountLevels || formData.discountLevels.length === 0) && (
-          <Button type="button" variant="outline" onClick={handleAddDiscountLevel}>
-            <IconPlus className="h-4 w-4 mr-2" /> Erste Stufe hinzufügen
-          </Button>
+          <MantineButton 
+            variant="outline" 
+            onClick={handleAddDiscountLevel}
+            leftSection={<IconPlus size={16} />}
+          >
+            Erste Stufe hinzufügen
+          </MantineButton>
         )}
-      </div>
+      </Stack>
     );
   };
   
@@ -784,40 +782,42 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Button type="button" variant="outline" size="icon" onClick={onCancel}>
+      <Group>
+        <MantineButton type="button" variant="outline" size="sm" onClick={onCancel}>
           <IconArrowLeft className="h-4 w-4" />
-        </Button>
-        <h2 className="text-xl font-bold flex-1">
+        </MantineButton>
+        <Title order={2} style={{ flex: 1 }}>
           {rule ? "Regel bearbeiten" : "Neue Regel erstellen"}
-        </h2>
-        <Button type="submit" className="flex items-center gap-2">
-          <IconDeviceFloppy className="h-4 w-4" /> Speichern
-        </Button>
-      </div>
+        </Title>
+        <MantineButton type="submit" leftSection={<IconDeviceFloppy size={16} />}>
+          Speichern
+        </MantineButton>
+      </Group>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Grundinformationen zum Regelfall</CardTitle>
-          <CardDescription>Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Paper p="md" withBorder>
+        <Stack gap="md">
           <div>
-            <Label htmlFor="name">Regelname (optional)</Label>
-            <Input 
-              id="name" 
+            <Title order={3}>Grundinformationen zum Regelfall</Title>
+            <Text size="sm" c="dimmed">
+              Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.
+            </Text>
+          </div>
+
+          <div>
+            <Text size="sm" fw={500} mb={5}>Regelname (optional)</Text>
+            <TextInput 
               value={formData.name} 
               onChange={(e) => handleChange("name", e.target.value)} 
               placeholder={generateRuleName()}
             />
-            <p className="text-xs text-muted-foreground mt-1">
+            <Text size="xs" c="dimmed" mt={5}>
               Leer lassen für automatisch generierten Namen: {generateRuleName()}
-            </p>
+            </Text>
           </div>
           
           {/* Gründe */}
           <div>
-            <Label htmlFor="triggers">Gründe</Label>
+            <Text size="sm" fw={500} mb={5}>Gründe</Text>
             <Stack gap="xs">
               <Group gap="xs">
                 {mainTriggers.map(trigger => {
@@ -838,12 +838,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                   );
                 })}
               </Group>
-               <Text size="xs" c="dimmed" mt="xs">
-              Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
-            </Text>
+              <Text size="xs" c="dimmed">
+                Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+              </Text>
 
               {formData.triggers.includes('Mangel') && (
-                <div className="mt-2 border-l-2 border-blue-200 pl-4">
+                <Box pl="md" style={{ borderLeft: '2px solid var(--mantine-color-blue-2)' }}>
                   <MultiSelect
                     label="Spezifische Mängel"
                     placeholder="Spezifische Mängel auswählen"
@@ -866,20 +866,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
                     color="blue"
                   />
                   <Text size="xs" c="dimmed" mt="xs">
-              Für generelle Mängel (Reklamationen) einfach alle Spezifischen Mängel ausgewählt lassen.
-            </Text>
-                </div>
-                
+                    Für generelle Mängel (Reklamationen) einfach alle Spezifischen Mängel ausgewählt lassen.
+                  </Text>
+                </Box>
               )}
             </Stack>
-            
           </div>
 
           {/* Versandart */}
           <div>
-            <Label htmlFor="shippingType">Versandart</Label>
+            <Text size="sm" fw={500} mb={5}>Versandart</Text>
             <MantineSelect
-              defaultValue={formData.shippingType || 'Egal'}
+              value={formData.shippingType || 'Egal'}
               onChange={(value) => handleChange("shippingType", value as ShippingType)}
               data={shippingTypes.map(type => ({ value: type, label: type }))}
               placeholder="Versandart auswählen"
@@ -888,9 +886,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           
           {/* Originalverpackt? */}
           <div>
-            <Label htmlFor="packageOpened">Originalverpackt?</Label>
+            <Text size="sm" fw={500} mb={5}>Originalverpackt?</Text>
             <MantineSelect
-              defaultValue={formData.packageOpened || 'Egal'}
+              value={formData.packageOpened || 'Egal'}
               onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
               data={[
                 { value: 'Egal', label: 'Egal' },
@@ -900,15 +898,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               placeholder="Bitte auswählen"
             />
           </div>
-        </CardContent>
-      </Card>
+        </Stack>
+      </Paper>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Berechnungsgrundlage</CardTitle>
-          <CardDescription>Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <Paper p="md" withBorder>
+        <Stack gap="md">
+          <div>
+            <Title order={3}>Berechnungsgrundlage</Title>
+            <Text size="sm" c="dimmed">
+              Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.
+            </Text>
+          </div>
+
           <div className="space-y-2">
             <Group>
               <Switch
@@ -971,7 +972,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           ) : (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="calculationBase">Art der Berechnung</Label>
+                <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
                 <MantineSelect 
                   value={formData.calculationBase} 
                   onChange={(value) => {
@@ -1146,98 +1147,85 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
           )}
           {formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
             <div>
-              <Label htmlFor="maxAmount">Maximalbetrag (€) (optional)</Label>
-              <Input 
-                id="maxAmount" 
-                type="number" 
-                value={formData.maxAmount || ''} 
-                onChange={(e) => {
-                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                  handleChange("maxAmount", value);
-                }}
+              <Text size="sm" fw={500} mb={5}>Maximalbetrag (€) (optional)</Text>
+              <NumberInput
+                value={formData.maxAmount || ''}
+                onChange={(value) => handleChange("maxAmount", value)}
                 min={0}
                 placeholder="Kein Maximum"
+                rightSection={<Text>€</Text>}
+                rightSectionWidth={30}
               />
             </div>
           )}
-        </CardContent>
-      </Card>
+        </Stack>
+      </Paper>
+      
+      <Paper p="md" withBorder>
+        <Stack gap="md">
+          <div>
+            <Text size="sm" fw={500} mb={5}>Strategie</Text>
+            <MantineSelect
+              value={formData.returnStrategy}
+              onChange={(value) => handleChange("returnStrategy", value as ReturnStrategy)}
+              data={returnStrategies}
+            />
+          </div>
+        </Stack>
+      </Paper>
       
       {formData.requestType === 'Artikel zurücksenden' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Retourenabwicklung</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Paper p="md" withBorder>
+          <Stack gap="md">
+            <Title order={3}>Retourenabwicklung</Title>
             <div>
-              <Label htmlFor="returnHandling">Art der Retourenabwicklung</Label>
-              <Select 
+              <Text size="sm" fw={500} mb={5}>Art der Retourenabwicklung</Text>
+              <MantineSelect 
                 value={formData.returnHandling} 
-                onValueChange={(value: ReturnHandling) => handleChange("returnHandling", value)}
+                onChange={(value) => handleChange("returnHandling", value as ReturnHandling)}
                 disabled={formData.returnStrategy === 'auto_return_full_refund'}
-              >
-                <SelectTrigger id="returnHandling">
-                  <SelectValue placeholder="Retourenabwicklung auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {returnHandlings.map(handling => (
-                    <SelectItem key={handling} value={handling}>
-                      {getReturnHandlingLabel(handling)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      <Card>
-        <CardHeader>
-          <CardTitle></CardTitle>
-          </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            
-        
-          
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Checkbox 
-                  id="consultPartnerBeforePayout" 
-                  checked={formData.consultPartnerBeforePayout || false}
-                  disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
-                  onCheckedChange={(checked) => handleChange("consultPartnerBeforePayout", checked)}
-                />
-                <Label htmlFor="consultPartnerBeforePayout" className={
-                  formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false
-                    ? "text-muted-foreground" 
-                    : ""
-                }>
-                  Rücksprache mit Partner vor Auszahlung
-                  {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
-                    <span className="text-amber-600 ml-1">(Erforderlich)</span>
-                  )}
-                </Label>
-              </div>
-              <p className="text-sm text-muted-foreground pl-6">
-              Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
-                </p>
-            </div>
-          
-            <div>
-              <Label htmlFor="notes">Notizen</Label>
-              <Textarea 
-                id="notes" 
-                value={formData.notes || ''} 
-                onChange={(e) => handleChange("notes", e.target.value)}
-                placeholder="Zusätzliche Hinweise zur Regel"
-                rows={4}
+                data={returnHandlings.map(handling => ({
+                  value: handling,
+                  label: getReturnHandlingLabel(handling)
+                }))}
               />
             </div>
+          </Stack>
+        </Paper>
+      )}
+      
+      <Paper p="md" withBorder>
+        <Stack gap="md">
+          <div className="space-y-4">
+            <Group>
+              <MantineCheckbox 
+                checked={formData.consultPartnerBeforePayout || false}
+                disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
+                onChange={(event) => handleChange("consultPartnerBeforePayout", event.currentTarget.checked)}
+              />
+              <Text size="sm" c={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false ? "dimmed" : undefined}>
+                Rücksprache mit Partner vor Auszahlung
+                {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
+                  <Text span c="yellow.6" ml={5}>(Erforderlich)</Text>
+                )}
+              </Text>
+            </Group>
+            <Text size="sm" c="dimmed" pl={40}>
+              Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
+            </Text>
           </div>
-        </CardContent>
-      </Card>
+          
+          <div>
+            <Text size="sm" fw={500} mb={5}>Notizen</Text>
+            <MantineTextarea 
+              value={formData.notes || ''} 
+              onChange={(e) => handleChange("notes", e.target.value)}
+              placeholder="Zusätzliche Hinweise zur Regel"
+              minRows={4}
+            />
+          </div>
+        </Stack>
+      </Paper>
     </form>
   );
 };
