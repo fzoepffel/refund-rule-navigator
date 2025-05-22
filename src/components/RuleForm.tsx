@@ -1006,7 +1006,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   <MultiSelect
                     label="Spezifische Mängel"
                     styles={{ label: { fontSize: 20, fontWeight: 400 }, input: { fontSize: 18 }, pill: { fontSize: 18, backgroundColor: 'white' }, option: { fontSize: 18 }}}
-                    placeholder="Spezifische Mängel auswählen"
                     data={mangelTriggers.map(trigger => ({
                       value: trigger,
                       label: getTriggerLabel(trigger)
