@@ -34,14 +34,6 @@ const RuleList: React.FC<RuleListProps> = ({
   onDeleteRule, 
   onCreateRule 
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState<string | null>(null);
-  
-  const filteredRules = rules.filter(rule => {
-    const matchesSearch = rule.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
-
   // Helper function to format package opened status
   const getPackageOpenedLabel = (packageOpened?: 'yes' | 'no' | 'Egal') => {
     if (!packageOpened || packageOpened === 'Egal') return '';
@@ -168,17 +160,7 @@ const RuleList: React.FC<RuleListProps> = ({
 
   return (
     <Stack gap="md">
-      <Group>
-        <TextInput
-          placeholder="Nach Regeln suchen..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          leftSection={<IconSearch size={16} />}
-          style={{ flex: 1 }}
-        />
-        <Button variant="light" leftSection={<IconFilter size={16} />}>
-          Filter
-        </Button>
+      <Group justify="flex-end">
         <Button 
           variant="filled" 
           leftSection={<IconPlus size={16} />} 
@@ -189,14 +171,14 @@ const RuleList: React.FC<RuleListProps> = ({
       </Group>
       
       <Stack gap="xs">
-        {filteredRules.length === 0 ? (
+        {rules.length === 0 ? (
           <Paper p="md" withBorder>
             <Text c="dimmed" ta="center">
               Keine Regeln gefunden. Erstellen Sie eine neue Regel.
             </Text>
           </Paper>
         ) : (
-          filteredRules.map(rule => (
+          rules.map(rule => (
             <Paper 
               key={rule.id}
               p="md"
