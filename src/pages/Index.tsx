@@ -77,45 +77,43 @@ const Index = () => {
     <>
       <Header />
       <div style={{ display: "flex", minHeight: "100vh" }}>
-        <Sidebar />
-        <Box style={{ flex: 1}}>
-          <Container size="xl" py="xl">
-            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
-              <Stack gap="xl">
-                {viewState.type === "list" && (
-                  <RuleList 
-                    rules={rules} 
-                    onSelectRule={handleSelectRule}
-                    onEditRule={handleEditRule}
-                    onDeleteRule={handleDeleteRule}
-                    onCreateRule={handleCreateRule}
-                  />
-                )}
-                
-                {viewState.type === "detail" && viewState.selectedRule && (
-                  <RuleDetail 
-                    rule={viewState.selectedRule} 
-                    onBack={handleBackToList}
-                    onEdit={handleEditRule}
-                  />
-                )}
-                
-                {viewState.type === "form" && (
-                  <RuleForm 
-                    rule={viewState.selectedRule}
-                    existingRules={rules}
-                    onSave={handleSaveRule}
-                    onCancel={handleBackToList}
-                  />
-                )}
-              </Stack>
+        <Box style={{ width: 260, minWidth: 260 }}>
+          <Sidebar />
+        </Box>
+        <Box style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          <Container size="xl" py="xl" style={{ width: '100%', maxWidth: 900 }}>
+            <Stack gap="xl">
+              {viewState.type === "list" && (
+                <RuleList 
+                  rules={rules} 
+                  onSelectRule={handleSelectRule}
+                  onEditRule={handleEditRule}
+                  onDeleteRule={handleDeleteRule}
+                  onCreateRule={handleCreateRule}
+                />
+              )}
               
-              <Stack gap="xl">
-                {viewState.type === "detail" && viewState.selectedRule && (
-                  <RuleCalculator rule={viewState.selectedRule} />
-                )}
-              </Stack>
-            </SimpleGrid>
+              {viewState.type === "detail" && viewState.selectedRule && (
+                <RuleDetail 
+                  rule={viewState.selectedRule} 
+                  onBack={handleBackToList}
+                  onEdit={handleEditRule}
+                />
+              )}
+              
+              {viewState.type === "form" && (
+                <RuleForm 
+                  rule={viewState.selectedRule}
+                  existingRules={rules}
+                  onSave={handleSaveRule}
+                  onCancel={handleBackToList}
+                />
+              )}
+
+              {viewState.type === "detail" && viewState.selectedRule && (
+                <RuleCalculator rule={viewState.selectedRule} />
+              )}
+            </Stack>
           </Container>
         </Box>
       </div>

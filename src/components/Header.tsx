@@ -15,8 +15,8 @@ const Header = () => {
         width: '100%',
       }}
     >
-      <div className="flex items-center">
-        <img src={check24logo} alt="check24 logo" width={400} height={400} />
+      <div className="flex items-center ml-7">
+        <img src={check24logo} alt="check24 logo" width={320} height={320} />
       </div>
       
       <div className="flex items-center space-x-4">
