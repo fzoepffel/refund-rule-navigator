@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { 
   Trigger, 
-  RequestType,
-  RequestCategory,
   CalculationBase, 
   RoundingRule, 
-  ReturnHandling,
   ThresholdValueType,
   PriceThreshold,
   ShippingType,
   DiscountLevel,
-  CustomerOption
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
@@ -47,16 +43,12 @@ interface RuleFormProps {
 interface DiscountRule {
   id: string;
   name: string;
-  requestType: RequestType;
-  requestCategory: RequestCategory[];
   triggers: Trigger[];
   calculationBase: CalculationBase;
   roundingRule: RoundingRule;
-  returnHandling: ReturnHandling;
   shippingType: ShippingType;
   packageOpened: 'yes' | 'no' | 'Egal';
   value: number;
-  isCompleteRule?: boolean;
   consultPartnerBeforePayout: boolean;
   hasMultipleStages?: boolean;
   calculationStages?: {
@@ -68,12 +60,7 @@ interface DiscountRule {
   priceThresholds?: PriceThreshold[];
   discountLevels?: DiscountLevel[];
   maxAmount?: number;
-  previousRefundsCheck?: boolean;
-  customerLoyaltyCheck?: boolean;
-  minOrderAgeToDays?: number;
   notes?: string;
-  requestPictures?: boolean;
-  customerOptions?: CustomerOption[];
 }
 
 interface FormData {
@@ -86,8 +73,6 @@ interface FormData {
 const defaultRule: DiscountRule = {
   id: "",
   name: "",
-  requestType: "Egal",
-  requestCategory: [] as RequestCategory[],
   triggers: [
     'Geschmacksretoure',
     'Mangel',
@@ -98,7 +83,6 @@ const defaultRule: DiscountRule = {
   ],
   calculationBase: "prozent_vom_vk",
   roundingRule: "keine_rundung",
-  returnHandling: "keine_retoure",
   shippingType: "Egal",
   packageOpened: "Egal",
   value: 10,
@@ -109,7 +93,6 @@ const defaultRule: DiscountRule = {
     value: 10,
     roundingRule: "keine_rundung"
   }],
-  customerOptions: ['Preisnachlass']
 };
 
 // Add this new component before the RuleForm component
@@ -366,10 +349,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     'Falscher Artikel'
   ];
   
-  const calculationBases: CalculationBase[] = ['keine_berechnung', 'prozent_vom_vk', 'fester_betrag', 'preisstaffel'];
+  const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_1_euro'];
-  const returnHandlings: ReturnHandling[] = ['automatisches_label', 'manuelles_label', 'zweitverwerter', 'keine_retoure'];
-  const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['Egal', 'Paket', 'Spedition'];
   
   // Add new state for validation
@@ -533,24 +514,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
     return parts.filter(part => part).join(", ");
   };
-  
-  // Effect for handling rule completeness and consultation checkbox relationship
-  useEffect(() => {
-    // If rule is not complete, partner consultation is required
-    if (formData.isCompleteRule === false) {
-      setFormData(prev => ({
-        ...prev,
-        consultPartnerBeforePayout: true
-      }));
-    }
-    // If rule is complete, remove partner consultation requirement (unless calculation base requires it)
-    else if (formData.isCompleteRule === true && formData.calculationBase !== 'keine_berechnung') {
-      setFormData(prev => ({
-        ...prev,
-        consultPartnerBeforePayout: false
-      }));
-    }
-  }, [formData.isCompleteRule]);
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
     setFormData(prev => ({
@@ -1229,14 +1192,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             <Group>
               <MantineCheckbox 
                 checked={formData.consultPartnerBeforePayout || false}
-                disabled={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false}
                 onChange={(event) => handleChange("consultPartnerBeforePayout", event.currentTarget.checked)}
               />
-              <Text size="sm" c={formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false ? "dimmed" : undefined}>
+              <Text size="sm">
                 Rücksprache mit Partner vor Auszahlung
-                {(formData.calculationBase === 'keine_berechnung' || formData.isCompleteRule === false) && (
-                  <Text span c="yellow.6" ml={5}>(Erforderlich)</Text>
-                )}
               </Text>
             </Group>
             <Text size="sm" c="dimmed" pl={40}>

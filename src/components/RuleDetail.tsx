@@ -181,12 +181,6 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                             {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                             
                               ({getRoundingRuleLabel(threshold.roundingRule)})
-                            
-                            {threshold.consultPartnerBeforePayout && (
-                              <Text span size="xs" c="yellow.6" ml={5}>
-                                (Merchant kontaktieren)
-                              </Text>
-                            )}
                           </Badge>
                         </Group>
                       ))}
@@ -272,12 +266,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                                     {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                                     
                                       ({getRoundingRuleLabel(threshold.roundingRule)})
-                                   
-                                    {threshold.consultPartnerBeforePayout && (
-                                      <Text span size="xs" c="yellow.6" ml={5}>
-                                        (Merchant kontaktieren)
-                                      </Text>
-                                    )}
+                                  
                                   </Badge>
                                 </Group>
                               ))}
@@ -299,7 +288,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </Box>
           )}
 
-          {(rule.previousRefundsCheck || rule.customerLoyaltyCheck || rule.minOrderAgeToDays || rule.requestPictures || rule.offerDiscountBeforeReturn || rule.consultPartnerBeforePayout || rule.sendInfoToPartner) && (
+          { rule.consultPartnerBeforePayout && (
             <>
               <Divider />
               <Box>

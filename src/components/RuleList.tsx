@@ -52,7 +52,6 @@ const RuleList: React.FC<RuleListProps> = ({
 
   // Helper function to render discount information based on calculation base
   const renderDiscountInfo = (rule: DiscountRule) => {
-    if (!rule.customerOptions?.includes('Preisnachlass')) return null;
 
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
@@ -68,9 +67,6 @@ const RuleList: React.FC<RuleListProps> = ({
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                 {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
-                {threshold.consultPartnerBeforePayout && (
-                  <Text span c="yellow.6" ml={5} size="sm">(Merchant kontaktieren)</Text>
-                )}
               </Badge>
             ))}
           </Group>
@@ -233,9 +229,6 @@ const RuleList: React.FC<RuleListProps> = ({
                                       {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                                       {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                                       {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
-                                      {threshold.consultPartnerBeforePayout && (
-                                        <Text span c="yellow.6" ml={5} size="sm">(Merchant kontaktieren)</Text>
-                                      )}
                                     </Badge>
                                   ))}
                                 </Group>
@@ -264,24 +257,11 @@ const RuleList: React.FC<RuleListProps> = ({
                   {/* Special rules and notes */}
                   <Stack gap="xs" mt="md">
                     {/* Special rules display */}
-                    {(rule.requestPictures || 
-                      rule.previousRefundsCheck || 
-                      rule.customerLoyaltyCheck || 
-                      rule.minOrderAgeToDays || 
-                      rule.consultPartnerBeforePayout ||
-                      rule.noReturnOnFullRefund ||
-                      rule.offerDiscountBeforeReturn ||
-                      rule.sendInfoToPartner) && (
+                    {
+                      rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
                         <Text span size="sm" c="dimmed" fw={500}>Zusatzaktionen:</Text>
-                        {rule.requestPictures && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Fotos anfordern</Badge>}
-                        {rule.previousRefundsCheck && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Vorherige Erstattungen prüfen</Badge>}
-                        {rule.customerLoyaltyCheck && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Kundentreue prüfen</Badge>}
-                        {rule.minOrderAgeToDays && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Min. Bestellalter: {rule.minOrderAgeToDays} Tage</Badge>}
                         {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
-                        {rule.noReturnOnFullRefund && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Keine Rücksendung bei voller Erstattung</Badge>}
-                        {rule.offerDiscountBeforeReturn && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Nachlass vor Rücksendung anbieten</Badge>}
-                        {rule.sendInfoToPartner && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Partner informieren</Badge>}
                       </Group>
                     )}
                     
