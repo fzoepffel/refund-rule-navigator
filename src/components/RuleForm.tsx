@@ -926,10 +926,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       // Remove all existing mangel triggers
                       const newTriggers = formData.triggers.filter(t => !mangelTriggers.includes(t));
                       // Add the selected ones back
-                      setFormData(prev => ({
-                        ...prev,
-                        triggers: [...newTriggers, ...(values as Trigger[])]
-                      }));
+                      const updatedTriggers = [...newTriggers, ...(values as Trigger[])];
+                      
+                      // If no specific Mangel triggers are selected, remove 'Mangel' from triggers
+                      if (values.length === 0) {
+                        const finalTriggers = updatedTriggers.filter(t => t !== 'Mangel');
+                        setFormData(prev => ({
+                          ...prev,
+                          triggers: finalTriggers
+                        }));
+                      } else {
+                        setFormData(prev => ({
+                          ...prev,
+                          triggers: updatedTriggers
+                        }));
+                      }
                       setBasicInfoChanged(true);
                       setShowCalculation(false);
                     }}
