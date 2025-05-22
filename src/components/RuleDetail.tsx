@@ -169,15 +169,15 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                 <>
                   <Divider />
                   <Box mt={0}>
-                    <Text size="sm" c="dimmed" mb="xs">Preisstaffelung</Text>
+                    <Text style={{ fontSize: 18 }} c="dimmed" mb="xs">Preisstaffelung</Text>
                     <Stack gap={8}>
                       {rule.priceThresholds.map((threshold, index) => (
                         <Group key={index} gap="xs" wrap="nowrap">
-                          <Text>
+                          <Text style={{ fontSize: 20 }}>
                             {threshold.minPrice}€ 
                             {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                           </Text>
-                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                          <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                             {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                             ({getRoundingRuleLabel(threshold.roundingRule)})
                           </Badge>
@@ -192,11 +192,11 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                 <>
                   <Divider />
                   <Box mt={0}>
-                    <Text size="sm" c="dimmed" mb="xs">Nachlassstaffelung</Text>
+                    <Text style={{ fontSize: 18 }} c="dimmed" mb="xs">Nachlassstaffelung</Text>
                     <Group gap={8}>
                       {rule.discountLevels.map((level, index, array) => (
                         <React.Fragment key={index}>
-                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                          <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                             {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
                             ({getRoundingRuleLabel(level.roundingRule)})
                           </Badge>
@@ -221,7 +221,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <>
               <Divider />
               <Box mt={0}>
-                <Text size="sm" c="dimmed" mb="xs">Angebotsstufen</Text>
+                <Text style={{ fontSize: 18 }} c="dimmed" mb="xs">Angebotsstufen</Text>
                 <Stack gap={16}>
                   {rule.calculationStages.map((stage, index) => (
                     <Paper key={index} p="md" withBorder>
@@ -251,15 +251,15 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
                         {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && stage.priceThresholds.length > 0 && (
                           <Box>
-                            <Text size="sm" c="dimmed" mb="xs">Preisstaffelung</Text>
+                            <Text style={{ fontSize: 18 }} c="dimmed" mb="xs">Preisstaffelung</Text>
                             <Stack gap={8}>
                               {stage.priceThresholds.map((threshold, thresholdIndex) => (
                                 <Group key={thresholdIndex} gap="xs" wrap="nowrap">
-                                  <Text>
+                                  <Text style={{ fontSize: 20 }}>
                                     {threshold.minPrice}€ 
                                     {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                                   </Text>
-                                  <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                                  <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                     {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                                     ({getRoundingRuleLabel(threshold.roundingRule)})
                                   </Badge>
@@ -290,7 +290,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               <Divider />
               <Box>
                 <Text style={{ fontSize: 18 }} c="dimmed">Notizen</Text>
-                <Text size="sm">{rule.notes}</Text>
+                <Text style={{ fontSize: 20 }}>{rule.notes}</Text>
               </Box>
             </Stack>
           )}

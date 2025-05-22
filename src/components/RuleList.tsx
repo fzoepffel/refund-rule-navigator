@@ -63,7 +63,7 @@ const RuleList: React.FC<RuleListProps> = ({
         return (
           <Group gap="xs" wrap="wrap">
             {rule.priceThresholds.map((threshold, idx) => (
-              <Badge key={idx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+              <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} key={idx} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                 {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
@@ -239,7 +239,7 @@ const RuleList: React.FC<RuleListProps> = ({
                               {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
                                 <Group gap="xs" wrap="wrap" mt="xxxxs">
                                   {stage.priceThresholds.map((threshold, tIdx) => (
-                                    <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                                    <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} key={tIdx} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                       {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                                       {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                                       {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
