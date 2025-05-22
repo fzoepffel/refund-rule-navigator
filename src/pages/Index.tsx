@@ -102,6 +102,7 @@ const Index = () => {
             {viewState.type === "form" && (
               <RuleForm 
                 rule={viewState.selectedRule}
+                existingRules={rules}
                 onSave={handleSaveRule}
                 onCancel={handleBackToList}
               />

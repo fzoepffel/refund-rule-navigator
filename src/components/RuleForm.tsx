@@ -19,6 +19,7 @@ import {
   getReturnHandlingLabel,
   getThresholdValueTypeLabel
 } from "../utils/discountUtils";
+import { sampleRules } from "../data/sampleRules";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,6 +70,7 @@ import { Plus } from 'lucide-react';
 
 interface RuleFormProps {
   rule?: DiscountRule;
+  existingRules: DiscountRule[];
   onSave: (rule: DiscountRule) => void;
   onCancel: () => void;
 }
@@ -141,7 +143,7 @@ const defaultRule: DiscountRule = {
   customerOptions: ['Preisnachlass']
 };
 
-const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
+const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCancel }) => {
   // Create a fresh copy of the default rule for new rules
   const getInitialFormData = () => {
     if (rule) {
@@ -177,8 +179,104 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   const thresholdValueTypes: ThresholdValueType[] = ['percent', 'fixed'];
   const shippingTypes: ShippingType[] = ['Egal', 'Paket', 'Spedition'];
   
+  // Add new state for validation
+  const [showCalculation, setShowCalculation] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  
+  // Add effect to hide calculation section when basic info changes
+  useEffect(() => {
+    if (!rule) {  // Only apply this behavior for new rules
+      setShowCalculation(false);
+      setValidationError(null);
+    }
+  }, [formData.triggers, formData.shippingType, formData.packageOpened]);
+
+  // Update validation function
+  const validateRuleOverlap = () => {
+    // Skip validation if we're editing an existing rule
+    if (rule) {
+      setShowCalculation(true);
+      return;
+    }
+
+    // Get all rules except the current one being edited
+    const rulesToCheck = existingRules.filter(r => r.id !== formData.id);
+
+    // Get all specific Mangel triggers
+    const mangelTriggers: Trigger[] = [
+      'Artikel beschädigt/funktioniert nicht mehr',
+      'Versandverpackung und Artikel beschädigt',
+      'Teile oder Zubehör fehlen',
+      'Falscher Artikel'
+    ];
+
+    // Helper function to check if a set of triggers has all Mangel triggers
+    const hasAllMangelTriggers = (triggers: Trigger[]) => {
+      return mangelTriggers.every(trigger => triggers.includes(trigger));
+    };
+
+    // Helper function to check if two sets of triggers overlap
+    const doTriggersOverlap = (triggers1: Trigger[], triggers2: Trigger[]) => {
+      // If either set is empty, there's no overlap
+      if (triggers1.length === 0 || triggers2.length === 0) return false;
+
+      // Check each trigger in the first set
+      return triggers1.some(trigger1 => {
+        // If trigger1 is a specific Mangel trigger
+        if (mangelTriggers.includes(trigger1)) {
+          // Only overlap if the exact same specific Mangel trigger exists in both sets
+          return triggers2.includes(trigger1);
+        }
+        // If trigger1 is "Mangel"
+        if (trigger1 === 'Mangel') {
+          // Only overlap if the other set has all Mangel triggers
+          return hasAllMangelTriggers(triggers2);
+        }
+        // For non-Mangel triggers, check for exact match
+        return triggers2.includes(trigger1);
+      });
+    };
+
+    // Helper function to check if shipping types overlap
+    const doShippingTypesOverlap = (type1: ShippingType, type2: ShippingType) => {
+      // If either is "Egal", they overlap
+      if (type1 === 'Egal' || type2 === 'Egal') return true;
+      // Otherwise, they must match exactly
+      return type1 === type2;
+    };
+
+    // Helper function to check if package opened status overlaps
+    const doPackageOpenedOverlap = (status1: 'yes' | 'no' | 'Egal', status2: 'yes' | 'no' | 'Egal') => {
+      // If either is "Egal", they overlap
+      if (status1 === 'Egal' || status2 === 'Egal') return true;
+      // Otherwise, they must match exactly
+      return status1 === status2;
+    };
+
+    // Check for overlaps
+    const hasOverlap = rulesToCheck.some(existingRule => {
+      // Check if shipping types overlap
+      const shippingTypeOverlap = doShippingTypesOverlap(formData.shippingType, existingRule.shippingType);
+
+      // Check if package opened status overlaps
+      const packageOpenedOverlap = doPackageOpenedOverlap(formData.packageOpened, existingRule.packageOpened);
+
+      // Check if triggers overlap
+      const triggerOverlap = doTriggersOverlap(formData.triggers, existingRule.triggers);
+
+      // If all conditions overlap, there's a conflict
+      return shippingTypeOverlap && packageOpenedOverlap && triggerOverlap;
+    });
+
+    if (hasOverlap) {
+      setValidationError("Diese Regel überschneidet sich mit einer bestehenden Regel. Bitte passen Sie die Grundinformationen an.");
+      setShowCalculation(false);
+    } else {
+      setValidationError(null);
+      setShowCalculation(true);
+    }
+  };
+
   // Effect to handle Mangel trigger selection/deselection
   useEffect(() => {
     if (formData.triggers.includes('Mangel')) {
@@ -867,270 +965,290 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
               placeholder="Bitte auswählen"
             />
           </div>
-        </Stack>
-      </Paper>
-      
-      <Paper p="md" withBorder>
-        <Stack gap="md">
-          <div>
-            <Title order={3}>Berechnungsgrundlage</Title>
-            <Text size="sm" c="dimmed">
-              Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.
-            </Text>
-          </div>
 
-          <div className="space-y-2">
-            <Group>
-              <MantineCheckbox
-                checked={formData.hasMultipleStages}
-                onChange={(event) => handleChange("hasMultipleStages", event.currentTarget.checked)}
-              />
-              <Text size="sm" fw={500}>Mehrere Angebotsstufen</Text>
-            </Group>
-            <Text size="xs" c="dimmed" pl={40}>
-              Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
-              Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
-            </Text>
-          </div>
-
-          {formData.hasMultipleStages ? (
-            <Stack gap="md">
-              {(formData.calculationStages || []).map((stage, index) => (
-                <Paper key={index} p="md" withBorder>
-                  <Stack gap="md">
-                    <Group justify="space-between">
-                      <Text fw={500}>Stufe {index + 1}</Text>
-                      {index > 0 && (
-                        <ActionIcon
-                          variant="subtle"
-                          color="gray"
-                          onClick={() => handleRemoveCalculationStage(index)}
-                        >
-                          <IconMinus size={16} />
-                        </ActionIcon>
-                      )}
-                    </Group>
-                    
-                    <div>
-                      <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
-                      <MantineSelect
-                        value={stage.calculationBase}
-                        onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
-                        data={calculationBases.map(base => ({
-                          value: base,
-                          label: getCalculationBaseLabel(base)
-                        }))}
-                      />
-                    </div>
-
-                    {/* Stage-specific calculation fields */}
-                    {renderCalculationFields(stage, index)}
-                  </Stack>
-                </Paper>
-              ))}
-
-              <Button
-                type="button"
-                onClick={handleAddCalculationStage}
-                className="w-full"
-                variant="outline"
+          {!rule && (
+            <Group justify="flex-end">
+              <MantineButton 
+                onClick={validateRuleOverlap}
+                variant="filled"
+                color="blue"
               >
-                <Plus className="h-4 w-4 mr-2" /> Stufe hinzufügen
-              </Button>
+                Berechnung angeben
+              </MantineButton>
+            </Group>
+          )}
 
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="max-amount">Maximalbetrag</Label>
-                  <div className="flex items-center gap-2">
-                    <NumberInput
-                      id="max-amount"
-                      value={formData.maxAmount || ''}
-                      onChange={(value) => handleChange("maxAmount", value)}
-                      min={0}
-                      className="flex-1"
-                    />
-                    <div className="text-lg font-medium">€</div>
-                  </div>
-                  <Text size="sm" c="dimmed" pl={40}>
-                    Maximaler Betrag für alle Stufen
-                  </Text>
-                </div>
-              </div>
-            </Stack>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
-                <MantineSelect 
-                  value={formData.calculationBase} 
-                  onChange={(value) => {
-                    const newValue = value as CalculationBase;
-                    if (newValue === 'preisstaffel' && (!formData.priceThresholds || formData.priceThresholds.length === 0)) {
-                      handleChange("priceThresholds", [{
-                        minPrice: 0,
-                        value: 10,
-                        valueType: 'percent',
-                        roundingRule: 'keine_rundung'
-                      }]);
-                    }
-                    handleChange("calculationBase", newValue);
-                  }}
-                  data={calculationBases.map(base => ({
-                    value: base,
-                    label: getCalculationBaseLabel(base)
-                  }))}
-                />
-              </div>
-
-              {/* Single calculation fields */}
-              {formData.calculationBase === 'prozent_vom_vk' && (
-                <div>
-                  <Text size="sm" fw={500} mb={5}>Prozentsatz</Text>
-                  <NumberInput
-                    id="value"
-                    value={formData.value || 0}
-                    onChange={(value) => handleChange("value", value)}
-                    min={0}
-                    max={100}
-                    rightSection={<Text>%</Text>}
-                    rightSectionWidth={30}
-                  />
-                </div>
-              )}
-
-              {formData.calculationBase === 'fester_betrag' && (
-                <div>
-                  <Text size="sm" fw={500} mb={5}>Betrag (€)</Text>
-                  <NumberInput
-                    id="value"
-                    value={formData.value || 0}
-                    onChange={(value) => handleChange("value", value)}
-                    min={0}
-                    rightSection={<Text>€</Text>}
-                    rightSectionWidth={30}
-                  />
-                </div>
-              )}
-
-              {formData.calculationBase === 'preisstaffel' && (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <Text size="sm" fw={500}>Preisstaffelung</Text>
-                  </div>
-                  
-                  {(formData.priceThresholds || []).map((threshold, index) => (
-                    <Paper key={index} p="md" withBorder>
-                      <Stack gap="md">
-                        <Group grow>
-                          <div>
-                            <Text size="sm" fw={500} mb={5}>Min (€)</Text>
-                            <NumberInput
-                              value={threshold.minPrice}
-                              disabled
-                              styles={{ input: { backgroundColor: 'var(--mantine-color-gray-1)' } }}
-                            />
-                          </div>
-                          <div>
-                            <Text size="sm" fw={500} mb={5}>Max (€)</Text>
-                            <NumberInput
-                              value={threshold.maxPrice || undefined}
-                              onChange={(value) => handlePriceThresholdChange(0, index, 'maxPrice', value)}
-                              min={threshold.minPrice + 1}
-                              placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
-                            />
-                          </div>
-                          <div>
-                            <Text size="sm" fw={500} mb={5}>Wert</Text>
-                            <NumberInput
-                              value={threshold.value}
-                              onChange={(value) => handlePriceThresholdChange(0, index, 'value', value)}
-                              min={0}
-                            />
-                          </div>
-                          <div>
-                            <Text size="sm" fw={500} mb={5}>Art</Text>
-                            <MantineSelect
-                              value={threshold.valueType || 'percent'}
-                              onChange={(value) => handlePriceThresholdChange(0, index, 'valueType', value as ThresholdValueType)}
-                              data={[
-                                { value: 'percent', label: '%' },
-                                { value: 'fixed', label: '€' }
-                              ]}
-                            />
-                          </div>
-                          <div>
-                            <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
-                            <MantineSelect
-                              value={threshold.roundingRule}
-                              onChange={(value) => handlePriceThresholdChange(0, index, 'roundingRule', value as RoundingRule)}
-                              data={roundingRules.map(rule => ({
-                                value: rule,
-                                label: getRoundingRuleLabel(rule)
-                              }))}
-                            />
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                            <ActionIcon
-                              variant="subtle"
-                              color="gray"
-                              size="lg"
-                              disabled={formData.priceThresholds?.length === 1}
-                              onClick={() => handleRemovePriceThreshold(0, index)}
-                            >
-                              <IconMinus size={16} />
-                            </ActionIcon>
-                          </div>
-                        </Group>
-
-                        <Group>
-                          <MantineCheckbox
-                            checked={threshold.consultPartnerBeforePayout || false}
-                            onChange={(event) => 
-                              handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', event.currentTarget.checked)
-                            }
-                          />
-                          <Text size="sm">
-                            Vor Auszahlung Merchant kontaktieren
-                          </Text>
-                        </Group>
-                      </Stack>
-                    </Paper>
-                  ))}
-                </div>
-              )}
-
-              {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
-                <div>
-                  <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
-                  <MantineSelect
-                    value={formData.roundingRule}
-                    onChange={(value) => handleChange("roundingRule", value as RoundingRule)}
-                    data={roundingRules.map(rule => ({
-                      value: rule,
-                      label: getRoundingRuleLabel(rule)
-                    }))}
-                  />
-                </div>
-              )}
-              {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
-                <div>
-                  <Text size="sm" fw={500} mb={5}>Maximalbetrag</Text>
-                  <NumberInput
-                    value={formData.maxAmount || ''}
-                    onChange={(value) => handleChange("maxAmount", value)}
-                    min={0}
-                    rightSection={<Text>€</Text>}
-                    rightSectionWidth={30}
-                  />
-                  <Text size="xs" c="dimmed" mt={5}>
-                    Maximaler Betrag für den Preisnachlass
-                  </Text>
-                </div>
-              )}
-            </div>
+          {validationError && (
+            <Alert variant="destructive" className="mt-4">
+              <Text c="red.6">{validationError}</Text>
+            </Alert>
           )}
         </Stack>
       </Paper>
+      
+      {(showCalculation || rule) && (
+        <Paper p="md" withBorder>
+          <Stack gap="md">
+            <div>
+              <Title order={3}>Berechnungsgrundlage</Title>
+              <Text size="sm" c="dimmed">
+                Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.
+              </Text>
+            </div>
+
+            <div className="space-y-2">
+              <Group>
+                <MantineCheckbox
+                  checked={formData.hasMultipleStages}
+                  onChange={(event) => handleChange("hasMultipleStages", event.currentTarget.checked)}
+                />
+                <Text size="sm" fw={500}>Mehrere Angebotsstufen</Text>
+              </Group>
+              <Text size="xs" c="dimmed" pl={40}>
+                Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
+                Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
+              </Text>
+            </div>
+
+            {formData.hasMultipleStages ? (
+              <Stack gap="md">
+                {(formData.calculationStages || []).map((stage, index) => (
+                  <Paper key={index} p="md" withBorder>
+                    <Stack gap="md">
+                      <Group justify="space-between">
+                        <Text fw={500}>Stufe {index + 1}</Text>
+                        {index > 0 && (
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            onClick={() => handleRemoveCalculationStage(index)}
+                          >
+                            <IconMinus size={16} />
+                          </ActionIcon>
+                        )}
+                      </Group>
+                      
+                      <div>
+                        <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
+                        <MantineSelect
+                          value={stage.calculationBase}
+                          onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
+                          data={calculationBases.map(base => ({
+                            value: base,
+                            label: getCalculationBaseLabel(base)
+                          }))}
+                        />
+                      </div>
+
+                      {/* Stage-specific calculation fields */}
+                      {renderCalculationFields(stage, index)}
+                    </Stack>
+                  </Paper>
+                ))}
+
+                <Button
+                  type="button"
+                  onClick={handleAddCalculationStage}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Plus className="h-4 w-4 mr-2" /> Stufe hinzufügen
+                </Button>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="max-amount">Maximalbetrag</Label>
+                    <div className="flex items-center gap-2">
+                      <NumberInput
+                        id="max-amount"
+                        value={formData.maxAmount || ''}
+                        onChange={(value) => handleChange("maxAmount", value)}
+                        min={0}
+                        className="flex-1"
+                      />
+                      <div className="text-lg font-medium">€</div>
+                    </div>
+                    <Text size="sm" c="dimmed" pl={40}>
+                      Maximaler Betrag für alle Stufen
+                    </Text>
+                  </div>
+                </div>
+              </Stack>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
+                  <MantineSelect 
+                    value={formData.calculationBase} 
+                    onChange={(value) => {
+                      const newValue = value as CalculationBase;
+                      if (newValue === 'preisstaffel' && (!formData.priceThresholds || formData.priceThresholds.length === 0)) {
+                        handleChange("priceThresholds", [{
+                          minPrice: 0,
+                          value: 10,
+                          valueType: 'percent',
+                          roundingRule: 'keine_rundung'
+                        }]);
+                      }
+                      handleChange("calculationBase", newValue);
+                    }}
+                    data={calculationBases.map(base => ({
+                      value: base,
+                      label: getCalculationBaseLabel(base)
+                    }))}
+                  />
+                </div>
+
+                {/* Single calculation fields */}
+                {formData.calculationBase === 'prozent_vom_vk' && (
+                  <div>
+                    <Text size="sm" fw={500} mb={5}>Prozentsatz</Text>
+                    <NumberInput
+                      id="value"
+                      value={formData.value || 0}
+                      onChange={(value) => handleChange("value", value)}
+                      min={0}
+                      max={100}
+                      rightSection={<Text>%</Text>}
+                      rightSectionWidth={30}
+                    />
+                  </div>
+                )}
+
+                {formData.calculationBase === 'fester_betrag' && (
+                  <div>
+                    <Text size="sm" fw={500} mb={5}>Betrag (€)</Text>
+                    <NumberInput
+                      id="value"
+                      value={formData.value || 0}
+                      onChange={(value) => handleChange("value", value)}
+                      min={0}
+                      rightSection={<Text>€</Text>}
+                      rightSectionWidth={30}
+                    />
+                  </div>
+                )}
+
+                {formData.calculationBase === 'preisstaffel' && (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <Text size="sm" fw={500}>Preisstaffelung</Text>
+                    </div>
+                    
+                    {(formData.priceThresholds || []).map((threshold, index) => (
+                      <Paper key={index} p="md" withBorder>
+                        <Stack gap="md">
+                          <Group grow>
+                            <div>
+                              <Text size="sm" fw={500} mb={5}>Min (€)</Text>
+                              <NumberInput
+                                value={threshold.minPrice}
+                                disabled
+                                styles={{ input: { backgroundColor: 'var(--mantine-color-gray-1)' } }}
+                              />
+                            </div>
+                            <div>
+                              <Text size="sm" fw={500} mb={5}>Max (€)</Text>
+                              <NumberInput
+                                value={threshold.maxPrice || undefined}
+                                onChange={(value) => handlePriceThresholdChange(0, index, 'maxPrice', value)}
+                                min={threshold.minPrice + 1}
+                                placeholder={index === (formData.priceThresholds?.length || 0) - 1 ? "Unbegrenzt" : ""}
+                              />
+                            </div>
+                            <div>
+                              <Text size="sm" fw={500} mb={5}>Wert</Text>
+                              <NumberInput
+                                value={threshold.value}
+                                onChange={(value) => handlePriceThresholdChange(0, index, 'value', value)}
+                                min={0}
+                              />
+                            </div>
+                            <div>
+                              <Text size="sm" fw={500} mb={5}>Art</Text>
+                              <MantineSelect
+                                value={threshold.valueType || 'percent'}
+                                onChange={(value) => handlePriceThresholdChange(0, index, 'valueType', value as ThresholdValueType)}
+                                data={[
+                                  { value: 'percent', label: '%' },
+                                  { value: 'fixed', label: '€' }
+                                ]}
+                              />
+                            </div>
+                            <div>
+                              <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
+                              <MantineSelect
+                                value={threshold.roundingRule}
+                                onChange={(value) => handlePriceThresholdChange(0, index, 'roundingRule', value as RoundingRule)}
+                                data={roundingRules.map(rule => ({
+                                  value: rule,
+                                  label: getRoundingRuleLabel(rule)
+                                }))}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                              <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                size="lg"
+                                disabled={formData.priceThresholds?.length === 1}
+                                onClick={() => handleRemovePriceThreshold(0, index)}
+                              >
+                                <IconMinus size={16} />
+                              </ActionIcon>
+                            </div>
+                          </Group>
+
+                          <Group>
+                            <MantineCheckbox
+                              checked={threshold.consultPartnerBeforePayout || false}
+                              onChange={(event) => 
+                                handlePriceThresholdChange(0, index, 'consultPartnerBeforePayout', event.currentTarget.checked)
+                              }
+                            />
+                            <Text size="sm">
+                              Vor Auszahlung Merchant kontaktieren
+                            </Text>
+                          </Group>
+                        </Stack>
+                      </Paper>
+                    ))}
+                  </div>
+                )}
+
+                {formData.calculationBase !== 'preisstaffel' && formData.calculationBase !== 'fester_betrag' && formData.calculationBase !== 'keine_berechnung' && (
+                  <div>
+                    <Text size="sm" fw={500} mb={5}>Rundungsregel</Text>
+                    <MantineSelect
+                      value={formData.roundingRule}
+                      onChange={(value) => handleChange("roundingRule", value as RoundingRule)}
+                      data={roundingRules.map(rule => ({
+                        value: rule,
+                        label: getRoundingRuleLabel(rule)
+                      }))}
+                    />
+                  </div>
+                )}
+                {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
+                  <div>
+                    <Text size="sm" fw={500} mb={5}>Maximalbetrag</Text>
+                    <NumberInput
+                      value={formData.maxAmount || ''}
+                      onChange={(value) => handleChange("maxAmount", value)}
+                      min={0}
+                      rightSection={<Text>€</Text>}
+                      rightSectionWidth={30}
+                    />
+                    <Text size="xs" c="dimmed" mt={5}>
+                      Maximaler Betrag für den Preisnachlass
+                    </Text>
+                  </div>
+                )}
+              </div>
+            )}
+          </Stack>
+        </Paper>
+      )}
       
       <Paper p="md" withBorder>
         <Stack gap="md">
