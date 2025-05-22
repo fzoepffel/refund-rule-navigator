@@ -184,7 +184,7 @@ const RuleList: React.FC<RuleListProps> = ({
                 fontSize: '20px', // Adjust to your desired size
               },
             }}>
-              Es wurden noch keine Regeln hinterlegt. 
+              Es wurden noch keine Regeln für Ihren Shop hinterlegt. 
               Zur Erstellung einer neuen Regel klicken Sie den Button "Neue Regel".
           </Alert>
         ) : (

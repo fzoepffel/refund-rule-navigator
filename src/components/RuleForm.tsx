@@ -14,7 +14,7 @@ import {
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
 } from "../utils/discountUtils";
-import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle, IconArrowRight } from '@tabler/icons-react';
+import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle, IconArrowRight, IconInfoCircle, IconQuestionMark, IconMessageCircleQuestion, IconHelp } from '@tabler/icons-react';
 import { 
   Paper, 
   Chip,
@@ -31,7 +31,9 @@ import {
   Title,
   MultiSelect,
   Box,
-  Alert as MantineAlert
+  Alert as MantineAlert,
+  Tooltip,
+  Alert
 } from '@mantine/core';
 
 interface RuleFormProps {
@@ -98,7 +100,28 @@ const RoundingRuleSelect: React.FC<RoundingRuleSelectProps> = ({
 }) => {
   return (
     <div>
-      <Text style={{ fontSize: 20 }} mb={5}>Rundungsregel</Text>
+      <Group gap="xs" mb={5}>
+        <Text style={{ fontSize: 20 }}>Rundungsregel</Text>
+        <Tooltip
+          styles={{
+            tooltip: {
+              whiteSpace: 'pre-line', // Enables \n line breaks
+              fontSize: 14,
+            },
+          }}
+          label={
+            <Text>
+              Legen Sie fest, wie der berechnete Nachlassbetrag gerundet werden soll:{"\n"}
+              - Keine Rundung: Exakter berechneter Betrag{"\n"}
+              - Auf 5 Euro: Betrag wird auf nächste 5€ gerundet (z.B. 12€ → 15€, 16€ → 20€){"\n"}
+              - Auf 10 Euro: Betrag wird auf nächste 10€ gerundet (z.B. 12€ → 20€, 27€ → 30€){"\n"}
+              - Auf 1 Euro: Betrag wird auf nächsten Euro gerundet (z.B. 1,30€ → 2€, 12,70€ → 13€)
+            </Text>
+          }
+        >
+          <IconHelp             size={20} style={{ color: '#0563C1' }} />
+        </Tooltip>
+      </Group>
       <MantineSelect
         value={value}
         onChange={(value) => onChange(value as RoundingRule)}
@@ -202,12 +225,25 @@ const MaxAmountInput: React.FC<MaxAmountInputProps> = ({
   value,
   onChange,
   label = "Maximalbetrag",
-  description = "Maximaler Betrag für den Preisnachlass",
   className
 }) => {
   return (
     <div className={className}>
-      <Text style={{ fontSize: 20 }} mb={5}>{label}</Text>
+      <Group gap="xs" mb={5}>
+        <Text style={{ fontSize: 20 }}>{label}</Text>
+        <Tooltip
+          label={
+            <Text style={{ whiteSpace: 'pre-line' }}>
+              Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
+              Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
+              Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
+              einem 1000€ Artikel nur 50€ (statt 200€) abgezogen.
+            </Text>
+          }
+        >
+        <IconHelp             size={20} style={{ color: '#0563C1' }} />
+        </Tooltip>
+      </Group>
       <NumberInput
         value={value}
         onChange={onChange}
@@ -216,9 +252,6 @@ const MaxAmountInput: React.FC<MaxAmountInputProps> = ({
         rightSectionWidth={30}
         styles={{ input: { fontSize: 18 } }}
       />
-      <Text style={{fontSize: 14}} c="dimmed" mt={5}>
-        {description}
-      </Text>
     </div>
   );
 };
@@ -244,9 +277,29 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
   return (
     <div className="space-y-4">
       <div>
-        <Text style={{ fontSize: 20 }} mb={5}>
-          {type === 'prozent_vom_vk' ? 'Prozentsatz' : 'Betrag (€)'}
-        </Text>
+        <Group gap="xs" mb={5}>
+          <Text style={{ fontSize: 20 }}>
+            {type === 'prozent_vom_vk' ? 'Prozentsatz' : 'Betrag (€)'}
+          </Text>
+          <Tooltip
+            styles={{
+              tooltip: {
+                whiteSpace: 'pre-line', // Enables \n support
+                fontSize: 14,
+              },
+            }}
+            label={
+              <Text>
+                {type === 'prozent_vom_vk'
+                  ? "Geben Sie den Prozentsatz ein, der vom Verkaufspreis abgezogen werden soll.\nBeispiel: Bei 10% und einem Artikelpreis von 100€ beträgt der Nachlass 10€."
+                  : "Geben Sie den festen Euro-Betrag ein, der vom Verkaufspreis abgezogen werden soll.\nDieser Betrag wird unabhängig vom Artikelpreis abgezogen."}
+              </Text>
+            }
+          >
+            <IconHelp             size={20} style={{ color: '#0563C1' }} />
+          </Tooltip>
+
+        </Group>
         <NumberInput
           value={value || 0}
           onChange={onChange}
@@ -286,8 +339,26 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <Text style={{fontSize: 20}}>Preisstaffelung</Text>
-      
+      <Group gap="xs">
+        <Text style={{fontSize: 20}}>Preisstaffelung</Text>
+        <Tooltip
+          styles={{
+            tooltip: {
+              whiteSpace: 'pre-line', // Enables \n line breaks
+              fontSize: 14,
+            },
+          }}
+          label={
+            <Text>
+              Definieren Sie verschiedene Nachlässe je nach Artikelpreis.
+              {'\n'}Beispiel: Artikel bis 50€ erhalten 10% Nachlass,
+              {'\n'}Artikel von 50€ bis 100€ erhalten 15% Nachlass, usw.
+            </Text>
+          }
+        >
+          <IconHelp             size={20} style={{ color: '#0563C1' }} />
+        </Tooltip>
+      </Group>
       {(priceThresholds || []).map((threshold, index) => (
         <PriceThresholdInput
           key={index}
@@ -879,7 +950,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           
           {/* Gründe */}
           <div>
-            <Text style={{ fontSize: 20 }} mb={5}>Gründe</Text>
+            <Group gap="xs" mb={5}>
+            
+            <Text style={{ fontSize: 20 }}>Gründe</Text>
+            <Tooltip
+                  styles={{
+                    tooltip: {
+                      whiteSpace: 'pre-line', // Enables \n line breaks
+                      fontSize: 14,
+                    },
+                  }}
+                  label={
+                    <Text>
+                      Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. 
+                      {'\n'}Für Widerruf und Reklamation einfach beide auswählen. 
+                      {'\n'}Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+                    </Text>
+                  }
+                >
+                  <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                </Tooltip>
+                </Group>
             <Stack gap="xs">
               <Group gap="xs">
                 {mainTriggers.map(trigger => {
@@ -907,9 +998,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   );
                 })}
               </Group>
-              <Text style={{fontSize: 14}} c="dimmed">
-                Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. Für Widerruf und Reklamation einfach beide auswählen. Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
-              </Text>
+              
+              
 
               {formData.triggers.includes('Mangel') && (
                 <Box pl="md" style={{ borderLeft: '2px solid #0563C1' }}>
@@ -958,7 +1048,25 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
           {/* Versandart */}
           <div>
-            <Text style={{ fontSize: 20 }} mb={5}>Versandart</Text>
+            <Group gap="xs" mb={5}>
+              <Text style={{ fontSize: 20 }}>Versandart</Text>
+              <Tooltip
+                styles={{
+                  tooltip: {
+                    whiteSpace: 'pre-line', // Allows \n line breaks
+                    fontSize: 14,
+                  },
+                }}
+                label={
+                  <Text>
+                    Wählen Sie die Versandart, für die diese Regel gelten soll.
+                    {'\n'}Bei 'Egal' wird die Regel unabhängig von der Versandart angewendet.
+                  </Text>
+                }
+              >
+                <IconHelp             size={20} style={{ color: '#0563C1' }} />
+              </Tooltip>
+            </Group>
             <MantineSelect
               value={formData.shippingType || 'Egal'} 
               onChange={(value) => handleChange("shippingType", value as ShippingType)}
@@ -970,7 +1078,26 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           
           {/* Originalverpackt? */}
           <div>
-            <Text style={{ fontSize: 20 }} mb={5}>Originalverpackt?</Text>
+            <Group gap="xs" mb={5}>
+              <Text style={{ fontSize: 20 }}>Originalverpackt?</Text>
+              <Tooltip
+                styles={{
+                  tooltip: {
+                    whiteSpace: 'pre-line', // Enables \n to render as actual line breaks
+                    fontSize: 14,
+                  },
+                }}
+                label={
+                  <Text>
+                    Legen Sie fest, ob die Regel nur für originalverpackte Artikel, nur für geöffnete Artikel oder für beide Fälle gelten soll.
+                    {'\n'}Bei 'Egal' wird die Regel unabhängig vom Verpackungszustand angewendet.
+                  </Text>
+                }
+              >
+                <IconHelp             size={20} style={{ color: '#0563C1' }} />
+              </Tooltip>
+
+            </Group>
             <MantineSelect
               value={formData.packageOpened || 'Egal'} 
               onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
@@ -1000,7 +1127,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           )}
 
           {validationError && (
-            <MantineAlert color="red" variant="light" title="Überlappung mit anderer Regel" icon={<IconAlertCircle size={20} />} styles={{
+            <MantineAlert color="red" variant="light" title="Überschneidung mit anderer Regel" icon={<IconAlertCircle size={20} />} styles={{
               message: {
                 fontSize: '20px', // Adjust to your desired size
               },
@@ -1030,12 +1157,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   checked={formData.hasMultipleStages}
                   onChange={(event) => handleChange("hasMultipleStages", event.currentTarget.checked)}
                 />
-                <Text style={{ fontSize: 20 }}>Mehrere Angebotsstufen</Text>
+                  <Group gap="xs">
+                  <Text style={{ fontSize: 20 }}>Mehrere Angebotsstufen</Text>
+                  
+                  <Tooltip
+                    styles={{
+                      tooltip: {
+                        whiteSpace: 'pre-line', // Enables \n line breaks
+                        fontSize: 14,
+                      },
+                    }}
+                    label={
+                      <Text>
+                        Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
+                        {'\n'}Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten.
+                      </Text>
+                    }
+                  >
+                    <IconHelp size={20} style={{ color: '#0563C1' }} />
+                  </Tooltip>
+                </Group>
               </Group>
-              <Text style={{fontSize: 14}} c="dimmed" pl={40}>
-                Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
-                Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten.
-              </Text>
             </div>
 
             {formData.hasMultipleStages ? (
@@ -1057,7 +1199,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       </Group>
                       
               <div>
-                        <Text style={{ fontSize: 20 }} mb={5}>Art der Berechnung</Text>
+                        <Group gap="xs" mb={5}>
+                          <Text style={{ fontSize: 20 }}>Art der Berechnung</Text>
+                          <Tooltip
+                            styles={{
+                              tooltip: {
+                                whiteSpace: 'pre-line', // enables \n to create line breaks
+                                fontSize: 14,
+                              },
+                            }}
+                            label={
+                              <Text>
+                                Wählen Sie die Methode zur Berechnung des Preisnachlasses:
+                                {'\n'}- Prozent vom Verkaufspreis: Nachlass wird als Prozentsatz des Artikelpreises berechnet
+                                {'\n'}- Fester Betrag: Ein fester Euro-Betrag wird abgezogen
+                                {'\n'}- Preisstaffelung: Nachlass variiert je nach Artikelpreis
+                              </Text>
+                            }
+                          >
+                            <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                          </Tooltip>
+                        </Group>
                         <MantineSelect
                           value={stage.calculationBase}
                           onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
@@ -1067,6 +1229,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                           }))}
                           styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
                         />
+                        
                   </div>
 
                       {/* Stage-specific calculation fields */}
@@ -1096,7 +1259,27 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             ) : (
               <div className="space-y-4">
                       <div>
-                  <Text style={{ fontSize: 20 }} mb={5}>Art der Berechnung</Text>
+                  <Group gap="xs" mb={5}>
+                    <Text style={{ fontSize: 20 }}>Art der Berechnung</Text>
+                    <Tooltip
+                      styles={{
+                        tooltip: {
+                          whiteSpace: 'pre-line',
+                          fontSize: 14,
+                        },
+                      }}
+                      label={
+                        <Text>
+                          Wählen Sie die Methode zur Berechnung des Preisnachlasses:
+                          {'\n'}- Prozent vom Verkaufspreis: Nachlass wird als Prozentsatz des Artikelpreises berechnet
+                          {'\n'}- Fester Betrag: Ein fester Euro-Betrag wird abgezogen
+                          {'\n'}- Preisstaffelung: Nachlass variiert je nach Artikelpreis
+                        </Text>
+                      }
+                    >
+                      <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                    </Tooltip>
+                  </Group>
                   <MantineSelect 
                     value={formData.calculationBase} 
                     onChange={(value) => {
@@ -1117,7 +1300,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     }))}
                     styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
                   />
-                    </div>
+                  </div>
                     
                 {/* Single calculation fields */}
                 {formData.calculationBase === 'prozent_vom_vk' && (
@@ -1174,9 +1357,19 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 <Text style={{ fontSize: 20 }}>
                   Rücksprache mit Partner vor Auszahlung
                 </Text>
-                <Text style={{fontSize: 18}}>
-                Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
-              </Text>
+                <Alert color="blue" 
+                  icon={<IconInfoCircle size={20} />} 
+                  title="Hinweis"
+                  styles={{
+                    message: {
+                      fontSize: '20px', // Adjust to your desired size
+                    },
+                    title: {
+                      fontSize: '20px', // Adjust to your desired size
+                    },
+                    }}>
+                Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt, wird der Preisnachlass automatisch gewährt.
+              </Alert>
               </Group>
               
             </div>
