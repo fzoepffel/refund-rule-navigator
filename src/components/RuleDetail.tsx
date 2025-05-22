@@ -214,6 +214,13 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                   <Text style={{ fontSize: 20 }}>{getRoundingRuleLabel(rule.roundingRule)}</Text>
                 </Box>
               )}
+
+              {(rule.calculationBase === 'prozent_vom_vk' || rule.calculationBase === 'preisstaffel') && rule.maxAmount && (
+                <Box mt={0}>
+                  <Text style={{ fontSize: 18 }} c="dimmed">Maximalbetrag</Text>
+                  <Text style={{ fontSize: 20 }}>{rule.maxAmount}€</Text>
+                </Box>
+              )}
             </>
           )}
 
@@ -272,6 +279,12 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     </Paper>
                   ))}
                 </Stack>
+                {rule.maxAmount && (
+                  <Box mt={20}>
+                    <Text style={{ fontSize: 18 }} c="dimmed">Maximalbetrag</Text>
+                    <Text style={{ fontSize: 20 }}>{rule.maxAmount}€</Text>
+                  </Box>
+                )}
               </Box>
             </>
           )}
