@@ -24,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconTrash } from '@tabler/icons-react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Select, 
@@ -181,7 +181,7 @@ const RoundingRuleSelect: React.FC<RoundingRuleSelectProps> = ({
   );
 };
 
-// Update the PriceThresholdInput component to use RoundingRuleSelect
+// Update the PriceThresholdInput component
 const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
   threshold,
   index,
@@ -236,17 +236,20 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
             onChange={(value) => onChange('roundingRule', value)}
             roundingRules={roundingRules}
           />
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              onClick={onRemove}
-            >
-              <IconMinus size={16} />
-            </ActionIcon>
-          </div>
         </Group>
+        {isLastThreshold && index > 0 && (
+          <Group justify="flex-end">
+            <MantineButton
+              variant="subtle"
+              color="red"
+              size="sm"
+              onClick={onRemove}
+              leftSection={<IconTrash size={16} />}
+            >
+              Staffel löschen
+            </MantineButton>
+          </Group>
+        )}
       </Stack>
     </Paper>
   );
@@ -325,6 +328,42 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
           roundingRules={roundingRules}
         />
       )}
+    </div>
+  );
+};
+
+// Create a reusable PriceThresholdSection component
+interface PriceThresholdSectionProps {
+  priceThresholds?: PriceThreshold[];
+  onRemove: (index: number) => void;
+  onChange: (index: number, field: keyof PriceThreshold, value: any) => void;
+  roundingRules: RoundingRule[];
+  stageIndex: number;
+}
+
+const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
+  priceThresholds,
+  onRemove,
+  onChange,
+  roundingRules,
+  stageIndex
+}) => {
+  return (
+    <div className="space-y-4">
+      <Text size="sm" fw={500}>Preisstaffelung</Text>
+      
+      {(priceThresholds || []).map((threshold, index) => (
+        <PriceThresholdInput
+          key={index}
+          threshold={threshold}
+          index={index}
+          stageIndex={stageIndex}
+          isLastThreshold={index === (priceThresholds?.length || 0) - 1}
+          onRemove={() => onRemove(index)}
+          onChange={(field, value) => onChange(index, field, value)}
+          roundingRules={roundingRules}
+        />
+      ))}
     </div>
   );
 };
@@ -879,24 +918,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         );
       case 'preisstaffel':
         return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <Text size="sm" fw={500}>Preisstaffelung</Text>
-            </div>
-            
-            {(priceThresholds || []).map((threshold, index) => (
-              <PriceThresholdInput
-                key={index}
-                threshold={threshold}
-                index={index}
-                stageIndex={stageIndex}
-                isLastThreshold={index === (priceThresholds?.length || 0) - 1}
-                onRemove={() => handleRemovePriceThreshold(stageIndex, index)}
-                onChange={(field, value) => handlePriceThresholdChange(stageIndex, index, field, value)}
-                roundingRules={roundingRules}
-              />
-            ))}
-          </div>
+          <PriceThresholdSection
+            priceThresholds={priceThresholds}
+            onRemove={(index) => handleRemovePriceThreshold(stageIndex, index)}
+            onChange={(index, field, value) => handlePriceThresholdChange(stageIndex, index, field, value)}
+            roundingRules={roundingRules}
+            stageIndex={stageIndex}
+          />
         );
       default:
         return null;
@@ -1152,13 +1180,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   <Plus className="h-4 w-4 mr-2" /> Stufe hinzufügen
                 </Button>
 
-                <div className="space-y-4">
-                  <MaxAmountInput
-                    value={formData.maxAmount || ''}
-                    onChange={(value) => handleChange("maxAmount", value)}
-                    description="Maximaler Betrag für den Preisnachlass"
-                  />
-                </div>
+                <MaxAmountInput
+                  value={formData.maxAmount || ''}
+                  onChange={(value) => handleChange("maxAmount", value)}
+                  description="Maximaler Betrag für den Preisnachlass"
+                />
               </Stack>
             ) : (
               <div className="space-y-4">
@@ -1206,24 +1232,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 )}
 
                 {formData.calculationBase === 'preisstaffel' && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <Text size="sm" fw={500}>Preisstaffelung</Text>
-                    </div>
-                    
-                    {(formData.priceThresholds || []).map((threshold, index) => (
-                      <PriceThresholdInput
-                        key={index}
-                        threshold={threshold}
-                        index={index}
-                        stageIndex={0}
-                        isLastThreshold={index === (formData.priceThresholds?.length || 0) - 1}
-                        onRemove={() => handleRemovePriceThreshold(0, index)}
-                        onChange={(field, value) => handlePriceThresholdChange(0, index, field, value)}
-                        roundingRules={roundingRules}
-                      />
-                    ))}
-                  </div>
+                  <PriceThresholdSection
+                    priceThresholds={formData.priceThresholds}
+                    onRemove={(index) => handleRemovePriceThreshold(0, index)}
+                    onChange={(index, field, value) => handlePriceThresholdChange(0, index, field, value)}
+                    roundingRules={roundingRules}
+                    stageIndex={0}
+                  />
                 )}
 
                 {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
