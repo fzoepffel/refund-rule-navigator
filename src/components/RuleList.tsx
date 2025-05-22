@@ -16,7 +16,6 @@ import {
   Badge, 
   TextInput,
   Box,
-  Flex
 } from '@mantine/core';
 import { IconSearch, IconFilter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 

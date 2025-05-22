@@ -3,7 +3,6 @@ import { DiscountRule } from "../models/ruleTypes";
 import { formatCurrency } from "../utils/discountUtils";
 import { 
   Paper, 
-  TextInput, 
   NumberInput, 
   Button, 
   Text, 

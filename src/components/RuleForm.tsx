@@ -16,41 +16,14 @@ import {
   getTriggerLabel, 
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
-  getReturnHandlingLabel,
-  getThresholdValueTypeLabel
 } from "../utils/discountUtils";
-import { sampleRules } from "../data/sampleRules";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconTrash } from '@tabler/icons-react';
-import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Alert } from "@/components/ui/alert";
-import { Chip } from '@mantine/core';
+import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle } from '@tabler/icons-react';
 import { 
   Paper, 
+  Chip,
   TextInput, 
   NumberInput, 
-  Switch, 
-  Divider, 
   ActionIcon, 
-  Tooltip,
   Select as MantineSelect,
   Button as MantineButton,
   Text,
@@ -59,14 +32,10 @@ import {
   Checkbox as MantineCheckbox,
   Textarea as MantineTextarea,
   Title,
-  Container,
   MultiSelect,
-  Badge,
   Box,
-  Flex,
-  Radio
+  Alert as MantineAlert
 } from '@mantine/core';
-import { Plus } from 'lucide-react';
 
 interface RuleFormProps {
   rule?: DiscountRule;
@@ -231,12 +200,12 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
               ]}
             />
           </div>
-          <RoundingRuleSelect
-            value={threshold.roundingRule}
-            onChange={(value) => onChange('roundingRule', value)}
-            roundingRules={roundingRules}
-          />
         </Group>
+        <RoundingRuleSelect
+          value={threshold.roundingRule}
+          onChange={(value) => onChange('roundingRule', value)}
+          roundingRules={roundingRules}
+        />
         {isLastThreshold && index > 0 && (
           <Group justify="flex-end">
             <MantineButton
@@ -1103,9 +1072,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           )}
 
           {validationError && (
-            <Alert variant="destructive" className="mt-4">
-              <Text c="red.6">{validationError}</Text>
-            </Alert>
+            <MantineAlert color="red" variant="light" title="Überlappung mit anderer Regel" icon={<IconAlertCircle size={16} />}>
+              {validationError}
+            </MantineAlert>
           )}
         </Stack>
       </Paper>
@@ -1130,7 +1099,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               </Group>
               <Text size="xs" c="dimmed" pl={40}>
                 Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
-                Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten bevor der finale Ablehnungsfall eintritt.
+                Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten.
               </Text>
             </div>
 
@@ -1170,14 +1139,15 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   </Paper>
                 ))}
 
-                <Button
+                <MantineButton 
                   type="button"
                   onClick={handleAddCalculationStage}
-                  className="w-full"
                   variant="outline"
+                  fullWidth
+                  leftSection={<IconPlus size={16} />}
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Stufe hinzufügen
-                </Button>
+                  Stufe hinzufügen
+                </MantineButton>
 
                 <MaxAmountInput
                   value={formData.maxAmount || ''}

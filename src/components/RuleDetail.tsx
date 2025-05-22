@@ -4,9 +4,6 @@ import {
   getTriggerLabel, 
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
-  getReturnHandlingLabel,
-  getThresholdValueTypeLabel,
-  getTriggerLabels
 } from "../utils/discountUtils";
 import { 
   Paper, 
@@ -19,7 +16,6 @@ import {
   Divider,
   Title,
   Box,
-  Flex
 } from '@mantine/core';
 import { IconArrowLeft, IconEdit, IconHistory } from '@tabler/icons-react';
 
