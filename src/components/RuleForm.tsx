@@ -182,14 +182,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, onSave, onCancel }) => {
   // Effect to handle Mangel trigger selection/deselection
   useEffect(() => {
     if (formData.triggers.includes('Mangel')) {
-      // Add all Mangel triggers if they're not already selected
-      const newTriggers = [...formData.triggers];
-      mangelTriggers.forEach(trigger => {
-        if (!newTriggers.includes(trigger)) {
-          newTriggers.push(trigger);
-        }
-      });
-      setFormData(prev => ({ ...prev, triggers: newTriggers }));
+      // Keep existing Mangel triggers if any are selected
+      const existingMangelTriggers = formData.triggers.filter(trigger => mangelTriggers.includes(trigger));
+      if (existingMangelTriggers.length === 0) {
+        // Only add all Mangel triggers if none are currently selected
+        const newTriggers = [...formData.triggers];
+        mangelTriggers.forEach(trigger => {
+          if (!newTriggers.includes(trigger)) {
+            newTriggers.push(trigger);
+          }
+        });
+        setFormData(prev => ({ ...prev, triggers: newTriggers }));
+      }
     } else {
       // Remove all Mangel triggers if Mangel is deselected
       const newTriggers = formData.triggers.filter(trigger => !mangelTriggers.includes(trigger));
