@@ -8,12 +8,7 @@ import { sampleRules } from "../data/sampleRules";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Container, 
-  Title, 
-  Text, 
-  SimpleGrid, 
-  Paper,
   Stack,
-  Group,
   Box
 } from '@mantine/core';
 import Sidebar from "../components/Sidebar";
@@ -47,13 +42,15 @@ const Index = () => {
       setRules(rules.map(r => r.id === rule.id ? rule : r));
       toast({
         title: "Regel aktualisiert",
-        description: `Die Regel "${rule.name}" wurde erfolgreich aktualisiert.`
+        description: `Die Regel "${rule.name}" wurde erfolgreich aktualisiert.`,
+        duration: 3000
       });
     } else {
       setRules([...rules, rule]);
       toast({
         title: "Neue Regel erstellt",
-        description: `Die Regel "${rule.name}" wurde erfolgreich erstellt.`
+        description: `Die Regel "${rule.name}" wurde erfolgreich erstellt.`,
+        duration: 3000
       });
     }
     
@@ -65,7 +62,8 @@ const Index = () => {
     setViewState({ type: "list" });
     toast({
       title: "Regel gelöscht",
-      description: "Die Regel wurde erfolgreich gelöscht."
+      description: "Die Regel wurde erfolgreich gelöscht.",
+      duration: 3000
     });
   };
   
