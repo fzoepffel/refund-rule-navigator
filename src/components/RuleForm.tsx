@@ -320,10 +320,14 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCancel }) => {
-  // Create a fresh copy of the default rule for new rules
+  // Update the getInitialFormData function
   const getInitialFormData = () => {
     if (rule) {
-      return rule;
+      // When editing, return the rule without the name
+      return {
+        ...rule,
+        name: ''
+      };
     }
     // Create a deep copy of the default rule
     return JSON.parse(JSON.stringify(defaultRule));
@@ -331,10 +335,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
   const [formData, setFormData] = useState<DiscountRule>(getInitialFormData());
   
-  // Initialize form data with existing rule when editing
+  // Update the useEffect to handle the initial form data
   useEffect(() => {
     if (rule) {
-      setFormData(rule);
+      // When editing, set form data without the name
+      setFormData({
+        ...rule,
+        name: ''
+      });
     } else {
       // Reset to a fresh copy of default rule when creating new rule
       setFormData(getInitialFormData());
@@ -500,7 +508,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     // Part 2: Versandart
     if (formData.shippingType !== "Egal") {
       parts.push(formData.shippingType);
-    }
+    } 
 
     // Part 3: Originalverpackt
     if (formData.packageOpened === "yes") {
@@ -513,8 +521,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   };
   
   const handleChange = (field: keyof DiscountRule, value: any) => {
-    setFormData(prev => ({
-      ...prev,
+      setFormData(prev => ({
+        ...prev,
       [field]: value
     }));
 
@@ -532,7 +540,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       if (currentTriggers.includes(trigger)) {
         // Remove trigger if already selected
         return {
-          ...prev,
+      ...prev,
           triggers: currentTriggers.filter(t => t !== trigger)
         };
       } else {
@@ -552,7 +560,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       return "Egal";
     }
     if (formData.triggers.length === 1) {
-      return getTriggerLabel(formData.triggers[0]);
+    return getTriggerLabel(formData.triggers[0]);
     }
     return "Mehrere Gründe";
   };
@@ -562,9 +570,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       setFormData(prev => {
         const stages = [...(prev.calculationStages || [])];
         const thresholds = [...(stages[stageIndex].priceThresholds || [])];
-        const lastThreshold = thresholds[thresholds.length - 1];
-        const newMin = lastThreshold ? (lastThreshold.maxPrice || lastThreshold.minPrice + 1) : 0;
-        
+    const lastThreshold = thresholds[thresholds.length - 1];
+    const newMin = lastThreshold ? (lastThreshold.maxPrice || lastThreshold.minPrice + 1) : 0;
+    
         thresholds.push({
           minPrice: newMin,
           value: 10,
@@ -620,8 +628,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         return { ...prev, calculationStages: stages };
       });
     } else {
-      setFormData(prev => {
-        const thresholds = [...(prev.priceThresholds || [])];
+    setFormData(prev => {
+      const thresholds = [...(prev.priceThresholds || [])];
         
         // Only allow removing the last threshold
         if (thresholdIndex !== thresholds.length - 1) return prev;
@@ -640,8 +648,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           };
         }
         
-        return { ...prev, priceThresholds: thresholds };
-      });
+      return { ...prev, priceThresholds: thresholds };
+    });
     }
   };
   
@@ -766,13 +774,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             <Group grow>
               <Group>
                 <NumberInput
-                  value={level.value}
+                value={level.value} 
                   onChange={(value) => handleDiscountLevelChange(index, "value", value)}
-                  min={1}
+                min={1}
                   w={100}
-                />
+              />
                 <MantineSelect
-                  value={level.valueType}
+                value={level.valueType}
                   onChange={(value) => handleDiscountLevelChange(index, "valueType", value as ThresholdValueType)}
                   data={[
                     { value: 'percent', label: '%' },
@@ -780,12 +788,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   ]}
                   w={80}
                 />
-                
-                {index < (formData.discountLevels?.length || 0) - 1 && (
-                  <Text>→</Text>
-                )}
-              </Group>
               
+              {index < (formData.discountLevels?.length || 0) - 1 && (
+                  <Text>→</Text>
+              )}
+              </Group>
+            
               <MantineSelect
                 value={level.roundingRule}
                 onChange={(value) => handleDiscountLevelChange(index, "roundingRule", value as RoundingRule)}
@@ -800,9 +808,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   variant="subtle"
                   color="gray"
                   size="lg"
-                  disabled={formData.discountLevels?.length === 1}
-                  onClick={() => handleRemoveDiscountLevel(index)}
-                >
+                disabled={formData.discountLevels?.length === 1}
+                onClick={() => handleRemoveDiscountLevel(index)}
+              >
                   <IconMinus size={16} />
                 </ActionIcon>
               </Box>
@@ -931,8 +939,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             <Text size="sm" c="dimmed">
               Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.
             </Text>
-          </div>
-
+      </div>
+      
           <div>
             <Text size="sm" fw={500} mb={5}>Regelname (optional)</Text>
             <TextInput 
@@ -957,7 +965,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   
                   return (
                     <Chip
-                      key={trigger}
+                        key={trigger}
                       checked={formData.triggers.includes(trigger)}
                       onChange={() => setTrigger(trigger)}
                       variant={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "light" : "filled"}
@@ -1009,7 +1017,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           <div>
             <Text size="sm" fw={500} mb={5}>Versandart</Text>
             <MantineSelect
-              value={formData.shippingType || 'Egal'}
+              value={formData.shippingType || 'Egal'} 
               onChange={(value) => handleChange("shippingType", value as ShippingType)}
               data={shippingTypes.map(type => ({ value: type, label: type }))}
               placeholder="Versandart auswählen"
@@ -1020,7 +1028,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           <div>
             <Text size="sm" fw={500} mb={5}>Originalverpackt?</Text>
             <MantineSelect
-              value={formData.packageOpened || 'Egal'}
+              value={formData.packageOpened || 'Egal'} 
               onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
               data={[
                 { value: 'Egal', label: 'Egal' },
@@ -1093,7 +1101,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                         )}
                       </Group>
                       
-                      <div>
+              <div>
                         <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
                         <MantineSelect
                           value={stage.calculationBase}
@@ -1103,7 +1111,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                             label: getCalculationBaseLabel(base)
                           }))}
                         />
-                      </div>
+                  </div>
 
                       {/* Stage-specific calculation fields */}
                       {renderCalculationFields(stage, index)}
@@ -1112,9 +1120,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 ))}
 
                 <MantineButton 
-                  type="button"
+                    type="button" 
                   onClick={handleAddCalculationStage}
-                  variant="outline"
+                    variant="outline" 
                   fullWidth
                   leftSection={<IconPlus size={16} />}
                 >
@@ -1129,7 +1137,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               </Stack>
             ) : (
               <div className="space-y-4">
-                <div>
+                      <div>
                   <Text size="sm" fw={500} mb={5}>Art der Berechnung</Text>
                   <MantineSelect 
                     value={formData.calculationBase} 
@@ -1150,8 +1158,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       label: getCalculationBaseLabel(base)
                     }))}
                   />
-                </div>
-
+                    </div>
+                    
                 {/* Single calculation fields */}
                 {formData.calculationBase === 'prozent_vom_vk' && (
                   <CalculationField
@@ -1184,12 +1192,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
                 {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
                   <MaxAmountInput
-                    value={formData.maxAmount || ''}
+                value={formData.maxAmount || ''} 
                     onChange={(value) => handleChange("maxAmount", value)}
                     description="Maximaler Betrag für den Preisnachlass"
                   />
                 )}
-              </div>
+            </div>
             )}
           </Stack>
         </Paper>
@@ -1212,7 +1220,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
               </Text>
             </div>
-            
+          
             <div>
               <Text size="sm" fw={500} mb={5}>Notizen</Text>
               <MantineTextarea 
