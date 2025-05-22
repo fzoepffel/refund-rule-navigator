@@ -158,7 +158,7 @@ const RuleList: React.FC<RuleListProps> = ({
   return (
     <Stack gap="md">
       <Group justify="space-between" align="center">
-        <Title order={2}>Preisnachlassregeln</Title>
+        <Text style={{ fontSize: 24 }}>Preisnachlassregeln</Text>
         <Button 
           variant="filled" 
           color="blue"
@@ -190,7 +190,7 @@ const RuleList: React.FC<RuleListProps> = ({
             >
               <Group justify="space-between">
                 <Box style={{ flex: 1 }}>
-                  <Text fw={600} size="md" mb="xs">{rule.name}</Text>
+                  <Text style={{ fontSize: 18 }} mb="xs">{rule.name}</Text>
                   
                   {/* Context information line with dynamic separator dots */}
                   <Group gap="xs" wrap="wrap" mt="xxxxs">

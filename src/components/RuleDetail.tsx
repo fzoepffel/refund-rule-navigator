@@ -73,7 +73,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
       parts.push(
         <Box key="trigger">
           <Text size="sm" c="dimmed">Gründe</Text>
-          <Text fw={500}>{getTriggerLabels(rule.triggers)}</Text>
+          <Text style={{ fontSize: 20 }}>{getTriggerLabels(rule.triggers)}</Text>
         </Box>
       );
     }
@@ -83,7 +83,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
       parts.push(
         <Box key="packageOpened">
           <Text size="sm" c="dimmed">Originalverpackt?</Text>
-          <Text fw={500}>{packageOpenedLabel}</Text>
+          <Text style={{ fontSize: 20 }}>{packageOpenedLabel}</Text>
         </Box>
       );
     }
@@ -93,7 +93,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
       parts.push(
         <Box key="shippingType">
           <Text size="sm" c="dimmed">Versandart</Text>
-          <Text fw={500}>{shippingTypeLabel}</Text>
+          <Text style={{ fontSize: 20 }}>{shippingTypeLabel}</Text>
         </Box>
       );
     }
@@ -129,37 +129,35 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
   };
 
   return (
-    <Stack gap="md">
+    <Stack gap={20}>
       <Group>
-        <ActionIcon variant="outline" onClick={onBack}>
-          <IconArrowLeft size={16} />
+        <ActionIcon variant="subtle" onClick={onBack}>
+          <IconArrowLeft size={24} />
         </ActionIcon>
-        <Title order={2} style={{ flex: 1 }}>{rule.name}</Title>
+        <Text style={{ fontSize: 24 }}>{rule.name}</Text>
         <Button onClick={() => onEdit(rule)} leftSection={<IconEdit size={16} />} color="blue">
           Bearbeiten
         </Button>
       </Group>
 
       <Paper p="md" withBorder>
-        <Stack gap="md">
+        <Stack gap={20}>
           <Box>
             {getContextInfoParts(rule)}
           </Box>
 
-          
-
           {!rule.hasMultipleStages && (
             <>
-            <Divider />
-              <Box>
+              <Divider />
+              <Box mt={0}>
                 <Text size="sm" c="dimmed">Berechnungsgrundlage</Text>
-                <Text fw={500}>{getCalculationBaseLabel(rule.calculationBase)}</Text>
+                <Text style={{ fontSize: 20 }}>{getCalculationBaseLabel(rule.calculationBase)}</Text>
               </Box>
 
               {shouldShowValue && (
-                <Box>
+                <Box mt={0}>
                   <Text size="sm" c="dimmed">Wert</Text>
-                  <Text fw={500}>
+                  <Text style={{ fontSize: 20 }}>
                     {rule.calculationBase === 'prozent_vom_vk' ? `${rule.value}%` : `${rule.value}€`}
                   </Text>
                 </Box>
@@ -168,9 +166,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               {showPriceThresholds && (
                 <>
                   <Divider />
-                  <Box>
+                  <Box mt={0}>
                     <Text size="sm" c="dimmed" mb="xs">Preisstaffelung</Text>
-                    <Stack gap="xs">
+                    <Stack gap={8}>
                       {rule.priceThresholds.map((threshold, index) => (
                         <Group key={index} gap="xs" wrap="nowrap">
                           <Text>
@@ -191,9 +189,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               {showDiscountLevels && (
                 <>
                   <Divider />
-                  <Box>
+                  <Box mt={0}>
                     <Text size="sm" c="dimmed" mb="xs">Nachlassstaffelung</Text>
-                    <Group gap="xs">
+                    <Group gap={8}>
                       {rule.discountLevels.map((level, index, array) => (
                         <React.Fragment key={index}>
                           <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
@@ -209,9 +207,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               )}
 
               {shouldShowGeneralRounding && (
-                <Box>
+                <Box mt={0}>
                   <Text size="sm" c="dimmed">Rundungsregel</Text>
-                  <Text fw={500}>{getRoundingRuleLabel(rule.roundingRule)}</Text>
+                  <Text style={{ fontSize: 20 }}>{getRoundingRuleLabel(rule.roundingRule)}</Text>
                 </Box>
               )}
             </>
@@ -220,22 +218,22 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           {rule.hasMultipleStages && rule.calculationStages && rule.calculationStages.length > 0 && (
             <>
               <Divider />
-              <Box>
+              <Box mt={0}>
                 <Text size="sm" c="dimmed" mb="xs">Angebotsstufen</Text>
-                <Stack gap="md">
+                <Stack gap={16}>
                   {rule.calculationStages.map((stage, index) => (
                     <Paper key={index} p="md" withBorder>
-                      <Stack gap="xs">
-                        <Text fw={500}>Stufe {index + 1}</Text>
+                      <Stack gap={12}>
+                        <Text style={{ fontSize: 20 }}>Stufe {index + 1}</Text>
                         <Group grow>
                           <Box>
                             <Text size="sm" c="dimmed">Berechnungsgrundlage</Text>
-                            <Text fw={500}>{getCalculationBaseLabel(stage.calculationBase)}</Text>
+                            <Text style={{ fontSize: 20 }}>{getCalculationBaseLabel(stage.calculationBase)}</Text>
                           </Box>
                           {stage.calculationBase !== 'preisstaffel' && stage.roundingRule !== "keine_rundung" && (
                             <Box>
                               <Text size="sm" c="dimmed">Rundungsregel</Text>
-                              <Text fw={500}>{getRoundingRuleLabel(stage.roundingRule)}</Text>
+                              <Text style={{ fontSize: 20 }}>{getRoundingRuleLabel(stage.roundingRule)}</Text>
                             </Box>
                           )}
                         </Group>
@@ -243,7 +241,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                         {stage.calculationBase === 'prozent_vom_vk' || stage.calculationBase === 'fester_betrag' ? (
                           <Box>
                             <Text size="sm" c="dimmed">Wert</Text>
-                            <Text fw={500}>
+                            <Text style={{ fontSize: 20 }}>
                               {stage.calculationBase === 'prozent_vom_vk' ? `${stage.value}%` : `${stage.value}€`}
                             </Text>
                           </Box>
@@ -252,7 +250,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                         {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && stage.priceThresholds.length > 0 && (
                           <Box>
                             <Text size="sm" c="dimmed" mb="xs">Preisstaffelung</Text>
-                            <Stack gap="xs">
+                            <Stack gap={8}>
                               {stage.priceThresholds.map((threshold, thresholdIndex) => (
                                 <Group key={thresholdIndex} gap="xs" wrap="nowrap">
                                   <Text>
@@ -275,25 +273,26 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
               </Box>
             </>
           )}
-        </Stack>
-        {/* Zusatzaktionen and Notizen, styled like other entries */}
-        {(rule.consultPartnerBeforePayout || rule.notes) && (
-          <>
-          <Divider />
-            {rule.consultPartnerBeforePayout && (
+
+          {rule.consultPartnerBeforePayout && (
+            <Stack gap={20}>
+              <Divider />
               <Box>
                 <Text size="sm" c="dimmed">Zusatzaktionen</Text>
-                <Badge mt={4} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Rücksprache mit Partner vor Auszahlung</Badge>
+                <Text style={{fontSize: 20}}>Rücksprache mit Partner vor Auszahlung</Text>
               </Box>
-            )}
-            {rule.notes && (
+            </Stack>
+          )}
+          {rule.notes && (
+            <Stack gap={20}>
+              <Divider />
               <Box>
                 <Text size="sm" c="dimmed">Notizen</Text>
-                <Text size="sm" mt={4}>{rule.notes}</Text>
+                <Text size="sm">{rule.notes}</Text>
               </Box>
-            )}
-          </>
-        )}
+            </Stack>
+          )}
+        </Stack>
       </Paper>
     </Stack>
   );

@@ -154,10 +154,10 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
   return (
     <Paper p="md" withBorder>
       <Stack gap="md">
-        <Title order={3}>Preisnachlass berechnen</Title>
+        <Text style={{fontSize: 24}}>Preisnachlass berechnen</Text>
         
         <div>
-          <Text size="sm" fw={500} mb={5}>Verkaufspreis (VK)</Text>
+          <Text style={{fontSize: 20}} mb={5}>Verkaufspreis (VK)</Text>
           <Group gap="xs">
             <NumberInput
               value={salePrice}
