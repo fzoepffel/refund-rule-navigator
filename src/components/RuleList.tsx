@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { DiscountRule, Trigger } from "../models/ruleTypes";
 import { 
   getCalculationBaseLabel, 
@@ -14,11 +14,10 @@ import {
   Button, 
   ActionIcon, 
   Badge, 
-  TextInput,
   Box,
-  Title
+  Alert
 } from '@mantine/core';
-import { IconSearch, IconFilter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconEdit, IconTrash, IconInfoCircle } from '@tabler/icons-react';
 
 interface RuleListProps {
   rules: DiscountRule[];
@@ -56,9 +55,9 @@ const RuleList: React.FC<RuleListProps> = ({
 
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'fester_betrag':
-        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
@@ -78,11 +77,11 @@ const RuleList: React.FC<RuleListProps> = ({
           <Group gap="xs" wrap="wrap">
             {rule.discountLevels.map((level, idx, arr) => (
               <React.Fragment key={idx}>
-                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                   {level.value}{getThresholdValueTypeLabel(level.valueType)}
                   {level.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(level.roundingRule)}`}
                 </Badge>
-                {idx < arr.length - 1 && <Text span size="sm">→</Text>}
+                {idx < arr.length - 1 && <Text span style={{ fontSize: 18 }}>→</Text>}
               </React.Fragment>
             ))}
           </Group>
@@ -99,8 +98,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (rule.triggers.length > 0) {
       parts.push(
         <Group key="trigger" gap="xs" wrap="nowrap">
-          <Text span size="sm" c="dimmed" fw={500}>Gründe:</Text>
-          <Text span size="sm" c="dimmed">{getTriggerLabels(rule.triggers)}</Text>
+          <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Gründe:</Text>
+          <Text span style={{ fontSize: 18 }} c="dimmed">{getTriggerLabels(rule.triggers)}</Text>
         </Group>
       );
     }
@@ -109,8 +108,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (packageOpenedLabel) {
       parts.push(
         <Group key="packageOpened" gap="xs" wrap="nowrap">
-          <Text span size="sm" c="dimmed" fw={500}>Originalverpackt?:</Text>
-          <Text span size="sm" c="dimmed">{packageOpenedLabel}</Text>
+          <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Originalverpackt?:</Text>
+          <Text span style={{ fontSize: 18 }} c="dimmed">{packageOpenedLabel}</Text>
         </Group>
       );
     }
@@ -119,8 +118,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (shippingTypeLabel) {
       parts.push(
         <Group key="shippingType" gap="xs" wrap="nowrap">
-          <Text span size="sm" c="dimmed" fw={500}>Versandart:</Text>
-          <Text span size="sm" c="dimmed">{shippingTypeLabel}</Text>
+          <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Versandart:</Text>
+          <Text span style={{ fontSize: 18 }} c="dimmed">{shippingTypeLabel}</Text>
         </Group>
       );
     }
@@ -164,6 +163,8 @@ const RuleList: React.FC<RuleListProps> = ({
           color="blue"
           leftSection={<IconPlus size={16} />} 
           onClick={onCreateRule}
+          style={{ fontSize: 20, fontWeight: 400 }}
+          h={50}
         >
           Neue Regel
         </Button>
@@ -171,14 +172,21 @@ const RuleList: React.FC<RuleListProps> = ({
       
       <Stack gap="xs">
         {rules.length === 0 ? (
-          <Paper p="md" >
-            <Text c="dimmed" ta="left">
+          <Alert 
+            color="blue" 
+            icon={<IconInfoCircle size={20} />} 
+            title="Keine Regeln hinterlegt"
+            styles={{
+              message: {
+                fontSize: '20px', // Adjust to your desired size
+              },
+              title: {
+                fontSize: '20px', // Adjust to your desired size
+              },
+            }}>
               Es wurden noch keine Regeln hinterlegt. 
-            </Text>
-            <Text c="dimmed" ta="left">
               Zur Erstellung einer neuen Regel klicken Sie den Button "Neue Regel".
-            </Text>
-              </Paper>
+          </Alert>
         ) : (
           rules.map(rule => (
             <Paper 
@@ -190,14 +198,14 @@ const RuleList: React.FC<RuleListProps> = ({
             >
               <Group justify="space-between">
                 <Box style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 18 }} mb="xs">{rule.name}</Text>
+                  <Text style={{ fontSize: 20 }} mb="xs">{rule.name}</Text>
                   
                   {/* Context information line with dynamic separator dots */}
                   <Group gap="xs" wrap="wrap" mt="xxxxs">
                     {getContextInfoParts(rule).map((part, index, array) => (
                       <React.Fragment key={`fragment-${index}`}>
                         {part}
-                        {index < array.length - 1 && <Text span c="dimmed" size="xs"></Text>}
+                        {index < array.length - 1 && <Text span c="dimmed" style={{ fontSize: 18 }}></Text>}
                       </React.Fragment>
                     ))}
                   </Group>
@@ -205,26 +213,26 @@ const RuleList: React.FC<RuleListProps> = ({
                   {/* Calculation information */}
                   <Stack gap="xs" mt="xxxxs">
                     <Group gap="xs" mt="xxxxs">
-                      <Text size="sm" c="dimmed" fw={500}>Berechnung:</Text>
+                      <Text style={{ fontSize: 18 }} c="dimmed" fw={500}>Berechnung:</Text>
                       {rule.hasMultipleStages ? (
-                        <Text size="sm" c="dimmed">Mehrere Angebotsstufen</Text>
+                        <Text style={{ fontSize: 18 }} c="dimmed">Mehrere Angebotsstufen</Text>
                       ) : (
-                        <Text size="sm" c="dimmed">{getCalculationBaseLabel(rule.calculationBase)}</Text>
+                        <Text style={{ fontSize: 18 }} c="dimmed">{getCalculationBaseLabel(rule.calculationBase)}</Text>
                       )}
                     </Group>
                     {rule.hasMultipleStages && (
                       <Stack gap="xs" mt="xxxxs">
                         {rule.calculationStages?.map((stage, idx) => (
                           <Group key={idx} gap="xs" mt="xxxxs">
-                            <Text size="sm" c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
+                            <Text style={{ fontSize: 18 }} c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
                             <Box>
                               {stage.calculationBase === 'prozent_vom_vk' && (
-                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                                <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                   {stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
                                 </Badge>
                               )}
                               {stage.calculationBase === 'fester_betrag' && (
-                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
+                                <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                   {stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
                                 </Badge>
                               )}
@@ -256,7 +264,7 @@ const RuleList: React.FC<RuleListProps> = ({
                   {/* Max amount if exists */}
                   {rule.maxAmount && (
                     <Box mt="xs">
-                      <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Max: {rule.maxAmount}€</Badge>
+                      <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Max: {rule.maxAmount}€</Badge>
                     </Box>
                   )}
                   
@@ -266,15 +274,15 @@ const RuleList: React.FC<RuleListProps> = ({
                     {
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
-                        <Text span size="sm" c="dimmed" fw={500}>Zusatzaktionen:</Text>
-                        {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
+                        <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Zusatzaktionen:</Text>
+                        {rule.consultPartnerBeforePayout && <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
                       </Group>
                     )}
                     
                     {/* Notes display */}
                     {rule.notes && (
-                      <Text size="sm" c="dimmed">
-                        <Text span fw={500}>Notizen:</Text> {rule.notes}
+                      <Text style={{ fontSize: 18 }} c="dimmed">
+                        <Text span style={{ fontSize: 18 }} fw={500}>Notizen:</Text> {rule.notes}
                       </Text>
                     )}
                   </Stack>
@@ -288,17 +296,17 @@ const RuleList: React.FC<RuleListProps> = ({
                       onEditRule(rule);
                     }}
                   >
-                    <IconEdit size={16} />
+                    <IconEdit size={20} />
                   </ActionIcon>
                   <ActionIcon 
                     variant="subtle" 
-                    color="red"
+                    color="blue"
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeleteRule(rule.id);
                     }}
                   >
-                    <IconTrash size={16} />
+                    <IconTrash size={20} />
                   </ActionIcon>
                 </Group>
               </Group>

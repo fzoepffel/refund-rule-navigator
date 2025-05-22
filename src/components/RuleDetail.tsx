@@ -72,7 +72,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
     if (rule.triggers.length > 0) {
       parts.push(
         <Box key="trigger">
-          <Text size="sm" c="dimmed">Gründe</Text>
+          <Text style={{ fontSize: 18 }} c="dimmed">Gründe</Text>
           <Text style={{ fontSize: 20 }}>{getTriggerLabels(rule.triggers)}</Text>
         </Box>
       );
@@ -82,7 +82,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
     if (packageOpenedLabel) {
       parts.push(
         <Box key="packageOpened">
-          <Text size="sm" c="dimmed">Originalverpackt?</Text>
+          <Text style={{ fontSize: 18 }} c="dimmed">Originalverpackt?</Text>
           <Text style={{ fontSize: 20 }}>{packageOpenedLabel}</Text>
         </Box>
       );
@@ -92,7 +92,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
     if (shippingTypeLabel) {
       parts.push(
         <Box key="shippingType">
-          <Text size="sm" c="dimmed">Versandart</Text>
+          <Text style={{ fontSize: 18 }} c="dimmed">Versandart</Text>
           <Text style={{ fontSize: 20 }}>{shippingTypeLabel}</Text>
         </Box>
       );
@@ -130,12 +130,14 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
   return (
     <Stack gap={20}>
-      <Group>
-        <ActionIcon variant="subtle" onClick={onBack}>
-          <IconArrowLeft size={24} />
-        </ActionIcon>
-        <Text style={{ fontSize: 24 }}>{rule.name}</Text>
-        <Button onClick={() => onEdit(rule)} leftSection={<IconEdit size={16} />} color="blue">
+      <Group justify="space-between" align="center">
+        <Group>
+          <ActionIcon variant="subtle" onClick={onBack}>
+            <IconArrowLeft size={24} />
+          </ActionIcon>
+          <Text style={{ fontSize: 24 }}>{rule.name}</Text>
+        </Group>
+        <Button onClick={() => onEdit(rule)} leftSection={<IconEdit size={20} />} color="blue" style={{ fontSize: 20, fontWeight: 400 }} h={50}>
           Bearbeiten
         </Button>
       </Group>
@@ -150,13 +152,13 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <>
               <Divider />
               <Box mt={0}>
-                <Text size="sm" c="dimmed">Berechnungsgrundlage</Text>
+                <Text style={{ fontSize: 18 }} c="dimmed">Berechnungsgrundlage</Text>
                 <Text style={{ fontSize: 20 }}>{getCalculationBaseLabel(rule.calculationBase)}</Text>
               </Box>
 
               {shouldShowValue && (
                 <Box mt={0}>
-                  <Text size="sm" c="dimmed">Wert</Text>
+                  <Text style={{ fontSize: 18 }} c="dimmed">Wert</Text>
                   <Text style={{ fontSize: 20 }}>
                     {rule.calculationBase === 'prozent_vom_vk' ? `${rule.value}%` : `${rule.value}€`}
                   </Text>
@@ -208,7 +210,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
               {shouldShowGeneralRounding && (
                 <Box mt={0}>
-                  <Text size="sm" c="dimmed">Rundungsregel</Text>
+                  <Text style={{ fontSize: 18 }} c="dimmed">Rundungsregel</Text>
                   <Text style={{ fontSize: 20 }}>{getRoundingRuleLabel(rule.roundingRule)}</Text>
                 </Box>
               )}
@@ -227,12 +229,12 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                         <Text style={{ fontSize: 20 }}>Stufe {index + 1}</Text>
                         <Group grow>
                           <Box>
-                            <Text size="sm" c="dimmed">Berechnungsgrundlage</Text>
+                            <Text style={{ fontSize: 18 }} c="dimmed">Berechnungsgrundlage</Text>
                             <Text style={{ fontSize: 20 }}>{getCalculationBaseLabel(stage.calculationBase)}</Text>
                           </Box>
                           {stage.calculationBase !== 'preisstaffel' && stage.roundingRule !== "keine_rundung" && (
                             <Box>
-                              <Text size="sm" c="dimmed">Rundungsregel</Text>
+                              <Text style={{ fontSize: 18 }} c="dimmed">Rundungsregel</Text>
                               <Text style={{ fontSize: 20 }}>{getRoundingRuleLabel(stage.roundingRule)}</Text>
                             </Box>
                           )}
@@ -240,7 +242,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
 
                         {stage.calculationBase === 'prozent_vom_vk' || stage.calculationBase === 'fester_betrag' ? (
                           <Box>
-                            <Text size="sm" c="dimmed">Wert</Text>
+                            <Text style={{ fontSize: 18 }} c="dimmed">Wert</Text>
                             <Text style={{ fontSize: 20 }}>
                               {stage.calculationBase === 'prozent_vom_vk' ? `${stage.value}%` : `${stage.value}€`}
                             </Text>
@@ -278,7 +280,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <Stack gap={20}>
               <Divider />
               <Box>
-                <Text size="sm" c="dimmed">Zusatzaktionen</Text>
+                <Text style={{ fontSize: 18 }} c="dimmed">Zusatzaktionen</Text>
                 <Text style={{fontSize: 20}}>Rücksprache mit Partner vor Auszahlung</Text>
               </Box>
             </Stack>
@@ -287,7 +289,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             <Stack gap={20}>
               <Divider />
               <Box>
-                <Text size="sm" c="dimmed">Notizen</Text>
+                <Text style={{ fontSize: 18 }} c="dimmed">Notizen</Text>
                 <Text size="sm">{rule.notes}</Text>
               </Box>
             </Stack>

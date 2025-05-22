@@ -14,7 +14,7 @@ import {
   getCalculationBaseLabel, 
   getRoundingRuleLabel, 
 } from "../utils/discountUtils";
-import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle } from '@tabler/icons-react';
+import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle, IconArrowRight } from '@tabler/icons-react';
 import { 
   Paper, 
   Chip,
@@ -106,6 +106,7 @@ const RoundingRuleSelect: React.FC<RoundingRuleSelectProps> = ({
           value: rule,
           label: getRoundingRuleLabel(rule)
         }))}
+        styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
       />
     </div>
   );
@@ -130,7 +131,7 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
             <NumberInput
               value={threshold.minPrice}
               disabled
-              styles={{ input: { backgroundColor: 'var(--mantine-color-gray-1)' } }}
+              styles={{ input: { backgroundColor: 'var(--mantine-color-gray-1)', fontSize: 20 } }}
             />
           </div>
           <div>
@@ -140,6 +141,7 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
               onChange={(value) => onChange('maxPrice', value)}
               min={threshold.minPrice + 1}
               placeholder={isLastThreshold ? "Unbegrenzt" : ""}
+              styles={{ input: { fontSize: 18 } }}
             />
           </div>
           <div>
@@ -148,6 +150,7 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
               value={threshold.value}
               onChange={(value) => onChange('value', value)}
               min={0}
+              styles={{ input: { fontSize: 18 } }}
             />
           </div>
           <div>
@@ -159,6 +162,7 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
                 { value: 'percent', label: '%' },
                 { value: 'fixed', label: '€' }
               ]}
+              styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
             />
           </div>
         </Group>
@@ -174,6 +178,7 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
               color="blue"
               size="sm"
               onClick={onRemove}
+              style={{ fontSize: 20, fontWeight: 400 }}
             >
               Staffel löschen
             </MantineButton>
@@ -209,6 +214,7 @@ const MaxAmountInput: React.FC<MaxAmountInputProps> = ({
         min={0}
         rightSection={<Text>€</Text>}
         rightSectionWidth={30}
+        styles={{ input: { fontSize: 18 } }}
       />
       <Text style={{fontSize: 14}} c="dimmed" mt={5}>
         {description}
@@ -248,6 +254,7 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
           max={type === 'prozent_vom_vk' ? 100 : undefined}
           rightSection={<Text>{type === 'prozent_vom_vk' ? '%' : '€'}</Text>}
           rightSectionWidth={30}
+          styles={{ input: { fontSize: 18 } }}
         />
       </div>
       {type === 'prozent_vom_vk' && roundingRule && onRoundingRuleChange && roundingRules && (
@@ -735,85 +742,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     onSave(finalData);
   };
   
-  const renderDiscountLevelsSection = () => {
-    if (formData.calculationBase !== 'angebotsstaffel') return null;
-    
-    return (
-      <Stack gap="md">
-        <Group justify="space-between">
-          <Text style={{fontSize: 20}}>Angebotsabfolge</Text>
-          <MantineButton 
-            variant="outline" 
-            size="sm" 
-            onClick={handleAddDiscountLevel}
-            leftSection={<IconPlus size={16} />}
-          >
-            Stufe hinzufügen
-          </MantineButton>
-        </Group>
-        
-        {(formData.discountLevels || []).map((level, index) => (
-          <Paper key={index} p="md" withBorder>
-            <Group grow>
-              <Group>
-                <NumberInput
-                value={level.value} 
-                  onChange={(value) => handleDiscountLevelChange(index, "value", value)}
-                min={1}
-                  w={100}
-              />
-                <MantineSelect
-                value={level.valueType}
-                  onChange={(value) => handleDiscountLevelChange(index, "valueType", value as ThresholdValueType)}
-                  data={[
-                    { value: 'percent', label: '%' },
-                    { value: 'fixed', label: '€' }
-                  ]}
-                  w={80}
-                />
-              
-              {index < (formData.discountLevels?.length || 0) - 1 && (
-                  <Text>→</Text>
-              )}
-              </Group>
-            
-              <MantineSelect
-                value={level.roundingRule}
-                onChange={(value) => handleDiscountLevelChange(index, "roundingRule", value as RoundingRule)}
-                data={roundingRules.map(rule => ({
-                  value: rule,
-                  label: getRoundingRuleLabel(rule)
-                }))}
-              />
-              
-              <Box style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="lg"
-                disabled={formData.discountLevels?.length === 1}
-                onClick={() => handleRemoveDiscountLevel(index)}
-              >
-                  <IconMinus size={16} />
-                </ActionIcon>
-              </Box>
-            </Group>
-          </Paper>
-        ))}
-        
-        {(!formData.discountLevels || formData.discountLevels.length === 0) && (
-          <MantineButton 
-            variant="outline" 
-            onClick={handleAddDiscountLevel}
-            leftSection={<IconPlus size={16} />}
-          >
-            Erste Stufe hinzufügen
-          </MantineButton>
-        )}
-      </Stack>
-    );
-  };
-  
   const renderCalculationFields = (stage: {
     calculationBase: CalculationBase;
     value?: number;
@@ -927,7 +855,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         <Stack gap="md">
           <div>
             <Text style={{ fontSize: 24 }}>Grundinformationen zum Regelfall</Text>
-            <Text style={{fontSize: 16}}>
+            <Text style={{fontSize: 18}}>
               Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.
             </Text>
           </div>
@@ -938,6 +866,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               value={formData.name} 
               onChange={(e) => handleChange("name", e.target.value)} 
               placeholder={generateRuleName()}
+              styles={{
+                input: {
+                  fontSize: '20px', // Change this value as needed
+                }
+              }}
             />
             <Text style={{fontSize: 14}} c="dimmed" mt={5}>
               Leer lassen für automatisch generierten Namen: {generateRuleName()}
@@ -961,6 +894,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       onChange={() => setTrigger(trigger)}
                       variant={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "light" : "filled"}
                       style={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? { color: '#0563C1' } : undefined}
+                      styles={{
+                        label: {
+                          fontSize: '20px', // Or any other size you want
+                          height: '40px',
+                        },
+                      }}
+                      
                     >
                       {getTriggerLabel(trigger)}
                     </Chip>
@@ -975,7 +915,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 <Box pl="md" style={{ borderLeft: '2px solid #0563C1' }}>
                   <MultiSelect
                     label="Spezifische Mängel"
-                    styles={{ label: { fontSize: 20, fontWeight: 400 }}}
+                    styles={{ label: { fontSize: 20, fontWeight: 400 }, input: { fontSize: 18 }, pill: { fontSize: 18, backgroundColor: 'white' }, option: { fontSize: 18 }}}
                     placeholder="Spezifische Mängel auswählen"
                     data={mangelTriggers.map(trigger => ({
                       value: trigger,
@@ -1013,6 +953,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               onChange={(value) => handleChange("shippingType", value as ShippingType)}
               data={shippingTypes.map(type => ({ value: type, label: type }))}
               placeholder="Versandart auswählen"
+              styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
             />
           </div>
           
@@ -1028,6 +969,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 { value: 'no', label: 'Nein' }
               ]}
               placeholder="Bitte auswählen"
+              styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
             />
           </div>
 
@@ -1037,6 +979,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 onClick={validateRuleOverlap}
                 variant="filled"
                 color="blue"
+                style={{ fontSize: 20, fontWeight: 400 }}
+                rightSection={<IconArrowRight size={20} />}
+                h={50}
               >
                 Berechnung angeben
               </MantineButton>
@@ -1044,7 +989,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           )}
 
           {validationError && (
-            <MantineAlert color="red" variant="light" title="Überlappung mit anderer Regel" icon={<IconAlertCircle size={16} />}>
+            <MantineAlert color="red" variant="light" title="Überlappung mit anderer Regel" icon={<IconAlertCircle size={20} />} styles={{
+              message: {
+                fontSize: '20px', // Adjust to your desired size
+              },
+              title: {
+                fontSize: '20px', // Adjust to your desired size
+              },
+            }}>
               {validationError}
             </MantineAlert>
           )}
@@ -1056,7 +1008,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           <Stack gap="md">
             <div>
               <Text style={{ fontSize: 24 }}>Berechnungsgrundlage</Text>
-              <Text style={{fontSize: 16}}>
+              <Text style={{fontSize: 18}}>
                 Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.
               </Text>
             </div>
@@ -1102,6 +1054,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                             value: base,
                             label: getCalculationBaseLabel(base)
                           }))}
+                          styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
                         />
                   </div>
 
@@ -1117,6 +1070,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     variant="outline" 
                   fullWidth
                   leftSection={<IconPlus size={16} />}
+                  style={{ fontSize: 20, fontWeight: 400 }}
+                  h={50}
                 >
                   Stufe hinzufügen
                 </MantineButton>
@@ -1149,6 +1104,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       value: base,
                       label: getCalculationBaseLabel(base)
                     }))}
+                    styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
                   />
                     </div>
                     
@@ -1207,7 +1163,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 <Text style={{ fontSize: 20 }}>
                   Rücksprache mit Partner vor Auszahlung
                 </Text>
-                <Text style={{fontSize: 16}}>
+                <Text style={{fontSize: 18}}>
                 Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
               </Text>
               </Group>
@@ -1221,6 +1177,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 onChange={(e) => handleChange("notes", e.target.value)}
                 placeholder="Zusätzliche Hinweise zur Regel"
                 minRows={4}
+                styles={{ input: { fontSize: 18 }}}
               />
             </div>
           </Stack>
@@ -1249,10 +1206,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         >
           <MantineButton
             type="submit"
-            leftSection={<IconDeviceFloppy size={16} />}
+            leftSection={<IconDeviceFloppy size={20} />}
             size="lg"
             color="blue"
-            style={{ width: '90%' }}
+            style={{ width: '90%', fontSize: 20, fontWeight: 400 }}
+            h={50}
           >
             Speichern
           </MantineButton>

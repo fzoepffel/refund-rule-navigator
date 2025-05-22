@@ -164,6 +164,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
               onChange={(value: number | '') => setSalePrice(value === '' ? 0 : value)}
               min={0}
               style={{ flex: 1 }}
+              styles={{ input: { fontSize: 20 }}}
             />
             <Text size="lg" fw={500}>€</Text>
           </Group>
@@ -173,7 +174,9 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           onClick={handleCalculate} 
           fullWidth
           color="blue"
-          leftSection={<Calculator size={16} />}
+          leftSection={<Calculator size={20} />}
+          style={{ fontSize: 20, fontWeight: 400 }}
+          h={50}
         >
           Nachlass berechnen
         </Button>
