@@ -1,9 +1,7 @@
 import { 
   Trigger, 
-  RequestType, 
   CalculationBase, 
   RoundingRule, 
-  ReturnHandling,
   ThresholdValueType,
   DiscountRule,
   PriceThreshold,
@@ -14,17 +12,12 @@ export const getTriggerLabel = (trigger: Trigger): string => {
   return trigger; // The triggers are now readable labels themselves
 };
 
-export const getRequestTypeLabel = (type: RequestType): string => {
-  return type; // The request types are now readable labels themselves
-};
-
 export const getCalculationBaseLabel = (base: CalculationBase): string => {
   const labels: Record<CalculationBase, string> = {
     'prozent_vom_vk': 'Prozent vom Verkaufspreis',
     'fester_betrag': 'Fester Betrag',
     'preisstaffel': 'Preisabhängige Staffelung',
-    'angebotsstaffel': 'Mehrere Angebotsstufen',
-    'keine_berechnung': 'Keine Rechenregel (Keine Automatisierung möglich)'
+    'angebotsstaffel': 'Mehrere Angebotsstufen'
   };
   return labels[base] || base;
 };
@@ -42,16 +35,6 @@ export const getRoundingRuleLabel = (rule: RoundingRule): string => {
     default:
       return rule;
   }
-};
-
-export const getReturnHandlingLabel = (handling: ReturnHandling): string => {
-  const labels: Record<ReturnHandling, string> = {
-    'automatisches_label': 'Automatisches Retourenlabel',
-    'manuelles_label': 'Manuelles Retourenlabel',
-    'zweitverwerter': 'Zweitverwerter',
-    'keine_retoure': 'Keine Retoure erforderlich'
-  };
-  return labels[handling] || handling;
 };
 
 export const getThresholdValueTypeLabel = (type: ThresholdValueType): string => {
@@ -81,9 +64,6 @@ export const applyRoundingRule = (value: number, rule: RoundingRule): number => 
  * Calculate discount amount based on the rule and sale price
  */
 export const calculateDiscount = (salePrice: number, rule: DiscountRule): number | string => {
-  if (rule.calculationBase === 'keine_berechnung') {
-    return 'Rücksprache mit Partner notwendig';
-  }
 
   let amount = 0;
   

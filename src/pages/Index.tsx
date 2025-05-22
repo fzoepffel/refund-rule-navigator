@@ -12,8 +12,12 @@ import {
   Text, 
   SimpleGrid, 
   Paper,
-  Stack
+  Stack,
+  Group,
+  Box
 } from '@mantine/core';
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 
 type ViewState = {
   type: "list" | "detail" | "form";
@@ -70,53 +74,52 @@ const Index = () => {
   };
 
   return (
-    <Container size="xl" py="xl">
-      <Stack gap="xl">
-        <header>
-          <Title order={1}>Nachlassregel-Navigator</Title>
-          <Text c="dimmed" mt="xs">
-            Systematische Verwaltung von Preisnachlassregeln für Partner-Händler
-          </Text>
-        </header>
-        
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
-          <Stack gap="xl">
-            {viewState.type === "list" && (
-              <RuleList 
-                rules={rules} 
-                onSelectRule={handleSelectRule}
-                onEditRule={handleEditRule}
-                onDeleteRule={handleDeleteRule}
-                onCreateRule={handleCreateRule}
-              />
-            )}
-            
-            {viewState.type === "detail" && viewState.selectedRule && (
-              <RuleDetail 
-                rule={viewState.selectedRule} 
-                onBack={handleBackToList}
-                onEdit={handleEditRule}
-              />
-            )}
-            
-            {viewState.type === "form" && (
-              <RuleForm 
-                rule={viewState.selectedRule}
-                existingRules={rules}
-                onSave={handleSaveRule}
-                onCancel={handleBackToList}
-              />
-            )}
-          </Stack>
-          
-          <Stack gap="xl">
-            {viewState.type === "detail" && viewState.selectedRule && (
-              <RuleCalculator rule={viewState.selectedRule} />
-            )}
-          </Stack>
-        </SimpleGrid>
-      </Stack>
-    </Container>
+    <>
+      <Header />
+      <div style={{ display: "flex", minHeight: "100vh" }}>
+        <Sidebar />
+        <Box style={{ flex: 1 }}>
+          <Container size="xl" py="xl">
+            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+              <Stack gap="xl">
+                {viewState.type === "list" && (
+                  <RuleList 
+                    rules={rules} 
+                    onSelectRule={handleSelectRule}
+                    onEditRule={handleEditRule}
+                    onDeleteRule={handleDeleteRule}
+                    onCreateRule={handleCreateRule}
+                  />
+                )}
+                
+                {viewState.type === "detail" && viewState.selectedRule && (
+                  <RuleDetail 
+                    rule={viewState.selectedRule} 
+                    onBack={handleBackToList}
+                    onEdit={handleEditRule}
+                  />
+                )}
+                
+                {viewState.type === "form" && (
+                  <RuleForm 
+                    rule={viewState.selectedRule}
+                    existingRules={rules}
+                    onSave={handleSaveRule}
+                    onCancel={handleBackToList}
+                  />
+                )}
+              </Stack>
+              
+              <Stack gap="xl">
+                {viewState.type === "detail" && viewState.selectedRule && (
+                  <RuleCalculator rule={viewState.selectedRule} />
+                )}
+              </Stack>
+            </SimpleGrid>
+          </Container>
+        </Box>
+      </div>
+    </>
   );
 };
 

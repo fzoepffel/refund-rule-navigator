@@ -7,6 +7,7 @@ import {
   PriceThreshold,
   ShippingType,
   DiscountLevel,
+  DiscountRule
 } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
@@ -38,29 +39,6 @@ interface RuleFormProps {
   existingRules: DiscountRule[];
   onSave: (rule: DiscountRule) => void;
   onCancel: () => void;
-}
-
-interface DiscountRule {
-  id: string;
-  name: string;
-  triggers: Trigger[];
-  calculationBase: CalculationBase;
-  roundingRule: RoundingRule;
-  shippingType: ShippingType;
-  packageOpened: 'yes' | 'no' | 'Egal';
-  value: number;
-  consultPartnerBeforePayout: boolean;
-  hasMultipleStages?: boolean;
-  calculationStages?: {
-    calculationBase: CalculationBase;
-    value?: number;
-    priceThresholds?: PriceThreshold[];
-    roundingRule?: RoundingRule;
-  }[];
-  priceThresholds?: PriceThreshold[];
-  discountLevels?: DiscountLevel[];
-  maxAmount?: number;
-  notes?: string;
 }
 
 interface FormData {
