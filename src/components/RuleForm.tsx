@@ -823,7 +823,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
     switch (stage.calculationBase) {
       case 'prozent_vom_vk':
-        return (
+  return (
           <CalculationField
             type="prozent_vom_vk"
             value={stage.value || 0}
@@ -1251,7 +1251,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           >
             Speichern
           </MantineButton>
-        </div>
+          </div>
       )}
     </form>
   );
