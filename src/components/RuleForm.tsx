@@ -343,7 +343,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   const shippingTypes: ShippingType[] = ['Egal', 'Paket', 'Spedition'];
   
   // Add new state for validation
-  const [showCalculation, setShowCalculation] = useState(false);
+  const [showCalculation, setShowCalculation] = useState(!!rule);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Add state to track if basic info has been changed
@@ -351,8 +351,10 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
   // Update the effect to handle both new and existing rules
   useEffect(() => {
-    // Remove the rule check so it applies to both new and existing rules
-    setShowCalculation(false);
+    // Only hide calculation section if a basic info field is changed after initial load
+    if (basicInfoChanged) {
+      setShowCalculation(false);
+    }
     setValidationError(null);
   }, [formData.triggers, formData.shippingType, formData.packageOpened]);
 
