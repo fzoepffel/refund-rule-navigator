@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Trigger, 
   CalculationBase, 
@@ -298,6 +298,9 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
 };
 
 const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCancel }) => {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [formRect, setFormRect] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+
   // Update the getInitialFormData function
   const getInitialFormData = () => {
     if (rule) {
@@ -894,8 +897,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     });
   };
   
+  // Track form position and width
+  useEffect(() => {
+    const updateRect = () => {
+      if (formRef.current) {
+        const rect = formRef.current.getBoundingClientRect();
+        setFormRect({ left: rect.left, width: rect.width });
+      }
+    };
+    updateRect();
+    window.addEventListener('resize', updateRect);
+    return () => window.removeEventListener('resize', updateRect);
+  }, []);
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" style={{ position: 'relative' }}>
       <Group>
         <MantineButton type="button" variant="outline" size="sm" onClick={onCancel}>
           <IconArrowLeft className="h-4 w-4" />
@@ -903,11 +919,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         <Title order={2} style={{ flex: 1 }}>
           {rule ? "Regel bearbeiten" : "Neue Regel erstellen"}
         </Title>
-        {(!basicInfoChanged && (showCalculation || rule)) && (
-          <MantineButton type="submit" leftSection={<IconDeviceFloppy size={16} />}>
-            Speichern
-          </MantineButton>
-        )}
       </Group>
       
       <Paper p="md" withBorder>
@@ -1210,6 +1221,37 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             </div>
           </Stack>
         </Paper>
+      )}
+
+      {/* Add extra padding to the bottom of the form so content is not hidden behind the button */}
+      <div style={{ height: 80 }} />
+
+      {/* Sticky Save Button */}
+      {(!basicInfoChanged && (showCalculation || rule)) && (
+        <div
+          style={{
+            position: 'fixed',
+            left: formRect.left,
+            width: formRect.width,
+            bottom: 0,
+            zIndex: 100,
+            padding: '16px 0',
+            background: 'rgba(255,255,255,0.95)',
+            boxShadow: '0 -2px 8px rgba(0,0,0,0.05)',
+            display: 'flex',
+            justifyContent: 'center',
+            transition: 'left 0.2s, width 0.2s',
+          }}
+        >
+          <MantineButton
+            type="submit"
+            leftSection={<IconDeviceFloppy size={16} />}
+            size="lg"
+            style={{ width: '90%' }}
+          >
+            Speichern
+          </MantineButton>
+        </div>
       )}
     </form>
   );
