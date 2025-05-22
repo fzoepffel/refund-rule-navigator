@@ -357,22 +357,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   const [showCalculation, setShowCalculation] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Add effect to hide calculation section when basic info changes
+  // Add state to track if basic info has been changed
+  const [basicInfoChanged, setBasicInfoChanged] = useState(false);
+
+  // Update the effect to handle both new and existing rules
   useEffect(() => {
-    if (!rule) {  // Only apply this behavior for new rules
-      setShowCalculation(false);
-      setValidationError(null);
-    }
+    // Remove the rule check so it applies to both new and existing rules
+    setShowCalculation(false);
+    setValidationError(null);
   }, [formData.triggers, formData.shippingType, formData.packageOpened]);
 
-  // Update validation function
+  // Update the validation function to handle both new and existing rules
   const validateRuleOverlap = () => {
-    // Skip validation if we're editing an existing rule
-    if (rule) {
-      setShowCalculation(true);
-      return;
-    }
-
     // Get all rules except the current one being edited
     const rulesToCheck = existingRules.filter(r => r.id !== formData.id);
 
@@ -448,6 +444,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     } else {
       setValidationError(null);
       setShowCalculation(true);
+      setBasicInfoChanged(false); // Reset the changed state after successful validation
     }
   };
 
@@ -520,6 +517,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       ...prev,
       [field]: value
     }));
+
+    // If any basic info field is changed, set basicInfoChanged to true
+    if (['triggers', 'shippingType', 'packageOpened'].includes(field)) {
+      setBasicInfoChanged(true);
+      setShowCalculation(false);
+    }
   };
   
   // Set the trigger directly when selected from radio group
@@ -540,6 +543,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         };
       }
     });
+    setBasicInfoChanged(true);
+    setShowCalculation(false);
   };
 
   const getSelectedTriggerLabel = () => {
@@ -912,9 +917,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         <Title order={2} style={{ flex: 1 }}>
           {rule ? "Regel bearbeiten" : "Neue Regel erstellen"}
         </Title>
-        <MantineButton type="submit" leftSection={<IconDeviceFloppy size={16} />}>
-          Speichern
-        </MantineButton>
+        {(!basicInfoChanged && (showCalculation || rule)) && (
+          <MantineButton type="submit" leftSection={<IconDeviceFloppy size={16} />}>
+            Speichern
+          </MantineButton>
+        )}
       </Group>
       
       <Paper p="md" withBorder>
@@ -983,6 +990,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                         ...prev,
                         triggers: [...newTriggers, ...(values as Trigger[])]
                       }));
+                      setBasicInfoChanged(true);
+                      setShowCalculation(false);
                     }}
                     searchable
                     clearable
@@ -1022,7 +1031,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             />
           </div>
 
-          {!rule && !showCalculation && (
+          {(!showCalculation || basicInfoChanged) && (
             <Group justify="flex-end">
               <MantineButton 
                 onClick={validateRuleOverlap}
@@ -1042,7 +1051,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         </Stack>
       </Paper>
       
-      {(showCalculation || rule) && (
+      {(showCalculation && !basicInfoChanged) && (
         <Paper p="md" withBorder>
           <Stack gap="md">
             <div>
@@ -1186,34 +1195,36 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         </Paper>
       )}
       
-      <Paper p="md" withBorder>
-        <Stack gap="md">
-          <div className="space-y-4">
-            <Group>
-              <MantineCheckbox 
-                checked={formData.consultPartnerBeforePayout || false}
-                onChange={(event) => handleChange("consultPartnerBeforePayout", event.currentTarget.checked)}
-              />
-              <Text size="sm">
-                Rücksprache mit Partner vor Auszahlung
+      {(showCalculation && !basicInfoChanged) && (
+        <Paper p="md" withBorder>
+          <Stack gap="md">
+            <div className="space-y-4">
+              <Group>
+                <MantineCheckbox 
+                  checked={formData.consultPartnerBeforePayout || false}
+                  onChange={(event) => handleChange("consultPartnerBeforePayout", event.currentTarget.checked)}
+                />
+                <Text size="sm">
+                  Rücksprache mit Partner vor Auszahlung
+                </Text>
+              </Group>
+              <Text size="sm" c="dimmed" pl={40}>
+                Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
               </Text>
-            </Group>
-            <Text size="sm" c="dimmed" pl={40}>
-              Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt wird der Preisnachlassautomatisch gewährt
-            </Text>
-          </div>
-          
-          <div>
-            <Text size="sm" fw={500} mb={5}>Notizen</Text>
-            <MantineTextarea 
-              value={formData.notes || ''} 
-              onChange={(e) => handleChange("notes", e.target.value)}
-              placeholder="Zusätzliche Hinweise zur Regel"
-              minRows={4}
-            />
-          </div>
-        </Stack>
-      </Paper>
+            </div>
+            
+            <div>
+              <Text size="sm" fw={500} mb={5}>Notizen</Text>
+              <MantineTextarea 
+                value={formData.notes || ''} 
+                onChange={(e) => handleChange("notes", e.target.value)}
+                placeholder="Zusätzliche Hinweise zur Regel"
+                minRows={4}
+              />
+            </div>
+          </Stack>
+        </Paper>
+      )}
     </form>
   );
 };
