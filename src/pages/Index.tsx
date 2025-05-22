@@ -78,7 +78,7 @@ const Index = () => {
       <Header />
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar />
-        <Box style={{ flex: 1 }}>
+        <Box style={{ flex: 1}}>
           <Container size="xl" py="xl">
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
               <Stack gap="xl">

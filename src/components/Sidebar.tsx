@@ -45,7 +45,19 @@ const navItems = [
 ];
 
 const Sidebar = () => (
-  <Box style={{ minHeight: '100vh' }} bg="gray.1">
+  <Box
+    w={260}
+    p="md"
+    style={{
+      height: '100vh',
+      background: '#f8f9fa',
+      position: 'fixed',
+      left: 0,
+      top: 0,
+      zIndex: 150,
+    }}
+    bg="gray.1"
+  >
     <ScrollArea>
       {navItems.map((item, idx) => (
         <React.Fragment key={item.label}>
@@ -63,7 +75,7 @@ const Sidebar = () => (
                   key={subitem.label}
                   label={subitem.label}
                   active={subitem.active}
-                  color={subitem.active ? 'blue' : undefined}
+                  style={subitem.active ? { color: '#022d94' } : undefined}
                 />
               ))}
           </NavLink>

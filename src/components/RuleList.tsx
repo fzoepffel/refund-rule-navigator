@@ -16,6 +16,7 @@ import {
   Badge, 
   TextInput,
   Box,
+  Title
 } from '@mantine/core';
 import { IconSearch, IconFilter, IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 
@@ -55,15 +56,15 @@ const RuleList: React.FC<RuleListProps> = ({
 
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'fester_betrag':
-        return <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
           <Group gap="xs" wrap="wrap">
             {rule.priceThresholds.map((threshold, idx) => (
-              <Badge key={idx} size="sm" styles={{ root: { textTransform: 'none' } }}>
+              <Badge key={idx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                 {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
@@ -77,7 +78,7 @@ const RuleList: React.FC<RuleListProps> = ({
           <Group gap="xs" wrap="wrap">
             {rule.discountLevels.map((level, idx, arr) => (
               <React.Fragment key={idx}>
-                <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>
+                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                   {level.value}{getThresholdValueTypeLabel(level.valueType)}
                   {level.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(level.roundingRule)}`}
                 </Badge>
@@ -156,9 +157,11 @@ const RuleList: React.FC<RuleListProps> = ({
 
   return (
     <Stack gap="md">
-      <Group justify="flex-end">
+      <Group justify="space-between" align="center">
+        <Title order={2}>Preisnachlassregeln</Title>
         <Button 
           variant="filled" 
+          color="blue"
           leftSection={<IconPlus size={16} />} 
           onClick={onCreateRule}
         >
@@ -168,11 +171,14 @@ const RuleList: React.FC<RuleListProps> = ({
       
       <Stack gap="xs">
         {rules.length === 0 ? (
-          <Paper p="md" withBorder>
-            <Text c="dimmed" ta="center">
-              Keine Regeln gefunden. Erstellen Sie eine neue Regel.
+          <Paper p="md" >
+            <Text c="dimmed" ta="left">
+              Es wurden noch keine Regeln hinterlegt. 
             </Text>
-          </Paper>
+            <Text c="dimmed" ta="left">
+              Zur Erstellung einer neuen Regel klicken Sie den Button "Neue Regel".
+            </Text>
+              </Paper>
         ) : (
           rules.map(rule => (
             <Paper 
@@ -213,19 +219,19 @@ const RuleList: React.FC<RuleListProps> = ({
                             <Text size="sm" c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
                             <Box>
                               {stage.calculationBase === 'prozent_vom_vk' && (
-                                <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>
+                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                                   {stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
                                 </Badge>
                               )}
                               {stage.calculationBase === 'fester_betrag' && (
-                                <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>
+                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                                   {stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
                                 </Badge>
                               )}
                               {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
                                 <Group gap="xs" wrap="wrap" mt="xxxxs">
                                   {stage.priceThresholds.map((threshold, tIdx) => (
-                                    <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none' } }}>
+                                    <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                                       {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                                       {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                                       {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
@@ -250,7 +256,7 @@ const RuleList: React.FC<RuleListProps> = ({
                   {/* Max amount if exists */}
                   {rule.maxAmount && (
                     <Box mt="xs">
-                      <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Max: {rule.maxAmount}€</Badge>
+                      <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>Max: {rule.maxAmount}€</Badge>
                     </Box>
                   )}
                   
@@ -261,7 +267,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
                         <Text span size="sm" c="dimmed" fw={500}>Zusatzaktionen:</Text>
-                        {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
+                        {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
                       </Group>
                     )}
                     

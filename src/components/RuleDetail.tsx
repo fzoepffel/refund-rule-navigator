@@ -135,7 +135,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           <IconArrowLeft size={16} />
         </ActionIcon>
         <Title order={2} style={{ flex: 1 }}>{rule.name}</Title>
-        <Button onClick={() => onEdit(rule)} leftSection={<IconEdit size={16} />}>
+        <Button onClick={() => onEdit(rule)} leftSection={<IconEdit size={16} />} color="blue">
           Bearbeiten
         </Button>
       </Group>
@@ -177,10 +177,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                             {threshold.minPrice}€ 
                             {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                           </Text>
-                          <Badge styles={{ root: { textTransform: 'none' } }}>
+                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                             {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
-                            
-                              ({getRoundingRuleLabel(threshold.roundingRule)})
+                            ({getRoundingRuleLabel(threshold.roundingRule)})
                           </Badge>
                         </Group>
                       ))}
@@ -197,11 +196,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     <Group gap="xs">
                       {rule.discountLevels.map((level, index, array) => (
                         <React.Fragment key={index}>
-                          <Badge styles={{ root: { textTransform: 'none' } }}>
+                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                             {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
-                            
-                              ({getRoundingRuleLabel(level.roundingRule)})
-                            
+                            ({getRoundingRuleLabel(level.roundingRule)})
                           </Badge>
                           {index < array.length - 1 && <Text>→</Text>}
                         </React.Fragment>
@@ -262,11 +259,9 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                                     {threshold.minPrice}€ 
                                     {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                                   </Text>
-                                  <Badge styles={{ root: { textTransform: 'none' } }}>
+                                  <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
                                     {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
-                                    
-                                      ({getRoundingRuleLabel(threshold.roundingRule)})
-                                  
+                                    ({getRoundingRuleLabel(threshold.roundingRule)})
                                   </Badge>
                                 </Group>
                               ))}
@@ -277,37 +272,6 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     </Paper>
                   ))}
                 </Stack>
-              </Box>
-            </>
-          )}
-
-          {rule.maxAmount && (
-            <Box>
-              <Text size="sm" c="dimmed">Maximalbetrag</Text>
-              <Text fw={500}>{rule.maxAmount}€</Text>
-            </Box>
-          )}
-
-          { rule.consultPartnerBeforePayout && (
-            <>
-              <Divider />
-              <Box>
-                <Text size="sm" c="dimmed" mb="xs">Zusatzaktionen</Text>
-                <Stack gap="xs">
-                  {rule.consultPartnerBeforePayout && (
-                    <Text fw={500}>Rücksprache mit Partner vor Auszahlung</Text>
-                  )}
-                </Stack>
-              </Box>
-            </>
-          )}
-
-          {rule.notes && (
-            <>
-              <Divider />
-              <Box>
-                <Text size="sm" c="dimmed">Notizen</Text>
-                <Text fw={500} style={{ whiteSpace: 'pre-wrap' }}>{rule.notes}</Text>
               </Box>
             </>
           )}

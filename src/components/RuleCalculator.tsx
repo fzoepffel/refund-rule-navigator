@@ -172,6 +172,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
         <Button 
           onClick={handleCalculate} 
           fullWidth
+          color="blue"
           leftSection={<Calculator size={16} />}
         >
           Nachlass berechnen

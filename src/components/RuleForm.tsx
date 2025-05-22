@@ -171,7 +171,7 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
           <Group justify="flex-end">
             <MantineButton
               variant="subtle"
-              color="red"
+              color="blue"
               size="sm"
               onClick={onRemove}
             >
@@ -921,14 +921,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         </Title>
       </Group>
       
-      <Paper p="md" withBorder>
+      <Paper p="md">
         <Stack gap="md">
           <div>
             <Title order={3}>Grundinformationen zum Regelfall</Title>
             <Text size="sm" c="dimmed">
               Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.
             </Text>
-      </div>
+          </div>
       
           <div>
             <Text size="sm" fw={500} mb={5}>Regelname (optional)</Text>
@@ -958,7 +958,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       checked={formData.triggers.includes(trigger)}
                       onChange={() => setTrigger(trigger)}
                       variant={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "light" : "filled"}
-                      color={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "blue" : undefined}
+                      style={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? { color: '#022d94' } : undefined}
                     >
                       {getTriggerLabel(trigger)}
                     </Chip>
@@ -970,7 +970,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               </Text>
 
               {formData.triggers.includes('Mangel') && (
-                <Box pl="md" style={{ borderLeft: '2px solid var(--mantine-color-blue-2)' }}>
+                <Box pl="md" style={{ borderLeft: '2px solid #022d94' }}>
                   <MultiSelect
                     label="Spezifische Mängel"
                     placeholder="Spezifische Mängel auswählen"
@@ -992,7 +992,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     }}
                     searchable
                     clearable
-                    color="blue"
+                    style={{ color: '#022d94' }}
                   />
                   <Text size="xs" c="dimmed" mt="xs">
                     Für generelle Mängel (Reklamationen) einfach alle Spezifischen Mängel ausgewählt lassen.
@@ -1247,6 +1247,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             type="submit"
             leftSection={<IconDeviceFloppy size={16} />}
             size="lg"
+            color="blue"
             style={{ width: '90%' }}
           >
             Speichern
