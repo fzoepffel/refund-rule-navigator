@@ -177,7 +177,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                             {threshold.minPrice}€ 
                             {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                           </Text>
-                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                             {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                             ({getRoundingRuleLabel(threshold.roundingRule)})
                           </Badge>
@@ -196,7 +196,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                     <Group gap="xs">
                       {rule.discountLevels.map((level, index, array) => (
                         <React.Fragment key={index}>
-                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                          <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                             {level.valueType === 'percent' ? `${level.value}%` : `${level.value}€`}
                             ({getRoundingRuleLabel(level.roundingRule)})
                           </Badge>
@@ -259,7 +259,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
                                     {threshold.minPrice}€ 
                                     {threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : ' und höher'}:
                                   </Text>
-                                  <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                                  <Badge styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                     {threshold.valueType === 'percent' ? `${threshold.value}%` : `${threshold.value}€`}
                                     ({getRoundingRuleLabel(threshold.roundingRule)})
                                   </Badge>
@@ -276,6 +276,24 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
             </>
           )}
         </Stack>
+        {/* Zusatzaktionen and Notizen, styled like other entries */}
+        {(rule.consultPartnerBeforePayout || rule.notes) && (
+          <>
+          <Divider />
+            {rule.consultPartnerBeforePayout && (
+              <Box>
+                <Text size="sm" c="dimmed">Zusatzaktionen</Text>
+                <Badge mt={4} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Rücksprache mit Partner vor Auszahlung</Badge>
+              </Box>
+            )}
+            {rule.notes && (
+              <Box>
+                <Text size="sm" c="dimmed">Notizen</Text>
+                <Text size="sm" mt={4}>{rule.notes}</Text>
+              </Box>
+            )}
+          </>
+        )}
       </Paper>
     </Stack>
   );

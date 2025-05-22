@@ -56,15 +56,15 @@ const RuleList: React.FC<RuleListProps> = ({
 
     switch (rule.calculationBase) {
       case 'prozent_vom_vk':
-        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.value}%{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'fester_betrag':
-        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
+        return <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.value}€ Festbetrag{rule.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(rule.roundingRule)}`}</Badge>;
       case 'preisstaffel':
         if (!rule.priceThresholds || rule.priceThresholds.length === 0) return null;
         return (
           <Group gap="xs" wrap="wrap">
             {rule.priceThresholds.map((threshold, idx) => (
-              <Badge key={idx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+              <Badge key={idx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                 {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                 {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                 {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
@@ -78,7 +78,7 @@ const RuleList: React.FC<RuleListProps> = ({
           <Group gap="xs" wrap="wrap">
             {rule.discountLevels.map((level, idx, arr) => (
               <React.Fragment key={idx}>
-                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                   {level.value}{getThresholdValueTypeLabel(level.valueType)}
                   {level.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(level.roundingRule)}`}
                 </Badge>
@@ -219,19 +219,19 @@ const RuleList: React.FC<RuleListProps> = ({
                             <Text size="sm" c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
                             <Box>
                               {stage.calculationBase === 'prozent_vom_vk' && (
-                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                   {stage.value}%{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
                                 </Badge>
                               )}
                               {stage.calculationBase === 'fester_betrag' && (
-                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                                <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                   {stage.value}€ Festbetrag{stage.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(stage.roundingRule)}`}
                                 </Badge>
                               )}
                               {stage.calculationBase === 'preisstaffel' && stage.priceThresholds && (
                                 <Group gap="xs" wrap="wrap" mt="xxxxs">
                                   {stage.priceThresholds.map((threshold, tIdx) => (
-                                    <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>
+                                    <Badge key={tIdx} size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
                                       {threshold.minPrice}€{threshold.maxPrice ? ` bis ${threshold.maxPrice}€` : '+'}: 
                                       {threshold.value}{getThresholdValueTypeLabel(threshold.valueType)}
                                       {threshold.roundingRule !== 'keine_rundung' && `, ${getRoundingRuleLabel(threshold.roundingRule)}`}
@@ -256,7 +256,7 @@ const RuleList: React.FC<RuleListProps> = ({
                   {/* Max amount if exists */}
                   {rule.maxAmount && (
                     <Box mt="xs">
-                      <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>Max: {rule.maxAmount}€</Badge>
+                      <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Max: {rule.maxAmount}€</Badge>
                     </Box>
                   )}
                   
@@ -267,7 +267,7 @@ const RuleList: React.FC<RuleListProps> = ({
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
                         <Text span size="sm" c="dimmed" fw={500}>Zusatzaktionen:</Text>
-                        {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#022d94' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
+                        {rule.consultPartnerBeforePayout && <Badge size="sm" styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
                       </Group>
                     )}
                     

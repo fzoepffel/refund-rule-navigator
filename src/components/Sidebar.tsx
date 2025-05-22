@@ -75,7 +75,7 @@ const Sidebar = () => (
                   key={subitem.label}
                   label={subitem.label}
                   active={subitem.active}
-                  style={subitem.active ? { color: '#022d94' } : undefined}
+                  style={subitem.active ? { color: '#0563C1' } : undefined}
                 />
               ))}
           </NavLink>

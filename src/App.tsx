@@ -18,16 +18,16 @@ const theme = createTheme({
   primaryColor: 'blue',
   colors: {
     blue: [
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
-      '#022d94',
+      '#0563C1',
+      '#0563C1',
+      '#0563C1',
+      '#0563C1',
+      '#0563C1',
+      '#0563C1',
+      '#0563C1',
+      '#01518A',
+      '#01518A',
+      '#01518A',
     ],
   },
   fontFamily: 'Roboto, sans-serif',
@@ -45,6 +45,14 @@ const theme = createTheme({
     Button: {
       defaultProps: {
         ff: 'Roboto',
+      },
+      styles: {
+        root: {
+          transition: 'background 0.2s',
+          '&:hover': {
+            backgroundColor: '#01518A',
+          },
+        },
       },
     },
     Badge: {

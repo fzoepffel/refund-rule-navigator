@@ -913,8 +913,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" style={{ position: 'relative' }}>
       <Group>
-        <MantineButton type="button" variant="outline" size="sm" onClick={onCancel}>
-          <IconArrowLeft className="h-4 w-4" />
+        <MantineButton type="button" variant="subtle" size="sm" onClick={onCancel}>
+          <IconArrowLeft className="h-6 w-6" />
         </MantineButton>
         <Title order={2} style={{ flex: 1 }}>
           {rule ? "Regel bearbeiten" : "Neue Regel erstellen"}
@@ -958,7 +958,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       checked={formData.triggers.includes(trigger)}
                       onChange={() => setTrigger(trigger)}
                       variant={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? "light" : "filled"}
-                      style={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? { color: '#022d94' } : undefined}
+                      style={isMangel && someMangelTriggersSelected && !allMangelTriggersSelected ? { color: '#0563C1' } : undefined}
                     >
                       {getTriggerLabel(trigger)}
                     </Chip>
@@ -970,7 +970,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               </Text>
 
               {formData.triggers.includes('Mangel') && (
-                <Box pl="md" style={{ borderLeft: '2px solid #022d94' }}>
+                <Box pl="md" style={{ borderLeft: '2px solid #0563C1' }}>
                   <MultiSelect
                     label="Spezifische Mängel"
                     placeholder="Spezifische Mängel auswählen"
@@ -992,7 +992,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     }}
                     searchable
                     clearable
-                    style={{ color: '#022d94' }}
+                    style={{ color: '#0563C1' }}
                   />
                   <Text size="xs" c="dimmed" mt="xs">
                     Für generelle Mängel (Reklamationen) einfach alle Spezifischen Mängel ausgewählt lassen.
