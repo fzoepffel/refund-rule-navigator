@@ -244,7 +244,6 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
               color="red"
               size="sm"
               onClick={onRemove}
-              leftSection={<IconTrash size={16} />}
             >
               Staffel löschen
             </MantineButton>
@@ -1091,7 +1090,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             />
           </div>
 
-          {!rule && (
+          {!rule && !showCalculation && (
             <Group justify="flex-end">
               <MantineButton 
                 onClick={validateRuleOverlap}
