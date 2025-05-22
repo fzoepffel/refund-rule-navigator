@@ -264,8 +264,11 @@ const RuleList: React.FC<RuleListProps> = ({
                   {/* Max amount if exists */}
                   {rule.maxAmount && (
                     <Box mt="xs">
-                      <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Max: {rule.maxAmount}€</Badge>
-                    </Box>
+                      <Group gap="xs" wrap="wrap">
+                        <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Max:</Text>
+                        <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.maxAmount}€</Badge>
+                      </Group>
+                      </Box>
                   )}
                   
                   {/* Special rules and notes */}
@@ -274,8 +277,8 @@ const RuleList: React.FC<RuleListProps> = ({
                     {
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
-                        <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Zusatzaktionen:</Text>
-                        {rule.consultPartnerBeforePayout && <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>Rücksprache mit Partner vor Auszahlung</Badge>}
+                        <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Rücksprache mit Partner vor Auszahlung?:</Text>
+                        {rule.consultPartnerBeforePayout && <Text style={{ fontSize: 18 }} c="dimmed" >Ja</Text>}
                       </Group>
                     )}
                     
