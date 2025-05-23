@@ -174,8 +174,9 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
             <Text style={{ fontSize: 20 }} mb={5}>Wert</Text>
             <NumberInput
               value={threshold.value}
-              onChange={(value) => onChange('value', value)}
+              onChange={(value) => onChange('value', value || 0)}
               min={0}
+              allowNegative={false}
               styles={{ input: { fontSize: 18 } }}
             />
           </div>
