@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import { generateRuleName } from "@/utils/discountUtils";
 
 type ViewState = {
   type: "list" | "detail" | "form";
@@ -25,7 +26,7 @@ const Index = () => {
   const { toast } = useToast();
   
   const handleSelectRule = (rule: DiscountRule) => {
-    setViewState({ type: "detail", selectedRule: rule });
+    setViewState({ type: "list", selectedRule: rule });
   };
   
   const handleEditRule = (rule: DiscountRule) => {
@@ -42,19 +43,19 @@ const Index = () => {
       setRules(rules.map(r => r.id === rule.id ? rule : r));
       toast({
         title: "Regel aktualisiert",
-        description: `Die Regel "${rule.name}" wurde erfolgreich aktualisiert.`,
+        description: `Die Regel "${generateRuleName(rule)}" wurde erfolgreich aktualisiert.`,
         duration: 3000
       });
     } else {
       setRules([...rules, rule]);
       toast({
         title: "Neue Regel erstellt",
-        description: `Die Regel "${rule.name}" wurde erfolgreich erstellt.`,
+        description: `Die Regel "${generateRuleName(rule)}" wurde erfolgreich erstellt.`,
         duration: 3000
       });
     }
     
-    setViewState({ type: "detail", selectedRule: rule });
+    setViewState({ type: "list" });
   };
   
   const handleDeleteRule = (id: string) => {

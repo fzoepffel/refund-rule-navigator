@@ -46,7 +46,6 @@ export interface CalculationStage {
 
 export interface DiscountRule {
   id: string,
-  name: string,
   packageOpened?: 'yes' | 'no' | 'Egal',
   triggers: Trigger[],
   calculationBase: CalculationBase,

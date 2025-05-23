@@ -190,3 +190,45 @@ export const getTriggerLabels = (triggers: Trigger[]): string => {
     .map(getTriggerLabel)
     .join(", ");
 };
+
+
+  // Generate rule name according to new schema
+  export const generateRuleName = (rule: DiscountRule) => {
+    
+    const parts: string[] = [];
+    // Part 1: Main triggers (Geschmacksretoure/Mangel)
+    const mainTriggers = ['Geschmacksretoure', 'Mangel'];
+    const mangelTriggers = ['Mangel'];
+    
+    const mainSelectedTriggers = rule.triggers.filter(t => mainTriggers.includes(t));
+    // Check if all Mangel triggers are selected
+    const allMangelTriggersSelected = mangelTriggers.every(trigger => rule.triggers.includes(trigger as Trigger));
+    // If all Mangel triggers are selected, show "Mangel" instead of individual triggers
+    if (allMangelTriggersSelected) {
+      const triggersWithoutMangel = mainSelectedTriggers.filter(t => t !== 'Mangel');
+      if (triggersWithoutMangel.length > 0) {
+        parts.push(triggersWithoutMangel.join(", "));
+      }
+      parts.push("Mangel");
+    } else {
+      // Otherwise, show only the specific triggers that are selected
+      const specificTriggers = rule.triggers.filter(t => t !== 'Mangel');
+      if (specificTriggers.length > 0) {
+        parts.push(specificTriggers.join(", "));
+      }
+    }
+
+    // Part 2: Versandart
+    if (rule.shippingType !== "Egal") {
+      parts.push(rule.shippingType);
+    } 
+
+    // Part 3: Originalverpackt
+    if (rule.packageOpened === "yes") {
+      parts.push("originalverpackt");
+    } else if (rule.packageOpened === "no") {
+      parts.push("nicht originalverpackt");
+    }
+
+    return parts.filter(part => part).join(", ");
+  };

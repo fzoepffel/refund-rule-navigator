@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { DiscountRule, Trigger } from "../models/ruleTypes";
 import { 
   getCalculationBaseLabel, 
   getRoundingRuleLabel,
   getThresholdValueTypeLabel,
-  getTriggerLabel
+  getTriggerLabel,
+  generateRuleName
 } from "../utils/discountUtils";
 import { 
   Paper, 
@@ -15,7 +16,8 @@ import {
   ActionIcon, 
   Badge, 
   Box,
-  Alert
+  Alert,
+  Modal
 } from '@mantine/core';
 import { IconPlus, IconEdit, IconTrash, IconInfoCircle } from '@tabler/icons-react';
 
@@ -34,6 +36,25 @@ const RuleList: React.FC<RuleListProps> = ({
   onDeleteRule, 
   onCreateRule 
 }) => {
+  // Add state for delete confirmation modal
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [ruleToDelete, setRuleToDelete] = useState<string | null>(null);
+
+  // Add handler for delete confirmation
+  const handleDeleteClick = (e: React.MouseEvent, ruleId: string) => {
+    e.stopPropagation();
+    setRuleToDelete(ruleId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (ruleToDelete) {
+      onDeleteRule(ruleToDelete);
+      setDeleteModalOpen(false);
+      setRuleToDelete(null);
+    }
+  };
+
   // Helper function to format package opened status
   const getPackageOpenedLabel = (packageOpened?: 'yes' | 'no' | 'Egal') => {
     if (!packageOpened || packageOpened === 'Egal') return '';
@@ -157,7 +178,7 @@ const RuleList: React.FC<RuleListProps> = ({
   return (
     <Stack gap="md">
       <Group justify="space-between" align="center">
-        <Text style={{ fontSize: 24 }}>Preisnachlassregeln</Text>
+        <Text style={{ fontSize: 24, fontWeight: 500 }}>Preisnachlassregeln</Text>
         <Button 
           variant="filled" 
           color="blue"
@@ -192,17 +213,17 @@ const RuleList: React.FC<RuleListProps> = ({
             <Paper 
               key={rule.id}
               p="md"
-              
+              withBorder
               style={{ 
                 cursor: 'pointer',
-                backgroundColor: '#F0F7FF',  // Light blue background
+                backgroundColor: '#F1F3F5',  // Light blue background
                 
               }}
               onClick={() => onSelectRule(rule)}
             >
               <Group justify="space-between">
                 <Box style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 20 }} mb="xs">{rule.name}</Text>
+                  <Text style={{ fontSize: 20 }} mb="xs">{generateRuleName(rule)}</Text>
                   
                   {/* Context information line with dynamic separator dots */}
                   {/* <Group gap="xs" wrap="wrap" mt="xxxxs">
@@ -281,7 +302,7 @@ const RuleList: React.FC<RuleListProps> = ({
                     {
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
-                        <Text span style={{ fontSize: 18 }}  fw={500}>Rücksprache mit Partner vor Auszahlung?:</Text>
+                        <Text span style={{ fontSize: 18 }}  fw={500}>E-Mail Abstimmung vor Auszahlung:</Text>
                         {rule.consultPartnerBeforePayout && <Text style={{ fontSize: 18 }}  >Ja</Text>}
                       </Group>
                     )}
@@ -308,10 +329,7 @@ const RuleList: React.FC<RuleListProps> = ({
                   <ActionIcon 
                     variant="subtle" 
                     color="blue"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteRule(rule.id);
-                    }}
+                    onClick={(e) => handleDeleteClick(e, rule.id)}
                   >
                     <IconTrash size={20} />
                   </ActionIcon>
@@ -321,6 +339,43 @@ const RuleList: React.FC<RuleListProps> = ({
           ))
         )}
       </Stack>
+
+      {/* Add the confirmation modal */}
+      <Modal
+        opened={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Regel löschen"
+        centered
+        styles={{
+          title: {
+            fontSize: '20px',
+            fontWeight: 500
+          }
+        }}
+      >
+        <Stack>
+          <Text style={{ fontSize: 18 }}>
+            Wollen Sie diese Regel wirklich löschen?
+          </Text>
+          <Group justify="flex-end" mt="md">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteModalOpen(false)}
+              style={{ fontSize: 18 }}
+              
+            >
+              Abbrechen
+            </Button>
+            <Button
+              color="blue"
+              onClick={handleConfirmDelete}
+              style={{ fontSize: 18 }}
+            >
+              Löschen
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Stack>
   );
 };

@@ -3,7 +3,8 @@ import { DiscountRule, Trigger } from "../models/ruleTypes";
 import { 
   getTriggerLabel, 
   getCalculationBaseLabel, 
-  getRoundingRuleLabel, 
+  getRoundingRuleLabel,
+  generateRuleName, 
 } from "../utils/discountUtils";
 import { 
   Paper, 
@@ -135,7 +136,7 @@ const RuleDetail: React.FC<RuleDetailProps> = ({ rule, onBack, onEdit }) => {
           <ActionIcon variant="subtle" onClick={onBack}>
             <IconArrowLeft size={24} />
           </ActionIcon>
-          <Text style={{ fontSize: 24 }}>{rule.name}</Text>
+          <Text style={{ fontSize: 24 }}>{generateRuleName(rule)}</Text>
         </Group>
         <Button onClick={() => onEdit(rule)} leftSection={<IconEdit size={20} />} color="blue" style={{ fontSize: 20, fontWeight: 400 }} h={50}>
           Bearbeiten

@@ -46,7 +46,6 @@ interface RuleFormProps {
 }
 
 interface FormData {
-  ruleName: string;
   triggers: string[];
   priceThreshold: number;
   partnerConsultation: boolean;
@@ -54,7 +53,6 @@ interface FormData {
 
 const defaultRule: DiscountRule = {
   id: "",
-  name: "",
   triggers: [
     'Geschmacksretoure',
     'Mangel',
@@ -514,10 +512,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   // Update the getInitialFormData function
   const getInitialFormData = () => {
     if (rule) {
-      // When editing, return the rule without the name
       return {
         ...rule,
-        name: ''
       };
     }
     // Create a deep copy of the default rule
@@ -529,10 +525,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   // Update the useEffect to handle the initial form data
   useEffect(() => {
     if (rule) {
-      // When editing, set form data without the name
       setFormData({
         ...rule,
-        name: ''
       });
     } else {
       // Reset to a fresh copy of default rule when creating new rule
@@ -671,48 +665,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     }
   }, [formData.triggers.includes('Mangel')]);
   
-  // Generate rule name according to new schema
-  const generateRuleName = () => {
-    if (formData.name) return formData.name;
-    
-    const parts: string[] = [];
 
-    // Part 1: Main triggers (Geschmacksretoure/Mangel)
-    const mainSelectedTriggers = formData.triggers.filter(t => mainTriggers.includes(t));
-    
-    // Check if all Mangel triggers are selected
-    const allMangelTriggersSelected = mangelTriggers.every(trigger => formData.triggers.includes(trigger));
-    
-    // If all Mangel triggers are selected, show "Mangel" instead of individual triggers
-    if (allMangelTriggersSelected) {
-      const triggersWithoutMangel = mainSelectedTriggers.filter(t => t !== 'Mangel');
-      if (triggersWithoutMangel.length > 0) {
-        parts.push(triggersWithoutMangel.join(", "));
-      }
-      parts.push("Mangel");
-    } else {
-      // Otherwise, show only the specific triggers that are selected
-      const specificTriggers = formData.triggers.filter(t => t !== 'Mangel');
-      if (specificTriggers.length > 0) {
-        parts.push(specificTriggers.join(", "));
-      }
-    }
-
-    // Part 2: Versandart
-    if (formData.shippingType !== "Egal") {
-      parts.push(formData.shippingType);
-    } 
-
-    // Part 3: Originalverpackt
-    if (formData.packageOpened === "yes") {
-      parts.push("originalverpackt");
-    } else if (formData.packageOpened === "no") {
-      parts.push("nicht originalverpackt");
-    }
-
-    return parts.filter(part => part).join(", ");
-  };
-  
   const handleChange = (field: keyof DiscountRule, value: any) => {
       setFormData(prev => ({
         ...prev,
@@ -934,10 +887,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Generate name if empty before saving
     const finalData = {
       ...formData,
-      name: generateRuleName(),
       // Generate a unique ID if this is a new rule
       id: rule?.id || `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     };
@@ -1063,52 +1014,31 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       <Paper p="md">
         <Stack gap="md">
           <div>
-            <Text style={{ fontSize: 24 }}>Grundinformationen zum Regelfall</Text>
-            <Text style={{fontSize: 18}}>
-              Hier wird der Fall definiert, für welchen diese Preisnachlassregel erstellt werden soll. Jeder Merchant kann eine beliebige Anzahl an Regeln zu einer beliebigen Anzahl an Fällen definieren. Wird in einem der Menüs "Egal" ausgewählt, so wird die Regel für alle Fälle gelten, sofern nicht anders definiert.
-            </Text>
-          </div>
-      
-          <div>
-            <Text style={{ fontSize: 20 }} mb={5}>Regelname (optional)</Text>
-            <TextInput 
-              value={formData.name} 
-              onChange={(e) => handleChange("name", e.target.value)} 
-              placeholder={generateRuleName()}
-              styles={{
-                input: {
-                  fontSize: '20px', // Change this value as needed
+            <Group gap="xs">
+              <Text style={{ fontSize: 24 }}>Regeldefinition</Text>
+              <Tooltip
+                styles={{
+                  tooltip: {
+                    whiteSpace: 'pre-line',
+                    fontSize: 14,
+                  },
+                }}
+                label={
+                  <Text>
+                    Hier definieren Sie den Fall, für den diese Preisnachlassregel erstellt werden soll. 
+                    {"\n"}Sie können eine beliebige Anzahl an Regeln für beliebige Fälle definieren. 
+                    {"\n"}Wenn Sie in einem der Menüs „Egal" auswählen, gilt die Regel für alle Fälle – sofern nicht anders angegeben.
+                  </Text>
                 }
-              }}
-            />
-            <Text style={{fontSize: 14}} c="dimmed" mt={5}>
-              Leer lassen für automatisch generierten Namen: {generateRuleName()}
-            </Text>
+              >
+                <IconHelp size={20} style={{ color: '#0563C1' }} />
+              </Tooltip>
+            </Group>
           </div>
           
           {/* Gründe */}
           <div>
-            <Group gap="xs" mb={5}>
-            
-            <Text style={{ fontSize: 20 }}>Gründe</Text>
-            <Tooltip
-                  styles={{
-                    tooltip: {
-                      whiteSpace: 'pre-line', // Enables \n line breaks
-                      fontSize: 14,
-                    },
-                  }}
-                  label={
-                    <Text>
-                      Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. 
-                      {'\n'}Für Widerruf und Reklamation einfach beide auswählen. 
-                      {'\n'}Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
-                    </Text>
-                  }
-                >
-                  <IconHelp             size={20} style={{ color: '#0563C1' }} />
-                </Tooltip>
-                </Group>
+
             <Stack gap="xs">
               <Group gap="xs">
                 {mainTriggers.map(trigger => {
@@ -1135,6 +1065,23 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     </Chip>
                   );
                 })}
+                            <Tooltip
+                  styles={{
+                    tooltip: {
+                      whiteSpace: 'pre-line', // Enables \n line breaks
+                      fontSize: 14,
+                    },
+                  }}
+                  label={
+                    <Text>
+                      Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. 
+                      {'\n'}Für Widerruf und Reklamation einfach beide auswählen. 
+                      {'\n'}Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+                    </Text>
+                  }
+                >
+                  <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                </Tooltip>
               </Group>
               
               
@@ -1356,10 +1303,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         <Paper p="md">
           <Stack gap="md">
             <div>
-              <Text style={{ fontSize: 24 }}>Berechnungsgrundlage</Text>
-              <Text style={{fontSize: 18}}>
-                Soll ein Preisnachlass im gegebenen Regelfall und bei der gewählten Strategie gewährt werden, wird hier definiert, wie dieser berechnet wird.
-              </Text>
+              <Text style={{ fontSize: 24 }}>Preisnachlassberechnung</Text>
             </div>
 
             <div className="space-y-2">
@@ -1380,8 +1324,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     }}
                     label={
                       <Text>
-                        Wird hier ein Haken gesetzt, können Preisnachlässe in mehreren Stufen definiert werden. 
-                        {'\n'}Dem Kunden wird Schritt für Schritt die nächsthöhere Angebotsstufe angeboten.
+                        Wenn Sie diese Option aktivieren, können Sie mehrere Preisnachlassstufen definieren.
+                        {'\n'}Dem Kunden wird dann Schritt für Schritt die jeweils nächste Stufe angeboten.
+                        
                       </Text>
                     }
                   >
@@ -1594,21 +1539,23 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   onChange={(event) => handleChange("consultPartnerBeforePayout", event.currentTarget.checked)}
                 />
                 <Text style={{ fontSize: 20 }}>
-                  Rücksprache mit Partner vor Auszahlung
+                Preisnachlass-Auszahlung nur nach vorheriger Abstimmung per E-Mail.
                 </Text>
-                <Alert color="blue" 
-                  icon={<IconInfoCircle size={20} />} 
-                  title="Hinweis"
-                  styles={{
-                    message: {
-                      fontSize: '20px', // Adjust to your desired size
-                    },
-                    title: {
-                      fontSize: '20px', // Adjust to your desired size
-                    },
+                {formData.consultPartnerBeforePayout && (
+                  <Alert color="blue" 
+                    icon={<IconInfoCircle size={20} />} 
+                    title="Hinweis"
+                    styles={{
+                      message: {
+                        fontSize: '20px',
+                      },
+                      title: {
+                        fontSize: '20px',
+                      },
                     }}>
-                Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt, wird der Preisnachlass automatisch gewährt.
-              </Alert>
+                    Wenn keine Rückmeldung zu einer Preisnachlass Anfrage innerhalb von 2 Werktagen erfolgt, wird der Preisnachlass automatisch gewährt.
+                  </Alert>
+                )}
               </Group>
               
             </div>
