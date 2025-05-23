@@ -98,8 +98,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (rule.triggers.length > 0) {
       parts.push(
         <Group key="trigger" gap="xs" wrap="nowrap">
-          <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Gründe:</Text>
-          <Text span style={{ fontSize: 18 }} c="dimmed">{getTriggerLabels(rule.triggers)}</Text>
+          <Text span style={{ fontSize: 18 }}  fw={500}>Gründe:</Text>
+          <Text span style={{ fontSize: 18 }} >{getTriggerLabels(rule.triggers)}</Text>
         </Group>
       );
     }
@@ -108,8 +108,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (packageOpenedLabel) {
       parts.push(
         <Group key="packageOpened" gap="xs" wrap="nowrap">
-          <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Originalverpackt?:</Text>
-          <Text span style={{ fontSize: 18 }} c="dimmed">{packageOpenedLabel}</Text>
+          <Text span style={{ fontSize: 18 }}  fw={500}>Originalverpackt?:</Text>
+          <Text span style={{ fontSize: 18 }} >{packageOpenedLabel}</Text>
         </Group>
       );
     }
@@ -118,8 +118,8 @@ const RuleList: React.FC<RuleListProps> = ({
     if (shippingTypeLabel) {
       parts.push(
         <Group key="shippingType" gap="xs" wrap="nowrap">
-          <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Versandart:</Text>
-          <Text span style={{ fontSize: 18 }} c="dimmed">{shippingTypeLabel}</Text>
+          <Text span style={{ fontSize: 18 }}  fw={500}>Versandart:</Text>
+          <Text span style={{ fontSize: 18 }} >{shippingTypeLabel}</Text>
         </Group>
       );
     }
@@ -192,8 +192,12 @@ const RuleList: React.FC<RuleListProps> = ({
             <Paper 
               key={rule.id}
               p="md"
-              withBorder
-              style={{ cursor: 'pointer' }}
+              
+              style={{ 
+                cursor: 'pointer',
+                backgroundColor: '#F0F7FF',  // Light blue background
+                
+              }}
               onClick={() => onSelectRule(rule)}
             >
               <Group justify="space-between">
@@ -201,30 +205,30 @@ const RuleList: React.FC<RuleListProps> = ({
                   <Text style={{ fontSize: 20 }} mb="xs">{rule.name}</Text>
                   
                   {/* Context information line with dynamic separator dots */}
-                  <Group gap="xs" wrap="wrap" mt="xxxxs">
+                  {/* <Group gap="xs" wrap="wrap" mt="xxxxs">
                     {getContextInfoParts(rule).map((part, index, array) => (
                       <React.Fragment key={`fragment-${index}`}>
                         {part}
-                        {index < array.length - 1 && <Text span c="dimmed" style={{ fontSize: 18 }}></Text>}
+                        {index < array.length - 1 && <Text span  style={{ fontSize: 18 }}></Text>}
                       </React.Fragment>
                     ))}
-                  </Group>
+                  </Group> */}
 
                   {/* Calculation information */}
                   <Stack gap="xs" mt="xxxxs">
                     <Group gap="xs" mt="xxxxs">
-                      <Text style={{ fontSize: 18 }} c="dimmed" fw={500}>Berechnung:</Text>
+                      <Text style={{ fontSize: 18 }}  fw={500}>Berechnung:</Text>
                       {rule.hasMultipleStages ? (
-                        <Text style={{ fontSize: 18 }} c="dimmed">Mehrere Angebotsstufen</Text>
+                        <Text style={{ fontSize: 18 }} >Mehrere Angebotsstufen</Text>
                       ) : (
-                        <Text style={{ fontSize: 18 }} c="dimmed">{getCalculationBaseLabel(rule.calculationBase)}</Text>
+                        <Text style={{ fontSize: 18 }} >{getCalculationBaseLabel(rule.calculationBase)}</Text>
                       )}
                     </Group>
                     {rule.hasMultipleStages && (
                       <Stack gap="xs" mt="xxxxs">
                         {rule.calculationStages?.map((stage, idx) => (
                           <Group key={idx} gap="xs" mt="xxxxs">
-                            <Text style={{ fontSize: 18 }} c="dimmed" fw={500}>Stufe {idx + 1}:</Text>
+                            <Text style={{ fontSize: 18 }}  fw={500}>Stufe {idx + 1}:</Text>
                             <Box>
                               {stage.calculationBase === 'prozent_vom_vk' && (
                                 <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>
@@ -265,7 +269,7 @@ const RuleList: React.FC<RuleListProps> = ({
                   {rule.maxAmount && (
                     <Box mt="xs">
                       <Group gap="xs" wrap="wrap">
-                        <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Max:</Text>
+                        <Text span style={{ fontSize: 18 }}  fw={500}>Max:</Text>
                         <Badge style={{ fontSize: 18, height: 30, fontWeight: 400 }} styles={{ root: { textTransform: 'none', color: 'white', backgroundColor: '#0563C1' } }}>{rule.maxAmount}€</Badge>
                       </Group>
                       </Box>
@@ -277,14 +281,14 @@ const RuleList: React.FC<RuleListProps> = ({
                     {
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
-                        <Text span style={{ fontSize: 18 }} c="dimmed" fw={500}>Rücksprache mit Partner vor Auszahlung?:</Text>
-                        {rule.consultPartnerBeforePayout && <Text style={{ fontSize: 18 }} c="dimmed" >Ja</Text>}
+                        <Text span style={{ fontSize: 18 }}  fw={500}>Rücksprache mit Partner vor Auszahlung?:</Text>
+                        {rule.consultPartnerBeforePayout && <Text style={{ fontSize: 18 }}  >Ja</Text>}
                       </Group>
                     )}
                     
                     {/* Notes display */}
                     {rule.notes && (
-                      <Text style={{ fontSize: 18 }} c="dimmed">
+                      <Text style={{ fontSize: 18 }} >
                         <Text span style={{ fontSize: 18 }} fw={500}>Notizen:</Text> {rule.notes}
                       </Text>
                     )}

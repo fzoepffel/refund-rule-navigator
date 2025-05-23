@@ -33,6 +33,8 @@ import {
   Box,
   Alert as MantineAlert,
   Tooltip,
+  Radio,
+  Divider,
   Alert
 } from '@mantine/core';
 
@@ -264,6 +266,8 @@ interface CalculationFieldProps {
   roundingRule?: RoundingRule;
   onRoundingRuleChange?: (value: RoundingRule) => void;
   roundingRules?: RoundingRule[];
+  maxAmount?: number | '';
+  onMaxAmountChange?: (value: number | '') => void;
 }
 
 const CalculationField: React.FC<CalculationFieldProps> = ({
@@ -272,50 +276,143 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
   onChange,
   roundingRule,
   onRoundingRuleChange,
-  roundingRules
+  roundingRules,
+  maxAmount,
+  onMaxAmountChange
 }) => {
   return (
-    <div className="space-y-4">
-      <div>
-        <Group gap="xs" mb={5}>
-          <Text style={{ fontSize: 20 }}>
-            {type === 'prozent_vom_vk' ? 'Prozentsatz' : 'Betrag (€)'}
-          </Text>
-          <Tooltip
-            styles={{
-              tooltip: {
-                whiteSpace: 'pre-line', // Enables \n support
-                fontSize: 14,
-              },
-            }}
-            label={
-              <Text>
-                {type === 'prozent_vom_vk'
-                  ? "Geben Sie den Prozentsatz ein, der vom Verkaufspreis abgezogen werden soll.\nBeispiel: Bei 10% und einem Artikelpreis von 100€ beträgt der Nachlass 10€."
-                  : "Geben Sie den festen Euro-Betrag ein, der vom Verkaufspreis abgezogen werden soll.\nDieser Betrag wird unabhängig vom Artikelpreis abgezogen."}
-              </Text>
-            }
-          >
-            <IconHelp             size={20} style={{ color: '#0563C1' }} />
-          </Tooltip>
+    <div>
+      {type === 'prozent_vom_vk' ? (
+        <Group grow align="flex-start">
+          <div>
+            <Group gap="xs" mb={5}>
+              <Text style={{ fontSize: 20 }}>Prozentsatz</Text>
+              <Tooltip
+                styles={{
+                  tooltip: {
+                    whiteSpace: 'pre-line',
+                    fontSize: 14,
+                  },
+                }}
+                label={
+                  <Text>
+                    Geben Sie den Prozentsatz ein, der vom Verkaufspreis abgezogen werden soll.
+                    {'\n'}Beispiel: Bei 10% und einem Artikelpreis von 100€ beträgt der Nachlass 10€.
+                  </Text>
+                }
+              >
+                <IconHelp size={20} style={{ color: '#0563C1' }} />
+              </Tooltip>
+            </Group>
+            <NumberInput
+              value={value || 0}
+              onChange={onChange}
+              min={0}
+              max={100}
+              rightSection={<Text>%</Text>}
+              rightSectionWidth={30}
+              styles={{ input: { fontSize: 18 } }}
+            />
+          </div>
 
+          {roundingRule && onRoundingRuleChange && roundingRules && (
+            <div>
+              <Group gap="xs" mb={5}>
+                <Text style={{ fontSize: 20 }}>Rundungsregel</Text>
+                <Tooltip
+                  styles={{
+                    tooltip: {
+                      whiteSpace: 'pre-line',
+                      fontSize: 14,
+                    },
+                  }}
+                  label={
+                    <Text>
+                      Legen Sie fest, wie der berechnete Nachlassbetrag gerundet werden soll:{"\n"}
+                      - Keine Rundung: Exakter berechneter Betrag{"\n"}
+                      - Auf 5 Euro: Betrag wird auf nächste 5€ gerundet (z.B. 12€ → 15€, 16€ → 20€){"\n"}
+                      - Auf 10 Euro: Betrag wird auf nächste 10€ gerundet (z.B. 12€ → 20€, 27€ → 30€){"\n"}
+                      - Auf 1 Euro: Betrag wird auf nächsten Euro gerundet (z.B. 1,30€ → 2€, 12,70€ → 13€)
+                    </Text>
+                  }
+                >
+                  <IconHelp size={20} style={{ color: '#0563C1' }} />
+                </Tooltip>
+              </Group>
+              <MantineSelect
+                value={roundingRule}
+                onChange={(value) => onRoundingRuleChange(value as RoundingRule)}
+                data={roundingRules.map(rule => ({
+                  value: rule,
+                  label: getRoundingRuleLabel(rule)
+                }))}
+                styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
+              />
+            </div>
+          )}
+
+          <div style={{ maxWidth: '300px' }}>
+            <Group gap="xs" mb={5}>
+              <Text style={{ fontSize: 20 }}>Maximalbetrag</Text>
+              <Tooltip
+                styles={{
+                  tooltip: {
+                    whiteSpace: 'pre-line',
+                    fontSize: 14,
+                  },
+                }}
+                label={
+                  <Text>
+                    Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
+                    Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
+                    Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
+                    einem 1000€ Artikel nur 50€ (statt 200€) abgezogen.
+                  </Text>
+                }
+              >
+                <IconHelp size={20} style={{ color: '#0563C1' }} />
+              </Tooltip>
+            </Group>
+            <NumberInput
+              value={maxAmount || ''}
+              onChange={onMaxAmountChange}
+              min={0}
+              rightSection={<Text>€</Text>}
+              rightSectionWidth={30}
+              styles={{ input: { fontSize: 18 } }}
+            />
+          </div>
         </Group>
-        <NumberInput
-          value={value || 0}
-          onChange={onChange}
-          min={0}
-          max={type === 'prozent_vom_vk' ? 100 : undefined}
-          rightSection={<Text>{type === 'prozent_vom_vk' ? '%' : '€'}</Text>}
-          rightSectionWidth={30}
-          styles={{ input: { fontSize: 18 } }}
-        />
-      </div>
-      {type === 'prozent_vom_vk' && roundingRule && onRoundingRuleChange && roundingRules && (
-        <RoundingRuleSelect
-          value={roundingRule}
-          onChange={onRoundingRuleChange}
-          roundingRules={roundingRules}
-        />
+      ) : (
+        <div style={{ maxWidth: '300px' }}>
+          <Group gap="xs" mb={5}>
+            <Text style={{ fontSize: 20 }}>Betrag (€)</Text>
+            <Tooltip
+              styles={{
+                tooltip: {
+                  whiteSpace: 'pre-line',
+                  fontSize: 14,
+                },
+              }}
+              label={
+                <Text>
+                  Geben Sie den festen Euro-Betrag ein, der vom Verkaufspreis abgezogen werden soll.
+                  {'\n'}Dieser Betrag wird unabhängig vom Artikelpreis abgezogen.
+                </Text>
+              }
+            >
+              <IconHelp size={20} style={{ color: '#0563C1' }} />
+            </Tooltip>
+          </Group>
+          <NumberInput
+            value={value || 0}
+            onChange={onChange}
+            min={0}
+            rightSection={<Text>€</Text>}
+            rightSectionWidth={30}
+            styles={{ input: { fontSize: 18 } }}
+          />
+        </div>
       )}
     </div>
   );
@@ -328,6 +425,8 @@ interface PriceThresholdSectionProps {
   onChange: (index: number, field: keyof PriceThreshold, value: any) => void;
   roundingRules: RoundingRule[];
   stageIndex: number;
+  maxAmount?: number | '';
+  onMaxAmountChange?: (value: number | '') => void;
 }
 
 const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
@@ -335,7 +434,9 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
   onRemove,
   onChange,
   roundingRules,
-  stageIndex
+  stageIndex,
+  maxAmount,
+  onMaxAmountChange
 }) => {
   return (
     <div className="space-y-4">
@@ -344,7 +445,7 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
         <Tooltip
           styles={{
             tooltip: {
-              whiteSpace: 'pre-line', // Enables \n line breaks
+              whiteSpace: 'pre-line',
               fontSize: 14,
             },
           }}
@@ -371,6 +472,37 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
           roundingRules={roundingRules}
         />
       ))}
+      <div style={{ maxWidth: '300px' }}>
+        <Group gap="xs" mb={5}>
+          <Text style={{ fontSize: 20 }}>Maximalbetrag</Text>
+          <Tooltip
+            styles={{
+              tooltip: {
+                whiteSpace: 'pre-line',
+                fontSize: 14,
+              },
+            }}
+            label={
+              <Text>
+                Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
+                Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
+                Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
+                einem 1000€ Artikel nur 50€ (statt 200€) abgezogen.
+              </Text>
+            }
+          >
+            <IconHelp size={20} style={{ color: '#0563C1' }} />
+          </Tooltip>
+        </Group>
+        <NumberInput
+          value={maxAmount || ''}
+          onChange={onMaxAmountChange}
+          min={0}
+          rightSection={<Text>€</Text>}
+          rightSectionWidth={30}
+          styles={{ input: { fontSize: 18 } }}
+        />
+      </div>
     </div>
   );
 };
@@ -832,6 +964,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             roundingRule={stage.roundingRule}
             onRoundingRuleChange={(value) => handleCalculationStageChange(stageIndex, 'roundingRule', value)}
             roundingRules={roundingRules}
+            maxAmount={formData.maxAmount || ''}
+            onMaxAmountChange={(value) => handleChange("maxAmount", value)}
           />
         );
       case 'fester_betrag':
@@ -840,6 +974,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             type="fester_betrag"
             value={stage.value || 0}
             onChange={(value) => handleCalculationStageChange(stageIndex, 'value', value)}
+            maxAmount={formData.maxAmount || ''}
+            onMaxAmountChange={(value) => handleChange("maxAmount", value)}
           />
         );
       case 'preisstaffel':
@@ -850,6 +986,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             onChange={(index, field, value) => handlePriceThresholdChange(stageIndex, index, field, value)}
             roundingRules={roundingRules}
             stageIndex={stageIndex}
+            maxAmount={formData.maxAmount || ''}
+            onMaxAmountChange={(value) => handleChange("maxAmount", value)}
           />
         );
       default:
@@ -1052,7 +1190,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               <Tooltip
                 styles={{
                   tooltip: {
-                    whiteSpace: 'pre-line', // Allows \n line breaks
+                    whiteSpace: 'pre-line',
                     fontSize: 14,
                   },
                 }}
@@ -1063,16 +1201,57 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   </Text>
                 }
               >
-                <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                <IconHelp size={20} style={{ color: '#0563C1' }} />
               </Tooltip>
             </Group>
-            <MantineSelect
-              value={formData.shippingType || 'Egal'} 
-              onChange={(value) => handleChange("shippingType", value as ShippingType)}
-              data={shippingTypes.map(type => ({ value: type, label: type }))}
-              placeholder="Versandart auswählen"
-              styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
-            />
+            <Box
+              p="xs"
+              style={{
+                border: '1px solid #d3dce6',
+                borderRadius: 8,
+                width: '100%'
+              }}
+            >
+              <Radio.Group 
+                value={formData.shippingType || 'Egal'} 
+                onChange={(value) => handleChange("shippingType", value as ShippingType)}
+              >
+                <div style={{ display: 'flex', width: '100%' }}>
+                 <Group style={{ width: '33.33%' }} >
+                    <Radio
+                      value="Egal"
+                      label="Egal"
+                      styles={{
+                        label: { fontSize: 18 },
+                        
+                      }}
+                    />
+                  </Group>
+                  <Group style={{ width: '33.33%' }}>
+                    <Divider orientation="vertical" style={{ height: 24 }} />
+                    <Radio
+                      value="Paket"
+                      label="Paket"
+                      styles={{
+                        label: { fontSize: 18 },
+                      }}
+                      
+                    />
+                  </Group>
+                  <Group style={{ width: '33.33%' }} >
+                    <Divider orientation="vertical" style={{ height: 24 }} />
+                    <Radio
+                      value="Spedition"
+                      label="Spedition"
+                      styles={{
+                        label: { fontSize: 18 },
+                      }}
+                    />
+                  </Group>
+                 
+                </div>
+              </Radio.Group>
+            </Box>
           </div>
           
           {/* Originalverpackt? */}
@@ -1082,7 +1261,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               <Tooltip
                 styles={{
                   tooltip: {
-                    whiteSpace: 'pre-line', // Enables \n to render as actual line breaks
+                    whiteSpace: 'pre-line',
                     fontSize: 14,
                   },
                 }}
@@ -1093,21 +1272,54 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   </Text>
                 }
               >
-                <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                <IconHelp size={20} style={{ color: '#0563C1' }} />
               </Tooltip>
-
             </Group>
-            <MantineSelect
-              value={formData.packageOpened || 'Egal'} 
-              onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
-              data={[
-                { value: 'Egal', label: 'Egal' },
-                { value: 'yes', label: 'Ja' },
-                { value: 'no', label: 'Nein' }
-              ]}
-              placeholder="Bitte auswählen"
-              styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
-            />
+            <Box
+              p="xs"
+              style={{
+                border: '1px solid #d3dce6',
+                borderRadius: 8,
+                width: '100%'
+              }}
+            >
+              <Radio.Group 
+                value={formData.packageOpened || 'Egal'} 
+                onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
+              >
+                <div style={{ display: 'flex', width: '100%' }}>
+                  <Group style={{ width: '33.33%' }} >
+                    <Radio
+                      value="Egal"
+                      label="Egal"
+                      styles={{
+                        label: { fontSize: 18 },
+                      }}
+                    />
+                  </Group>
+                  <Group style={{ width: '33.33%' }}>
+                    <Divider orientation="vertical" style={{ height: 24 }} />
+                    <Radio
+                      value="yes"
+                      label="Ja"
+                      styles={{
+                        label: { fontSize: 18 },
+                      }}
+                    />
+                  </Group>
+                  <Group style={{ width: '33.33%' }} >
+                    <Divider orientation="vertical" style={{ height: 24 }} />
+                    <Radio
+                      value="no"
+                      label="Nein"
+                      styles={{
+                        label: { fontSize: 18 },
+                      }}
+                    />
+                  </Group>
+                </div>
+              </Radio.Group>
+            </Box>
           </div>
 
           {(!showCalculation || basicInfoChanged) && (
@@ -1203,7 +1415,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                           <Tooltip
                             styles={{
                               tooltip: {
-                                whiteSpace: 'pre-line', // enables \n to create line breaks
+                                whiteSpace: 'pre-line',
                                 fontSize: 14,
                               },
                             }}
@@ -1216,20 +1428,20 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                               </Text>
                             }
                           >
-                            <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                            <IconHelp size={20} style={{ color: '#0563C1' }} />
                           </Tooltip>
                         </Group>
                         <MantineSelect
                           value={stage.calculationBase}
                           onChange={(value) => handleCalculationStageChange(index, "calculationBase", value as CalculationBase)}
-                          data={calculationBases.map(base => ({
-                            value: base,
-                            label: getCalculationBaseLabel(base)
-                          }))}
-                          styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
+                          data={[
+                            { value: 'prozent_vom_vk', label: getCalculationBaseLabel('prozent_vom_vk') },
+                            { value: 'fester_betrag', label: getCalculationBaseLabel('fester_betrag') },
+                            { value: 'preisstaffel', label: getCalculationBaseLabel('preisstaffel') }
+                          ]}
+                          styles={{ input: { fontSize: 18 }, option: { fontSize: 18 } }}
                         />
-                        
-                  </div>
+                      </div>
 
                       {/* Stage-specific calculation fields */}
                       {renderCalculationFields(stage, index)}
@@ -1248,12 +1460,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 >
                   Stufe hinzufügen
                 </MantineButton>
-
-                <MaxAmountInput
-                  value={formData.maxAmount || ''}
-                  onChange={(value) => handleChange("maxAmount", value)}
-                  description="Maximaler Betrag für den Preisnachlass"
-                />
               </Stack>
             ) : (
               <div className="space-y-4">
@@ -1276,29 +1482,65 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                         </Text>
                       }
                     >
-                      <IconHelp             size={20} style={{ color: '#0563C1' }} />
+                      <IconHelp size={20} style={{ color: '#0563C1' }} />
                     </Tooltip>
                   </Group>
-                  <MantineSelect 
-                    value={formData.calculationBase} 
-                    onChange={(value) => {
-                      const newValue = value as CalculationBase;
-                      if (newValue === 'preisstaffel' && (!formData.priceThresholds || formData.priceThresholds.length === 0)) {
-                        handleChange("priceThresholds", [{
-                          minPrice: 0,
-                          value: 10,
-                          valueType: 'percent',
-                          roundingRule: 'keine_rundung'
-                        }]);
-                      }
-                      handleChange("calculationBase", newValue);
+                  <Box
+                    p="xs"
+                    style={{
+                      border: '1px solid #d3dce6',
+                      borderRadius: 8,
+                      width: '100%'
                     }}
-                    data={calculationBases.map(base => ({
-                      value: base,
-                      label: getCalculationBaseLabel(base)
-                    }))}
-                    styles={{ input: { fontSize: 18 }, option: { fontSize: 18 }}}
-                  />
+                  >
+                    <Radio.Group
+                      value={formData.calculationBase}
+                      onChange={(value) => {
+                        const newValue = value as CalculationBase;
+                        if (newValue === 'preisstaffel' && (!formData.priceThresholds || formData.priceThresholds.length === 0)) {
+                          handleChange("priceThresholds", [{
+                            minPrice: 0,
+                            value: 10,
+                            valueType: 'percent',
+                            roundingRule: 'keine_rundung'
+                          }]);
+                        }
+                        handleChange("calculationBase", newValue);
+                      }}
+                    >
+                      <div style={{ display: 'flex', width: '100%' }}>
+                        <Group style={{ width: '33.33%' }}>
+                          <Radio
+                            value="prozent_vom_vk"
+                            label={getCalculationBaseLabel('prozent_vom_vk')}
+                            styles={{
+                              label: { fontSize: 18 }
+                            }}
+                          />
+                        </Group>
+                        <Group style={{ width: '33.33%' }}>
+                          <Divider orientation="vertical" style={{ height: 24 }} />
+                          <Radio
+                            value="fester_betrag"
+                            label={getCalculationBaseLabel('fester_betrag')}
+                            styles={{
+                              label: { fontSize: 18 }
+                            }}
+                          />
+                        </Group>
+                        <Group style={{ width: '33.33%' }}>
+                          <Divider orientation="vertical" style={{ height: 24 }} />
+                          <Radio
+                            value="preisstaffel"
+                            label={getCalculationBaseLabel('preisstaffel')}
+                            styles={{
+                              label: { fontSize: 18 }
+                            }}
+                          />
+                        </Group>
+                      </div>
+                    </Radio.Group>
+                  </Box>
                   </div>
                     
                 {/* Single calculation fields */}
@@ -1310,6 +1552,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     roundingRule={formData.roundingRule}
                     onRoundingRuleChange={(value) => handleChange("roundingRule", value)}
                     roundingRules={roundingRules}
+                    maxAmount={formData.maxAmount || ''}
+                    onMaxAmountChange={(value) => handleChange("maxAmount", value)}
                   />
                 )}
 
@@ -1318,6 +1562,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     type="fester_betrag"
                     value={formData.value || 0}
                     onChange={(value) => handleChange("value", value)}
+                    maxAmount={formData.maxAmount || ''}
+                    onMaxAmountChange={(value) => handleChange("maxAmount", value)}
                   />
                 )}
 
@@ -1328,17 +1574,11 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     onChange={(index, field, value) => handlePriceThresholdChange(0, index, field, value)}
                     roundingRules={roundingRules}
                     stageIndex={0}
+                    maxAmount={formData.maxAmount || ''}
+                    onMaxAmountChange={(value) => handleChange("maxAmount", value)}
                   />
                 )}
-
-                {(formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
-                  <MaxAmountInput
-                value={formData.maxAmount || ''} 
-                    onChange={(value) => handleChange("maxAmount", value)}
-                    description="Maximaler Betrag für den Preisnachlass"
-                  />
-                )}
-            </div>
+              </div>
             )}
           </Stack>
         </Paper>
