@@ -216,27 +216,28 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
 };
 
 // Add this component before the RuleForm component
-interface MaxAmountInputProps {
+interface MaximalbetragFieldProps {
   value: number | '';
   onChange: (value: number | '') => void;
-  label?: string;
-  description?: string;
-  className?: string;
 }
 
-const MaxAmountInput: React.FC<MaxAmountInputProps> = ({
+const MaximalbetragField: React.FC<MaximalbetragFieldProps> = ({
   value,
-  onChange,
-  label = "Maximalbetrag",
-  className
+  onChange
 }) => {
   return (
-    <div className={className}>
+    <div style={{ maxWidth: '300px' }}>
       <Group gap="xs" mb={5}>
-        <Text style={{ fontSize: 20 }}>{label}</Text>
+        <Text style={{ fontSize: 20 }}>Maximalbetrag</Text>
         <Tooltip
+          styles={{
+            tooltip: {
+              whiteSpace: 'pre-line',
+              fontSize: 14,
+            },
+          }}
           label={
-            <Text style={{ whiteSpace: 'pre-line' }}>
+            <Text>
               Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
               Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
               Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
@@ -244,7 +245,7 @@ const MaxAmountInput: React.FC<MaxAmountInputProps> = ({
             </Text>
           }
         >
-        <IconHelp             size={20} style={{ color: '#0563C1' }} />
+          <IconHelp size={20} style={{ color: '#0563C1' }} />
         </Tooltip>
       </Group>
       <NumberInput
@@ -269,6 +270,7 @@ interface CalculationFieldProps {
   roundingRules?: RoundingRule[];
   maxAmount?: number | '';
   onMaxAmountChange?: (value: number | '') => void;
+  hasMultipleStages: boolean;
 }
 
 const CalculationField: React.FC<CalculationFieldProps> = ({
@@ -279,7 +281,8 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
   onRoundingRuleChange,
   roundingRules,
   maxAmount,
-  onMaxAmountChange
+  onMaxAmountChange,
+  hasMultipleStages
 }) => {
   return (
     <div>
@@ -352,37 +355,12 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
             </div>
           )}
 
-          <div style={{ maxWidth: '300px' }}>
-            <Group gap="xs" mb={5}>
-              <Text style={{ fontSize: 20 }}>Maximalbetrag</Text>
-              <Tooltip
-                styles={{
-                  tooltip: {
-                    whiteSpace: 'pre-line',
-                    fontSize: 14,
-                  },
-                }}
-                label={
-                  <Text>
-                    Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
-                    Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
-                    Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
-                    einem 1000€ Artikel nur 50€ (statt 200€) abgezogen.
-                  </Text>
-                }
-              >
-                <IconHelp size={20} style={{ color: '#0563C1' }} />
-              </Tooltip>
-            </Group>
-            <NumberInput
+          {!hasMultipleStages && (
+            <MaximalbetragField
               value={maxAmount || ''}
               onChange={onMaxAmountChange}
-              min={0}
-              rightSection={<Text>€</Text>}
-              rightSectionWidth={30}
-              styles={{ input: { fontSize: 18 } }}
             />
-          </div>
+          )}
         </Group>
       ) : (
         <div style={{ maxWidth: '300px' }}>
@@ -924,6 +902,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             roundingRules={roundingRules}
             maxAmount={formData.maxAmount || ''}
             onMaxAmountChange={(value) => handleChange("maxAmount", value)}
+            hasMultipleStages={formData.hasMultipleStages}
           />
         );
       case 'fester_betrag':
@@ -934,6 +913,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             onChange={(value) => handleCalculationStageChange(stageIndex, 'value', value)}
             maxAmount={formData.maxAmount || ''}
             onMaxAmountChange={(value) => handleChange("maxAmount", value)}
+            hasMultipleStages={formData.hasMultipleStages}
           />
         );
       case 'preisstaffel':
@@ -1528,12 +1508,16 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
                       {/* Stage-specific calculation fields */}
                       {renderCalculationFields(stage, index)}
+                      
                     </Stack>
                   </Paper>
                 ))}
-
+                <MaximalbetragField
+                          value={formData.maxAmount || ''}
+                          onChange={(value) => handleChange("maxAmount", value)}
+                        />
                 <MantineButton 
-                    type="button" 
+                    type="button"
                   onClick={handleAddCalculationStage}
                     variant="outline" 
                   fullWidth
@@ -1637,6 +1621,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     roundingRules={roundingRules}
                     maxAmount={formData.maxAmount || ''}
                     onMaxAmountChange={(value) => handleChange("maxAmount", value)}
+                    hasMultipleStages={formData.hasMultipleStages}
                   />
                 )}
 
@@ -1647,6 +1632,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     onChange={(value) => handleChange("value", value)}
                     maxAmount={formData.maxAmount || ''}
                     onMaxAmountChange={(value) => handleChange("maxAmount", value)}
+                    hasMultipleStages={formData.hasMultipleStages}
                   />
                 )}
 
