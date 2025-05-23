@@ -1787,7 +1787,15 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 onChange={(e) => handleChange("notes", e.target.value)}
                 placeholder="Zusätzliche Hinweise zur Regel"
                 minRows={4}
-                styles={{ input: { fontSize: 18 }}}
+                autosize
+                maxRows={8}
+                styles={{ 
+                  input: { 
+                    fontSize: 18,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word'
+                  }
+                }}
               />
             </div>
           </Stack>

@@ -313,7 +313,14 @@ const RuleList: React.FC<RuleListProps> = ({
                     {/* Notes display */}
                     {rule.notes && (
                       <Text style={{ fontSize: 18 }} >
-                        <Text span style={{ fontSize: 18 }} fw={500}>Notizen:</Text> {rule.notes}
+                        <Text span style={{ fontSize: 18 }} fw={500}>Notizen:</Text>{' '}
+                        <Text span style={{ 
+                          fontSize: 18,
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word'
+                        }}>
+                          {rule.notes}
+                        </Text>
                       </Text>
                     )}
                   </Stack>
