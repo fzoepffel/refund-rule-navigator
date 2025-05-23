@@ -441,7 +441,8 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
           label={
             <Text>
               Definieren Sie verschiedene Nachlässe je nach Artikelpreis.
-              {'\n'}Beispiel: Artikel bis 50€ erhalten 10% Nachlass,
+              {"\n"}Bei Eingabe eines Max-Wertes öffnet sich automatisch eine weitere Staffel.
+              {'\n\n'}Beispiel: Artikel bis 50€ erhalten 10% Nachlass,
               {'\n'}Artikel von 50€ bis 100€ erhalten 15% Nachlass, usw.
             </Text>
           }
@@ -1276,6 +1277,15 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     onChange={(values) => {
                       // Remove all existing mangel triggers
                       const newTriggers = formData.triggers.filter(t => !mangelTriggers.includes(t));
+                      
+                      // Check if this would leave no main triggers selected
+                      const wouldLeaveNoMainTriggers = !formData.triggers.includes('Geschmacksretoure') && values.length === 0;
+                      
+                      // If it would leave no main triggers, don't allow deselection
+                      if (wouldLeaveNoMainTriggers) {
+                        return;
+                      }
+                      
                       // Add the selected ones back
                       const updatedTriggers = [...newTriggers, ...(values as Trigger[])];
                       
