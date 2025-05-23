@@ -12,7 +12,8 @@ import {
 import { 
   getTriggerLabel, 
   getCalculationBaseLabel, 
-  getRoundingRuleLabel, 
+  getRoundingRuleLabel,
+  generateRuleName
 } from "../utils/discountUtils";
 import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle, IconArrowRight, IconInfoCircle, IconQuestionMark, IconMessageCircleQuestion, IconHelp } from '@tabler/icons-react';
 import { 
@@ -35,7 +36,8 @@ import {
   Tooltip,
   Radio,
   Divider,
-  Alert
+  Alert,
+  List
 } from '@mantine/core';
 
 interface RuleFormProps {
@@ -43,6 +45,7 @@ interface RuleFormProps {
   existingRules: DiscountRule[];
   onSave: (rule: DiscountRule) => void;
   onCancel: () => void;
+  onSelectOverlappingRule: (rule: DiscountRule) => void;
 }
 
 interface FormData {
@@ -505,7 +508,7 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
   );
 };
 
-const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCancel }) => {
+const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCancel, onSelectOverlappingRule }) => {
   const formRef = useRef<HTMLFormElement>(null);
   const [formRect, setFormRect] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
 
@@ -549,6 +552,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   // Add new state for validation
   const [showCalculation, setShowCalculation] = useState(!!rule);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [overlappingRules, setOverlappingRules] = useState<DiscountRule[]>([]);
 
   // Add state to track if basic info has been changed
   const [basicInfoChanged, setBasicInfoChanged] = useState(false);
@@ -560,6 +564,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       setShowCalculation(false);
     }
     setValidationError(null);
+    setOverlappingRules([]);
   }, [formData.triggers, formData.shippingType, formData.packageOpened]);
 
   // Update the validation function to handle both new and existing rules
@@ -619,7 +624,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     };
 
     // Check for overlaps
-    const hasOverlap = rulesToCheck.some(existingRule => {
+    const overlappingRules = rulesToCheck.filter(existingRule => {
       // Check if shipping types overlap
       const shippingTypeOverlap = doShippingTypesOverlap(formData.shippingType, existingRule.shippingType);
 
@@ -633,11 +638,13 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       return shippingTypeOverlap && packageOpenedOverlap && triggerOverlap;
     });
 
-    if (hasOverlap) {
+    if (overlappingRules.length > 0) {
+      setOverlappingRules(overlappingRules);
       setValidationError("Diese Regel überschneidet sich mit einer bestehenden Regel. Bitte passen Sie die Grundinformationen an.");
       setShowCalculation(false);
     } else {
       setValidationError(null);
+      setOverlappingRules([]);
       setShowCalculation(true);
       setBasicInfoChanged(false); // Reset the changed state after successful validation
     }
@@ -895,7 +902,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     
     onSave(finalData);
   };
-  
+
   const renderCalculationFields = (stage: {
     calculationBase: CalculationBase;
     value?: number;
@@ -907,7 +914,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
     switch (stage.calculationBase) {
       case 'prozent_vom_vk':
-  return (
+        return (
           <CalculationField
             type="prozent_vom_vk"
             value={stage.value || 0}
@@ -945,7 +952,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         return null;
     }
   };
-  
+
   const handleAddCalculationStage = () => {
     setFormData(prev => ({
       ...prev,
@@ -955,7 +962,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       ]
     }));
   };
-  
+
   const handleRemoveCalculationStage = (index: number) => {
     setFormData(prev => ({
       ...prev,
@@ -986,7 +993,117 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       return { ...prev, calculationStages: stages };
     });
   };
-  
+
+  // Add calculation functions from RuleCalculator
+  const calculateRefund = (price: number, stage: typeof formData.calculationStages[0]) => {
+    if (!stage) return 0;
+
+    let refund = 0;
+      
+    switch (stage.calculationBase) {
+      case 'prozent_vom_vk':
+        refund = (price * (stage.value || 0)) / 100;
+        if (stage.roundingRule) {
+          refund = applyRoundingRule(refund, stage.roundingRule);
+        }
+        break;
+      case 'fester_betrag':
+        refund = stage.value || 0;
+        if (stage.roundingRule) {
+          refund = applyRoundingRule(refund, stage.roundingRule);
+        }
+        break;
+      case 'preisstaffel':
+        const threshold = stage.priceThresholds?.find(t => 
+          price >= t.minPrice && (!t.maxPrice || price <= t.maxPrice)
+        );
+        if (!threshold) return 0;
+        refund = threshold.valueType === 'percent' 
+          ? (price * threshold.value) / 100 
+          : threshold.value;
+        if (threshold.roundingRule) {
+          refund = applyRoundingRule(refund, threshold.roundingRule);
+        }
+        break;
+      default:
+        return 0;
+    }
+
+    return refund;
+  };
+
+  const applyRoundingRule = (amount: number, rule: string): number => {
+    switch (rule) {
+      case 'keine_rundung':
+        return amount;
+      case 'auf_5_euro':
+        return Math.ceil(amount / 5) * 5;
+      case 'auf_10_euro':
+        return Math.ceil(amount / 10) * 10;
+      case 'auf_1_euro':
+        return Math.ceil(amount);
+      default:
+        return amount;
+    }
+  };
+
+  const getAllRefunds = (price: number) => {
+    if (!formData.hasMultipleStages) {
+      let refund = 0;
+      
+      switch (formData.calculationBase) {
+        case 'prozent_vom_vk':
+          refund = (price * (formData.value || 0)) / 100;
+          if (formData.roundingRule) {
+            refund = applyRoundingRule(refund, formData.roundingRule);
+          }
+          break;
+        case 'fester_betrag':
+          refund = formData.value || 0;
+          if (formData.roundingRule) {
+            refund = applyRoundingRule(refund, formData.roundingRule);
+          }
+          break;
+        case 'preisstaffel':
+          const threshold = formData.priceThresholds?.find(t => 
+            price >= t.minPrice && (!t.maxPrice || price <= t.maxPrice)
+          );
+          if (!threshold) return [0];
+          refund = threshold.valueType === 'percent' 
+            ? (price * threshold.value) / 100 
+            : threshold.value;
+          if (threshold.roundingRule) {
+            refund = applyRoundingRule(refund, threshold.roundingRule);
+          }
+          break;
+        default:
+          return [0];
+      }
+
+      if (formData.maxAmount && refund > formData.maxAmount) {
+        refund = formData.maxAmount;
+      }
+    
+      return [refund];
+    }
+
+    if (!formData.calculationStages || formData.calculationStages.length === 0) return [0];
+    
+    return formData.calculationStages.map(stage => {
+      let refund = calculateRefund(price, stage);
+      
+      if (stage.maxAmount && refund > stage.maxAmount) {
+        refund = stage.maxAmount;
+      }
+      
+      if (formData.maxAmount && refund > formData.maxAmount) {
+        refund = formData.maxAmount;
+      }
+      
+      return refund;
+    });
+  };
+
   // Track form position and width
   useEffect(() => {
     const updateRect = () => {
@@ -1027,7 +1144,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   <Text>
                     Hier definieren Sie den Fall, für den diese Preisnachlassregel erstellt werden soll. 
                     {"\n"}Sie können eine beliebige Anzahl an Regeln für beliebige Fälle definieren. 
-                    {"\n"}Wenn Sie in einem der Menüs „Egal" auswählen, gilt die Regel für alle Fälle – sofern nicht anders angegeben.
+                    {"\n"}Wenn Sie in einem der Menüs "Egal" auswählen, gilt die Regel für alle Fälle – sofern nicht anders angegeben.
                   </Text>
                 }
               >
@@ -1287,13 +1404,34 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           {validationError && (
             <MantineAlert color="red" variant="light" title="Überschneidung mit anderer Regel" icon={<IconAlertCircle size={20} />} styles={{
               message: {
-                fontSize: '20px', // Adjust to your desired size
+                fontSize: '20px',
               },
               title: {
-                fontSize: '20px', // Adjust to your desired size
+                fontSize: '20px',
               },
             }}>
-              {validationError}
+              <Stack gap="xs">
+                <Text style={{ fontSize: 18 }}>
+                  Diese Regel überschneidet sich mit folgenden Regeln:
+                </Text>
+                <List style={{ fontSize: 18 }}>
+                  {overlappingRules.map((rule) => (
+                    <List.Item key={rule.id}>
+                      <Text 
+                        component="a" 
+                        style={{ 
+                          color: '#0563C1', 
+                          textDecoration: 'underline',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => onSelectOverlappingRule(rule)}
+                      >
+                        {generateRuleName(rule)}
+                      </Text>
+                    </List.Item>
+                  ))}
+                </List>
+              </Stack>
             </MantineAlert>
           )}
         </Stack>
@@ -1570,6 +1708,34 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 styles={{ input: { fontSize: 18 }}}
               />
             </div>
+          </Stack>
+        </Paper>
+      )}
+
+      {showCalculation && (
+        <Paper p="md" withBorder>
+          <Stack gap="md">
+            <Text style={{ fontSize: 24 }}>Beispielberechnung</Text>
+            
+            <Group grow>
+              {[100, 250, 500].map((price) => (
+                <Paper key={price} p="md" withBorder>
+                  <Stack gap="xs">
+                    <Text style={{ fontSize: 18 }}>Verkaufspreis: {price}€</Text>
+                    {getAllRefunds(price).map((refund, index) => (
+                      <Group key={index} justify="space-between">
+                        <Text style={{ fontSize: 18 }}>
+                          {formData.hasMultipleStages ? `Stufe ${index + 1}:` : 'Nachlass:'}
+                        </Text>
+                        <Text style={{ fontSize: 18, fontWeight: 500, color: '#0563C1' }}>
+                          {refund.toFixed(2)}€
+                        </Text>
+                      </Group>
+                    ))}
+                  </Stack>
+                </Paper>
+              ))}
+            </Group>
           </Stack>
         </Paper>
       )}

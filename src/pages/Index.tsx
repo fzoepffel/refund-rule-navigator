@@ -26,7 +26,7 @@ const Index = () => {
   const { toast } = useToast();
   
   const handleSelectRule = (rule: DiscountRule) => {
-    setViewState({ type: "list", selectedRule: rule });
+    setViewState({ type: "list" });
   };
   
   const handleEditRule = (rule: DiscountRule) => {
@@ -72,6 +72,10 @@ const Index = () => {
     setViewState({ type: "list" });
   };
 
+  const handleSelectOverlappingRule = (rule: DiscountRule) => {
+    setViewState({ type: "list", selectedRule: rule });
+  };
+
   return (
     <>
       <Header />
@@ -89,6 +93,7 @@ const Index = () => {
                   onEditRule={handleEditRule}
                   onDeleteRule={handleDeleteRule}
                   onCreateRule={handleCreateRule}
+                  selectedRuleId={viewState.selectedRule?.id}
                 />
               )}
               
@@ -106,6 +111,7 @@ const Index = () => {
                   existingRules={rules}
                   onSave={handleSaveRule}
                   onCancel={handleBackToList}
+                  onSelectOverlappingRule={handleSelectOverlappingRule}
                 />
               )}
 

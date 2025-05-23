@@ -27,6 +27,7 @@ interface RuleListProps {
   onEditRule: (rule: DiscountRule) => void;
   onDeleteRule: (id: string) => void;
   onCreateRule: () => void;
+  selectedRuleId?: string;
 }
 
 const RuleList: React.FC<RuleListProps> = ({ 
@@ -34,7 +35,8 @@ const RuleList: React.FC<RuleListProps> = ({
   onSelectRule, 
   onEditRule, 
   onDeleteRule, 
-  onCreateRule 
+  onCreateRule,
+  selectedRuleId
 }) => {
   // Add state for delete confirmation modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -216,8 +218,9 @@ const RuleList: React.FC<RuleListProps> = ({
               withBorder
               style={{ 
                 cursor: 'pointer',
-                backgroundColor: '#F1F3F5',  // Light blue background
-                
+                backgroundColor: rule.id === selectedRuleId ? '#f0f7ff' : '#F1F3F5',
+                borderColor: rule.id === selectedRuleId ? '#0563C1' : undefined,
+                borderWidth: rule.id === selectedRuleId ? 2 : 1
               }}
               onClick={() => onSelectRule(rule)}
             >

@@ -198,7 +198,7 @@ export const getTriggerLabels = (triggers: Trigger[]): string => {
     const parts: string[] = [];
     // Part 1: Main triggers (Geschmacksretoure/Mangel)
     const mainTriggers = ['Geschmacksretoure', 'Mangel'];
-    const mangelTriggers = ['Mangel'];
+    const mangelTriggers = ['Artikel beschädigt/funktioniert nicht mehr', 'Versandverpackung und Artikel beschädigt', 'Teile oder Zubehör fehlen', 'Falscher Artikel'];
     
     const mainSelectedTriggers = rule.triggers.filter(t => mainTriggers.includes(t));
     // Check if all Mangel triggers are selected
