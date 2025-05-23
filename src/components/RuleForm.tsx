@@ -183,7 +183,14 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
             <Text style={{ fontSize: 20 }} mb={5}>Art</Text>
             <MantineSelect
               value={threshold.valueType || 'percent'}
-              onChange={(value) => onChange('valueType', value as ThresholdValueType)}
+              onChange={(value) => {
+                const newValueType = value as ThresholdValueType;
+                onChange('valueType', newValueType);
+                // If switching to fixed amount, set rounding rule to keine_rundung
+                if (newValueType === 'fixed') {
+                  onChange('roundingRule', 'keine_rundung');
+                }
+              }}
               data={[
                 { value: 'percent', label: '%' },
                 { value: 'fixed', label: '€' }
@@ -192,11 +199,13 @@ const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
             />
           </div>
         </Group>
-        <RoundingRuleSelect
-          value={threshold.roundingRule}
-          onChange={(value) => onChange('roundingRule', value)}
-          roundingRules={roundingRules}
-        />
+        {threshold.valueType !== 'fixed' && (
+          <RoundingRuleSelect
+            value={threshold.roundingRule}
+            onChange={(value) => onChange('roundingRule', value)}
+            roundingRules={roundingRules}
+          />
+        )}
         {isLastThreshold && index > 0 && (
           <Group justify="flex-end">
             <MantineButton
