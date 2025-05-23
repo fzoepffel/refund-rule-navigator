@@ -12,7 +12,7 @@ import {
 import { 
   getTriggerLabel, 
   getCalculationBaseLabel, 
-  getRoundingRuleLabel,
+  getRoundingRuleLabel, 
   generateRuleName
 } from "../utils/discountUtils";
 import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle, IconArrowRight, IconInfoCircle, IconQuestionMark, IconMessageCircleQuestion, IconHelp } from '@tabler/icons-react';
@@ -652,10 +652,19 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   
 
   const handleChange = (field: keyof DiscountRule, value: any) => {
+    if (field === 'calculationBase' && value === 'fester_betrag') {
       setFormData(prev => ({
         ...prev,
-      [field]: value
-    }));
+        [field]: value,
+        roundingRule: 'keine_rundung',
+        maxAmount: undefined
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
 
     // If any basic info field is changed, set basicInfoChanged to true
     if (['triggers', 'shippingType', 'packageOpened'].includes(field)) {
@@ -682,7 +691,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         
         // Otherwise, remove the trigger
         return {
-          ...prev,
+      ...prev,
           triggers: currentTriggers.filter(t => t !== trigger)
         };
       } else {
@@ -891,7 +900,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     
     onSave(finalData);
   };
-
+  
   const renderCalculationFields = (stage: {
     calculationBase: CalculationBase;
     value?: number;
@@ -903,7 +912,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
 
     switch (stage.calculationBase) {
       case 'prozent_vom_vk':
-        return (
+    return (
           <CalculationField
             type="prozent_vom_vk"
             value={stage.value || 0}
@@ -988,16 +997,25 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       stages[index] = { ...stages[index], [field]: value };
       
       // If calculation base is changed to preisstaffel, create first threshold if none exists
-      if (field === 'calculationBase' && value === 'preisstaffel') {
-        if (!stages[index].priceThresholds || stages[index].priceThresholds.length === 0) {
+      if (field === 'calculationBase') {
+        if (value === 'preisstaffel') {
+          if (!stages[index].priceThresholds || stages[index].priceThresholds.length === 0) {
+            stages[index] = {
+              ...stages[index],
+              priceThresholds: [{
+                minPrice: 0,
+                value: 10,
+                valueType: 'percent',
+                roundingRule: 'keine_rundung'
+              }]
+            };
+          }
+        } else if (value === 'fester_betrag') {
+          // Clear rounding rule and max amount when switching to fester betrag
           stages[index] = {
             ...stages[index],
-            priceThresholds: [{
-              minPrice: 0,
-              value: 10,
-              valueType: 'percent',
-              roundingRule: 'keine_rundung'
-            }]
+            roundingRule: "keine_rundung",
+            maxAmount: undefined
           };
         }
       }
@@ -1148,7 +1166,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       ]
     }));
   };
-
+  
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" style={{ position: 'relative' }}>
       <Group>
@@ -1309,7 +1327,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               }}
             >
               <Radio.Group 
-                value={formData.shippingType || 'Egal'} 
+              value={formData.shippingType || 'Egal'} 
                 onChange={(value) => handleChange("shippingType", value as ShippingType)}
               >
                 <div style={{ display: 'flex', width: '100%' }}>
@@ -1380,7 +1398,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               }}
             >
               <Radio.Group 
-                value={formData.packageOpened || 'Egal'} 
+              value={formData.packageOpened || 'Egal'} 
                 onChange={(value) => handleChange("packageOpened", value as 'yes' | 'no' | 'Egal')}
               >
                 <div style={{ display: 'flex', width: '100%' }}>
@@ -1413,7 +1431,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                       }}
                     />
                   </Group>
-                </div>
+          </div>
               </Radio.Group>
             </Box>
           </div>
@@ -1472,9 +1490,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
       {(showCalculation && !basicInfoChanged) && (
         <Paper p="md">
           <Stack gap="md">
-            <div>
+              <div>
               <Text style={{ fontSize: 24 }}>Preisnachlassberechnung</Text>
-            </div>
+                  </div>
 
             {formData.hasMultipleStages ? (
               <Stack gap="md">
@@ -1495,7 +1513,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                         )}
                       </Group>
                       
-              <div>
+                      <div>
                         <Group gap="xs" mb={5}>
                           <Text style={{ fontSize: 20 }}>Art der Berechnung</Text>
                           <Tooltip
@@ -1527,8 +1545,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                           ]}
                           styles={{ input: { fontSize: 18 }, option: { fontSize: 18 } }}
                         />
-                      </div>
-
+                    </div>
+                    
                       {/* Stage-specific calculation fields */}
                       {renderCalculationFields(stage, index)}
                       
@@ -1644,7 +1662,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                             }}
                           />
                         </Group>
-                      </div>
+                    </div>
                     </Radio.Group>
                   </Box>
                   </div>
@@ -1715,7 +1733,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     <IconHelp size={20} style={{ color: '#0563C1', marginLeft: 10 }} />
                   </Tooltip>
                 </MantineButton>
-              </div>
+            </div>
             )}
           </Stack>
         </Paper>
@@ -1772,7 +1790,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             <Text style={{ fontSize: 24 }}>Beispielberechnung</Text>
             
             <Group grow>
-              {[100, 250, 500].map((price) => (
+              {[100.50, 250, 1000].map((price) => (
                 <Paper key={price} p="md" withBorder>
                   <Stack gap="xs">
                     <Text style={{ fontSize: 18 }}>Verkaufspreis: {price}€</Text>

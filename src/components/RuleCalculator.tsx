@@ -50,7 +50,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           refund = applyRoundingRule(refund, threshold.roundingRule);
         }
         break;
-      default:
+        default:
         return 0;
     }
 
@@ -131,7 +131,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
       return refund;
     });
   };
-
+  
   const applyRoundingRule = (amount: number, rule: string): number => {
     switch (rule) {
       case 'keine_rundung':
@@ -160,7 +160,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           <Text style={{fontSize: 20}} mb={5}>Verkaufspreis (VK)</Text>
           <Group gap="xs">
             <NumberInput
-              value={salePrice}
+              value={salePrice} 
               onChange={(value: number | '') => setSalePrice(value === '' ? 0 : value)}
               min={0}
               style={{ flex: 1 }}
@@ -179,7 +179,7 @@ const RuleCalculator: React.FC<RuleCalculatorProps> = ({ rule }) => {
           h={50}
         >
           Nachlass berechnen
-        </Button>
+          </Button>
         
         {discountAmounts !== null && (
           <Stack gap="md">
