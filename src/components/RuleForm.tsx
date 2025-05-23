@@ -668,10 +668,21 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   const setTrigger = (trigger: Trigger) => {
     setFormData(prev => {
       const currentTriggers = prev.triggers || [];
+      
+      // If trying to deselect a trigger, check if it would leave no main triggers selected
       if (currentTriggers.includes(trigger)) {
-        // Remove trigger if already selected
+        const wouldLeaveNoMainTriggers = mainTriggers.every(t => 
+          t === trigger || !currentTriggers.includes(t)
+        );
+        
+        // If it would leave no main triggers, don't allow deselection
+        if (wouldLeaveNoMainTriggers) {
+          return prev;
+        }
+        
+        // Otherwise, remove the trigger
         return {
-      ...prev,
+          ...prev,
           triggers: currentTriggers.filter(t => t !== trigger)
         };
       } else {
