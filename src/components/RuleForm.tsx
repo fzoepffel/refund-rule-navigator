@@ -944,10 +944,31 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
   };
 
   const handleRemoveCalculationStage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      calculationStages: prev.calculationStages?.filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+      const stages = [...(prev.calculationStages || [])];
+      
+      // If this is the last stage, don't remove it
+      if (stages.length <= 1) return prev;
+      
+      // Remove the stage
+      stages.splice(index, 1);
+      
+      // If only one stage remains, convert back to single-stage mode
+      if (stages.length === 1) {
+        const lastStage = stages[0];
+        return {
+          ...prev,
+          hasMultipleStages: false,
+          calculationBase: lastStage.calculationBase,
+          value: lastStage.value,
+          roundingRule: lastStage.roundingRule,
+          priceThresholds: lastStage.priceThresholds,
+          calculationStages: undefined
+        };
+      }
+      
+      return { ...prev, calculationStages: stages };
+    });
   };
   
   const handleCalculationStageChange = (index: number, field: keyof typeof formData.calculationStages[0], value: any) => {
@@ -1096,6 +1117,26 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     window.addEventListener('resize', updateRect);
     return () => window.removeEventListener('resize', updateRect);
   }, []);
+
+  const handleConvertToMultiStage = () => {
+    setFormData(prev => ({
+      ...prev,
+      hasMultipleStages: true,
+      calculationStages: [
+        {
+          calculationBase: prev.calculationBase,
+          value: prev.value,
+          roundingRule: prev.roundingRule,
+          priceThresholds: prev.priceThresholds
+        },
+        {
+          calculationBase: "prozent_vom_vk",
+          value: 10,
+          roundingRule: "keine_rundung"
+        }
+      ]
+    }));
+  };
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" style={{ position: 'relative' }}>
@@ -1424,51 +1465,22 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               <Text style={{ fontSize: 24 }}>Preisnachlassberechnung</Text>
             </div>
 
-            <div className="space-y-2">
-              <Group>
-                <MantineCheckbox
-                  checked={formData.hasMultipleStages}
-                  onChange={(event) => handleChange("hasMultipleStages", event.currentTarget.checked)}
-                />
-                  <Group gap="xs">
-                  <Text style={{ fontSize: 20 }}>Mehrere Angebotsstufen</Text>
-                  
-                  <Tooltip
-                    styles={{
-                      tooltip: {
-                        whiteSpace: 'pre-line', // Enables \n line breaks
-                        fontSize: 14,
-                      },
-                    }}
-                    label={
-                      <Text>
-                        Wenn Sie diese Option aktivieren, können Sie mehrere Preisnachlassstufen definieren.
-                        {'\n'}Dem Kunden wird dann Schritt für Schritt die jeweils nächste Stufe angeboten.
-                        
-                      </Text>
-                    }
-                  >
-                    <IconHelp size={20} style={{ color: '#0563C1' }} />
-                  </Tooltip>
-                </Group>
-              </Group>
-            </div>
-
             {formData.hasMultipleStages ? (
               <Stack gap="md">
                 {(formData.calculationStages || []).map((stage, index) => (
                   <Paper key={index} p="md" withBorder>
                     <Stack gap="md">
                       <Group justify="space-between">
-                        <Text fw={500}>Stufe {index + 1}</Text>
+                        <Text style={{ fontSize: 20 }}>Stufe {index + 1}</Text>
                         {index > 0 && (
-                          <ActionIcon
+                          <MantineButton
                             variant="subtle"
-                            color="gray"
+                            color="blue"
                             onClick={() => handleRemoveCalculationStage(index)}
+                            style={{ fontSize: 18, fontWeight: 400 }}
                           >
-                            <IconMinus size={16} />
-                          </ActionIcon>
+                            Stufe löschen
+                          </MantineButton>
                         )}
                       </Group>
                       
@@ -1525,7 +1537,23 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   style={{ fontSize: 20, fontWeight: 400 }}
                   h={50}
                 >
-                  Stufe hinzufügen
+                  Preisnachlassstufe hinzufügen
+                  <Tooltip
+                    styles={{
+                      tooltip: {
+                        whiteSpace: 'pre-line', // Enables \n line breaks
+                        fontSize: 14,
+                      },
+                    }}
+                    label={
+                      <Text>
+                        Wenn Sie hier klicken, können Sie eine weitere Preisnachlassstufe hinzufügen. 
+                        {'\n'}Die nächste Preisnachlassstufe wird dem Kunden dann gewährt, wenn der vorherige Preisnachlass vom Kunden abgelehnt wurde. 
+                      </Text>
+                    }
+                  >
+                    <IconHelp size={20} style={{ color: '#0563C1', marginLeft: 10 }} />
+                  </Tooltip>
                 </MantineButton>
               </Stack>
             ) : (
@@ -1647,6 +1675,35 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     onMaxAmountChange={(value) => handleChange("maxAmount", value)}
                   />
                 )}
+
+                <MantineButton
+                  type="button"
+                  onClick={handleConvertToMultiStage}
+                  variant="outline"
+                  fullWidth
+                  leftSection={<IconPlus size={16} />}
+                  style={{ fontSize: 20, fontWeight: 400 }}
+                  h={50}
+                  mt="md"
+                >
+                  Preisnachlassstufe hinzufügen
+                  <Tooltip
+                    styles={{
+                      tooltip: {
+                        whiteSpace: 'pre-line', // Enables \n line breaks
+                        fontSize: 14,
+                      },
+                    }}
+                    label={
+                      <Text>
+                        Wenn Sie hier klicken, können Sie eine weitere Preisnachlassstufe hinzufügen. 
+                        {'\n'}Die nächste Preisnachlassstufe wird dem Kunden dann gewährt, wenn der vorherige Preisnachlass vom Kunden abgelehnt wurde. 
+                      </Text>
+                    }
+                  >
+                    <IconHelp size={20} style={{ color: '#0563C1', marginLeft: 10 }} />
+                  </Tooltip>
+                </MantineButton>
               </div>
             )}
           </Stack>
