@@ -182,14 +182,13 @@ const RuleList: React.FC<RuleListProps> = ({
       <Group justify="space-between" align="center">
         <Text style={{ fontSize: 24, fontWeight: 500 }}>Preisnachlassregeln</Text>
         <Button 
-          variant="filled" 
+          variant="subtle" 
           color="blue"
-          leftSection={<IconPlus size={16} />} 
           onClick={onCreateRule}
           style={{ fontSize: 20, fontWeight: 400 }}
           h={50}
         >
-          Neue Regel
+          Regel hinzufügen
         </Button>
       </Group>
       

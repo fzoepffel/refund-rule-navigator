@@ -365,12 +365,6 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
             </div>
           )}
 
-          {!hasMultipleStages && (
-            <MaximalbetragField
-              value={maxAmount || ''}
-              onChange={onMaxAmountChange}
-            />
-          )}
         </Group>
       ) : (
         <div style={{ maxWidth: '300px' }}>
@@ -462,37 +456,6 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
           roundingRules={roundingRules}
         />
       ))}
-      <div style={{ maxWidth: '300px' }}>
-        <Group gap="xs" mb={5}>
-          <Text style={{ fontSize: 20 }}>Maximalbetrag</Text>
-          <Tooltip
-            styles={{
-              tooltip: {
-                whiteSpace: 'pre-line',
-                fontSize: 14,
-              },
-            }}
-            label={
-              <Text>
-                Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
-                Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
-                Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
-                einem 1000€ Artikel nur 50€ (statt 200€) abgezogen.
-              </Text>
-            }
-          >
-            <IconHelp size={20} style={{ color: '#0563C1' }} />
-          </Tooltip>
-        </Group>
-        <NumberInput
-          value={maxAmount || ''}
-          onChange={onMaxAmountChange}
-          min={0}
-          rightSection={<Text>€</Text>}
-          rightSectionWidth={30}
-          styles={{ input: { fontSize: 18 } }}
-        />
-      </div>
     </div>
   );
 };
@@ -534,9 +497,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     'Falscher Artikel'
   ];
   
-  const calculationBases: CalculationBase[] = ['prozent_vom_vk', 'fester_betrag', 'preisstaffel'];
   const roundingRules: RoundingRule[] = ['keine_rundung', 'auf_5_euro', 'auf_10_euro', 'auf_1_euro'];
-  const shippingTypes: ShippingType[] = ['Egal', 'Paket', 'Spedition'];
   
   // Add new state for validation
   const [showCalculation, setShowCalculation] = useState(!!rule);
@@ -727,41 +688,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
     return "Mehrere Gründe";
   };
   
-  const handleAddPriceThreshold = (stageIndex: number) => {
-    if (formData.hasMultipleStages) {
-      setFormData(prev => {
-        const stages = [...(prev.calculationStages || [])];
-        const thresholds = [...(stages[stageIndex].priceThresholds || [])];
-    const lastThreshold = thresholds[thresholds.length - 1];
-    const newMin = lastThreshold ? (lastThreshold.maxPrice || lastThreshold.minPrice + 1) : 0;
-    
-        thresholds.push({
-          minPrice: newMin,
-          value: 10,
-          valueType: 'percent',
-          roundingRule: 'keine_rundung'
-        });
-        
-        stages[stageIndex] = { ...stages[stageIndex], priceThresholds: thresholds };
-        return { ...prev, calculationStages: stages };
-      });
-    } else {
-      setFormData(prev => {
-        const thresholds = [...(prev.priceThresholds || [])];
-        const lastThreshold = thresholds[thresholds.length - 1];
-        const newMin = lastThreshold ? (lastThreshold.maxPrice || lastThreshold.minPrice + 1) : 0;
-        
-        thresholds.push({
-          minPrice: newMin,
-          value: 10,
-          valueType: 'percent',
-          roundingRule: 'keine_rundung'
-        });
-        
-        return { ...prev, priceThresholds: thresholds };
-      });
-    }
-  };
   
   const handleRemovePriceThreshold = (stageIndex: number, thresholdIndex: number) => {
     if (formData.hasMultipleStages) {
@@ -873,31 +799,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         return { ...prev, priceThresholds: thresholds };
       });
     }
-  };
-  
-  const handleAddDiscountLevel = () => {
-    setFormData(prev => ({
-      ...prev,
-      discountLevels: [
-        ...(prev.discountLevels || []),
-        { value: 10, valueType: 'percent', roundingRule: 'keine_rundung' }
-      ]
-    }));
-  };
-  
-  const handleDiscountLevelChange = (index: number, field: keyof DiscountLevel, value: any) => {
-    setFormData(prev => {
-      const levels = [...(prev.discountLevels || [])];
-      levels[index] = { ...levels[index], [field]: value };
-      return { ...prev, discountLevels: levels };
-    });
-  };
-  
-  const handleRemoveDiscountLevel = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      discountLevels: prev.discountLevels?.filter((_, i) => i !== index)
-    }));
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -1463,10 +1364,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 variant="filled"
                 color="blue"
                 style={{ fontSize: 20, fontWeight: 400 }}
-                rightSection={<IconArrowRight size={20} />}
                 h={50}
               >
-                Berechnung angeben
+                Weiter
               </MantineButton>
             </Group>
           )}
@@ -1582,7 +1482,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   onClick={handleAddCalculationStage}
                     variant="outline" 
                   fullWidth
-                  leftSection={<IconPlus size={16} />}
                   style={{ fontSize: 20, fontWeight: 400 }}
                   h={50}
                 >
@@ -1720,8 +1619,12 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     onChange={(index, field, value) => handlePriceThresholdChange(0, index, field, value)}
                     roundingRules={roundingRules}
                     stageIndex={0}
-                    maxAmount={formData.maxAmount || ''}
-                    onMaxAmountChange={(value) => handleChange("maxAmount", value)}
+                  />
+                )}
+                {!formData.hasMultipleStages && (formData.calculationBase === 'prozent_vom_vk' || formData.calculationBase === 'preisstaffel') && (
+                  <MaximalbetragField
+                    value={formData.maxAmount || ''}
+                    onChange={(value) => handleChange("maxAmount", value)}
                   />
                 )}
 
@@ -1730,7 +1633,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   onClick={handleConvertToMultiStage}
                   variant="outline"
                   fullWidth
-                  leftSection={<IconPlus size={16} />}
                   style={{ fontSize: 20, fontWeight: 400 }}
                   h={50}
                   mt="md"
@@ -1739,7 +1641,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   <Tooltip
                     styles={{
                       tooltip: {
-                        whiteSpace: 'pre-line', // Enables \n line breaks
+                        whiteSpace: 'pre-line',
                         fontSize: 14,
                       },
                     }}
@@ -1753,6 +1655,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     <IconHelp size={20} style={{ color: '#0563C1', marginLeft: 10 }} />
                   </Tooltip>
                 </MantineButton>
+
+                {/* Show Maximalbetrag for single stage mode with prozent_vom_vk or preisstaffel */}
+
             </div>
             )}
           </Stack>
@@ -1812,6 +1717,18 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         </Paper>
       )}
 
+      {/* Show Maximalbetrag for multi-stage mode */}
+      {showCalculation && !basicInfoChanged && formData.hasMultipleStages && (
+        <Paper p="md">
+          <Stack gap="md">
+            <MaximalbetragField
+              value={formData.maxAmount || ''}
+              onChange={(value) => handleChange("maxAmount", value)}
+            />
+          </Stack>
+        </Paper>
+      )}
+
       {showCalculation && (
         <Paper p="md" withBorder>
           <Stack gap="md">
@@ -1821,7 +1738,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               {[100.50, 250, 1000].map((price) => (
                 <Paper key={price} p="md" withBorder>
                   <Stack gap="xs">
-                    <Text style={{ fontSize: 18 }}>Verkaufspreis: {price}€</Text>
+                    <Text style={{ fontSize: 18 }}>Verkaufspreis: {price.toFixed(2)}€</Text>
                     {getAllRefunds(price).map((refund, index) => (
                       <Group key={index} justify="space-between">
                         <Text style={{ fontSize: 18 }}>
@@ -1862,7 +1779,6 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         >
           <MantineButton
             type="submit"
-            leftSection={<IconDeviceFloppy size={20} />}
             size="lg"
             color="blue"
             style={{ width: '90%', fontSize: 20, fontWeight: 400 }}

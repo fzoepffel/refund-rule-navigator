@@ -18,7 +18,7 @@ import {
   Title,
   Box,
 } from '@mantine/core';
-import { IconArrowLeft, IconEdit, IconHistory } from '@tabler/icons-react';
+import { IconArrowLeft, IconEdit } from '@tabler/icons-react';
 
 interface RuleDetailProps {
   rule: DiscountRule;
