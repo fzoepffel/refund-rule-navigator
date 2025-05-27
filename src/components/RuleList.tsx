@@ -304,7 +304,7 @@ const RuleList: React.FC<RuleListProps> = ({
                     {
                       rule.consultPartnerBeforePayout && (
                       <Group gap="xs" wrap="wrap">
-                        <Text span style={{ fontSize: 18 }}  fw={500}>E-Mail Abstimmung vor Auszahlung:</Text>
+                        <Text span style={{ fontSize: 18 }}  fw={500}>Rücksprache vor Auszahlung:</Text>
                         {rule.consultPartnerBeforePayout && <Text style={{ fontSize: 18 }}  >Ja</Text>}
                       </Group>
                     )}
