@@ -250,8 +250,8 @@ const MaximalbetragField: React.FC<MaximalbetragFieldProps> = ({
             <Text>
               Legen Sie eine Obergrenze für den Preisnachlass fest.{"\n"}
               Der berechnete Nachlass wird nie diesen Betrag überschreiten.{"\n"}
-              Beispiel: Bei 20% Nachlass und Maximalbetrag 50€ wird bei{" "}
-              einem 1000€ Artikel nur 50€ (statt 200€) abgezogen.
+              Beispiel: Wird ein Prozentsatz von 20% und ein Maximalbetrag von 50€ eingegeben,  werden bei{"\n"}
+              einem Preis von 1000€ nur 50€ (statt 200€) abgezogen.
             </Text>
           }
         >
@@ -1153,9 +1153,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   }}
                   label={
                     <Text>
-                      Geschmacksretoure entspricht Widerruf und Mangel entspricht Reklamation. 
-                      {'\n'}Für Widerruf und Reklamation einfach beide auswählen. 
-                      {'\n'}Für speziellere Mängel kann zudem ein sekundärer Mangelgrund ausgewählt werden.
+                      Als Geschmacksretoure gilt ein Widerrufswunsch nach dem gesetzlichen Widerrufsrecht.
+                      {'\n'}Bei Mängeln kann ein spezifischer Mangelgrund ausgewählt werden.
                     </Text>
                   }
                 >
@@ -1168,7 +1167,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
               {formData.triggers.includes('Mangel') && (
                 <Box pl="md" style={{ borderLeft: '2px solid #0563C1' }}>
                   <MultiSelect
-                    label="Spezifische Mängel"
+                    label="Spezifische Mangelgründe"
                     styles={{ label: { fontSize: 20, fontWeight: 400 }, input: { fontSize: 18 }, pill: { fontSize: 18, backgroundColor: 'white' }, option: { fontSize: 18 }}}
                     data={mangelTriggers.map(trigger => ({
                       value: trigger,
@@ -1211,7 +1210,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     style={{ color: '#0563C1' }}
                   />
                   <Text style={{fontSize: 14}} c="dimmed" mt="xs">
-                    Für generelle Mängel (Reklamationen) einfach alle Spezifischen Mängel ausgewählt lassen.
+                    Für generelle Mängel (Reklamationen) einfach alle spezifischen Mangelgründe ausgewählt lassen.
                   </Text>
                 </Box>
               )}
@@ -1366,7 +1365,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 style={{ fontSize: 20, fontWeight: 400 }}
                 h={50}
               >
-                Weiter
+                weiter
               </MantineButton>
             </Group>
           )}
@@ -1411,7 +1410,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
         <Paper p="md">
           <Stack gap="md">
               <div>
-              <Text style={{ fontSize: 24 }}>Preisnachlassberechnung</Text>
+              <Text style={{ fontSize: 24 }}>Preisnachlassberechnung für die Regel: {generateRuleName(formData)}</Text>
                   </div>
 
             {formData.hasMultipleStages ? (
@@ -1446,9 +1445,9 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                             label={
                               <Text>
                                 Wählen Sie die Methode zur Berechnung des Preisnachlasses:
-                                {'\n'}- Prozent vom Verkaufspreis: Nachlass wird als Prozentsatz des Artikelpreises berechnet
+                                {'\n'}- Prozent vom Verkaufspreis: Der Nachlass wird als Prozentsatz des Artikelpreises berechnet
                                 {'\n'}- Fester Betrag: Ein fester Euro-Betrag wird abgezogen
-                                {'\n'}- Preisstaffelung: Nachlass variiert je nach Artikelpreis
+                                {'\n'}- Preisstaffelung: Der Nachlass variiert je nach Artikelpreis
                               </Text>
                             }
                           >
@@ -1495,7 +1494,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     }}
                     label={
                       <Text>
-                        Wenn Sie hier klicken, können Sie eine weitere Preisnachlassstufe hinzufügen. 
+                        Sie haben die Möglichkeit eine weitere Preisnachlassstufe hinzuzufügen.
                         {'\n'}Die nächste Preisnachlassstufe wird dem Kunden dann gewährt, wenn der vorherige Preisnachlass vom Kunden abgelehnt wurde. 
                       </Text>
                     }
@@ -1647,7 +1646,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                     }}
                     label={
                       <Text>
-                        Wenn Sie hier klicken, können Sie eine weitere Preisnachlassstufe hinzufügen. 
+                        Sie haben die Möglichkeit eine weitere Preisnachlassstufe hinzuzufügen.
                         {'\n'}Die nächste Preisnachlassstufe wird dem Kunden dann gewährt, wenn der vorherige Preisnachlass vom Kunden abgelehnt wurde. 
                       </Text>
                     }
@@ -1674,8 +1673,24 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                   onChange={(event) => handleChange("consultPartnerBeforePayout", event.currentTarget.checked)}
                 />
                 <Text style={{ fontSize: 20 }}>
-                Preisnachlass-Auszahlung nur nach vorheriger Abstimmung per E-Mail.
+                Preisnachlass erst nach schriftlicher Bestätigung per E-Mail auszahlen.
                 </Text>
+                <Tooltip
+                  styles={{
+                    tooltip: {
+                      whiteSpace: 'pre-line',
+                      fontSize: 14,
+                    },
+                  }}
+                  label={
+                    <Text>
+                       Wenn Sie diese Option aktivieren erhalten Sie vor der Auszahlung des Preisnachlasses eine Email zur Freigabe.
+                    </Text>
+                  }
+                >
+                  <IconHelp size={20} style={{ color: '#0563C1' }} />
+                </Tooltip>
+
                 {formData.consultPartnerBeforePayout && (
                   <Alert color="blue" 
                     icon={<IconInfoCircle size={20} />} 
@@ -1716,27 +1731,14 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
           </Stack>
         </Paper>
       )}
-
-      {/* Show Maximalbetrag for multi-stage mode */}
-      {showCalculation && !basicInfoChanged && formData.hasMultipleStages && (
-        <Paper p="md">
-          <Stack gap="md">
-            <MaximalbetragField
-              value={formData.maxAmount || ''}
-              onChange={(value) => handleChange("maxAmount", value)}
-            />
-          </Stack>
-        </Paper>
-      )}
-
       {showCalculation && (
-        <Paper p="md" withBorder>
+        <Paper p="md">
           <Stack gap="md">
             <Text style={{ fontSize: 24 }}>Beispielberechnung</Text>
             
             <Group grow>
               {[100.50, 250, 1000].map((price) => (
-                <Paper key={price} p="md" withBorder>
+                <Paper key={price} p="md" withBorder style={{ backgroundColor: '#F1F3F5' }}>
                   <Stack gap="xs">
                     <Text style={{ fontSize: 18 }}>Verkaufspreis: {price.toFixed(2)}€</Text>
                     {getAllRefunds(price).map((refund, index) => (
@@ -1784,7 +1786,7 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
             style={{ width: '90%', fontSize: 20, fontWeight: 400 }}
             h={50}
           >
-            Speichern
+            speichern
           </MantineButton>
           </div>
       )}

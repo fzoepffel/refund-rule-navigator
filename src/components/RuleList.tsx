@@ -207,7 +207,7 @@ const RuleList: React.FC<RuleListProps> = ({
               },
             }}>
               Es wurden noch keine Regeln für Ihren Shop hinterlegt. 
-              Zur Erstellung einer neuen Regel klicken Sie den Button "Neue Regel".
+              Zur Erstellung einer neuen Regel klicken Sie den Button "Regel hinzufügen".
           </Alert>
         ) : (
           rules.map(rule => (
