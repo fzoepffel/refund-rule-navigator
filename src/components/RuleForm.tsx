@@ -1386,16 +1386,8 @@ const RuleForm: React.FC<RuleFormProps> = ({ rule, existingRules, onSave, onCanc
                 <List style={{ fontSize: 18 }}>
                   {overlappingRules.map((rule) => (
                     <List.Item key={rule.id}>
-                      <Text 
-                        component="a" 
-                        style={{ 
-                          color: '#0563C1', 
-                          textDecoration: 'underline',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => onSelectOverlappingRule(rule)}
-                      >
-                        {generateRuleName(rule)}
+                      <Text style={{ fontSize: 18 }}>
+                        - {generateRuleName(rule)}
                       </Text>
                     </List.Item>
                   ))}
