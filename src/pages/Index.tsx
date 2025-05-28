@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import RuleList from "../components/RuleList";
-import RuleDetail from "../components/RuleDetail";
 import RuleForm from "../components/RuleForm";
 import RuleCalculator from "../components/RuleCalculator";
 import { DiscountRule } from "../models/ruleTypes";
@@ -94,14 +93,6 @@ const Index = () => {
                   onDeleteRule={handleDeleteRule}
                   onCreateRule={handleCreateRule}
                   selectedRuleId={viewState.selectedRule?.id}
-                />
-              )}
-              
-              {viewState.type === "detail" && viewState.selectedRule && (
-                <RuleDetail 
-                  rule={viewState.selectedRule} 
-                  onBack={handleBackToList}
-                  onEdit={handleEditRule}
                 />
               )}
               
