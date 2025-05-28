@@ -6,7 +6,6 @@ import {
   ThresholdValueType,
   PriceThreshold,
   ShippingType,
-  DiscountLevel,
   DiscountRule
 } from "../models/ruleTypes";
 import { 
@@ -15,13 +14,11 @@ import {
   getRoundingRuleLabel, 
   generateRuleName
 } from "../utils/discountUtils";
-import { IconArrowLeft, IconPlus, IconMinus, IconDeviceFloppy, IconAlertCircle, IconArrowRight, IconInfoCircle, IconQuestionMark, IconMessageCircleQuestion, IconHelp } from '@tabler/icons-react';
+import { IconArrowLeft, IconAlertCircle, IconInfoCircle, IconHelp } from '@tabler/icons-react';
 import { 
   Paper, 
   Chip,
-  TextInput, 
   NumberInput, 
-  ActionIcon, 
   Select as MantineSelect,
   Button as MantineButton,
   Text,
@@ -29,7 +26,6 @@ import {
   Stack,
   Checkbox as MantineCheckbox,
   Textarea as MantineTextarea,
-  Title,
   MultiSelect,
   Box,
   Alert as MantineAlert,
@@ -142,7 +138,6 @@ const RoundingRuleSelect: React.FC<RoundingRuleSelectProps> = ({
 const PriceThresholdInput: React.FC<PriceThresholdInputProps> = ({
   threshold,
   index,
-  stageIndex,
   isLastThreshold,
   onRemove,
   onChange,
@@ -289,10 +284,7 @@ const CalculationField: React.FC<CalculationFieldProps> = ({
   onChange,
   roundingRule,
   onRoundingRuleChange,
-  roundingRules,
-  maxAmount,
-  onMaxAmountChange,
-  hasMultipleStages
+  roundingRules
 }) => {
   return (
     <div>
@@ -418,8 +410,6 @@ const PriceThresholdSection: React.FC<PriceThresholdSectionProps> = ({
   onChange,
   roundingRules,
   stageIndex,
-  maxAmount,
-  onMaxAmountChange
 }) => {
   return (
     <div className="space-y-4">
